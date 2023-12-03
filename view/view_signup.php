@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,23 +9,23 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 </head>
 <body class="bg-dark text-white">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12 col-sm-8 col-md-6 col-lg-4">
-                <div class="card my-5">
-                    <div class="card-body">
-                        <h2 class="card-title text-center mb-4">Sign Up</h2>
+    <div class="d-flex justify-content-center align-items-center vh-100">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 col-sm-8 col-md-6 col-lg-4">
+                    <div class="card my-5">
+                        <div class="card-body">
+                            <h2 class="card-title text-center mb-4">Sign Up</h2>
+                            <!-- Error messages -->
+                            <?php if (!empty($errors)): ?>
+                                <div class="alert alert-danger" role="alert">
+                                    <?php foreach ($errors as $error): ?>
+                                        <p><?php echo htmlspecialchars($error); ?></p>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
 
-                        <!-- Error messages -->
-                        <?php if (!empty($errors)): ?>
-                            <div class="alert alert-danger" role="alert">
-                                <?php foreach ($errors as $error): ?>
-                                    <p><?php echo htmlspecialchars($error); ?></p>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php endif; ?>
-
-                        <form action="index.php?controller=main&action=signup" method="post">
+                            <form action="index.php?controller=main&action=signup" method="post">
                             <div class="mb-3">
                                 <label for="mail" class="input-group">
                                     <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
@@ -62,6 +61,8 @@
                                 <a class="btn btn-outline-danger" href="index.php?controller=main&action=login">Cancel</a>
                             </div>
                         </form>
+                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
