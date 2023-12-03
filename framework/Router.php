@@ -6,7 +6,6 @@ require_once 'Tools.php';
 
 class Router
 {
-
     private function sanitize_all_array(array $array) : array {
         $copy = [];
         foreach ($array as $key => $value) {
@@ -80,5 +79,7 @@ class Router
                 Tools::abort($ex->getMessage());
         }
     }
+
+
 
 }
