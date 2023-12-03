@@ -27,10 +27,19 @@ public function login() : void {
 
         $errors = User::validate_login($mail, $password);
         if (empty($errors)) {
-            $this->log_user(User::get_user_by_mail($mail));
+            $this->log_user(User::get_user_by_mail($mail));            
         }
     }
     (new View("login"))->show(["mail" => $mail, "password" => $password, "errors" => $errors]);
+}
+
+public function logout() : void {
+    $this->logout_user();
+    $this->redirect("main", "login");
+}
+
+public function logout_user() : void {
+    unset($_SESSION['user']);
 }
 
     //gestion de l'inscription d'un utilisateur
@@ -55,7 +64,7 @@ public function login() : void {
     
             if (count($errors) == 0) { 
                 $user->persist(); // Save the user
-                $this->log_user($user); // Assuming this logs the user in
+                $this->log_user($user); //  this logs the user in
             }
         }
     
