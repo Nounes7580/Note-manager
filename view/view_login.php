@@ -15,7 +15,7 @@
             <div class="col-12 col-sm-8 col-md-6 col-lg-4">
                 <div class="card my-5">
                     <div class="card-body">
-                        <h2 class="card-title text-center mb-4">Sign Up</h2>
+                        <h2 class="card-title text-center mb-4">Sign in</h2>
 
                         <!-- Error messages -->
                         <?php if (!empty($errors)): ?>
@@ -26,7 +26,7 @@
                             </div>
                         <?php endif; ?>
 
-                        <form action="index.php?controller=main&action=signup" method="post">
+                        <form action="index.php?controller=main&action=login" method="post">
                             <div class="mb-3">
                                 <label for="mail" class="input-group">
                                     <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
@@ -34,12 +34,6 @@
                                 </label>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="full_name" class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
-                                    <input type="text" class="form-control" id="full_name" name="full_name" placeholder="Full Name" value="<?php echo isset($full_name) ? htmlspecialchars($full_name) : ''; ?>" required>
-                                </label>
-                            </div>
 
                             <div class="mb-3">
                                 <label for="password" class="input-group">
@@ -48,18 +42,12 @@
                                 </label>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="password_confirm" class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                                    <input type="password" class="form-control" id="password_confirm" name="password_confirm" placeholder="Confirm Password" required>
-                                </label>
-                            </div>
 
                             <div class="d-grid mb-3">
-                                <button type="submit" class="btn btn-primary">Sign Up</button>
+                                <button type="submit" class="btn btn-primary">Login</button>
                             </div>
                             <div class="d-grid">
-                                <a class="btn btn-outline-danger" href="index.php?controller=main&action=login">Cancel</a>
+                                <a class="btn btn-outline-success" href="index.php?controller=main&action=signup">New here ? Click here to subscribe !</a>
                             </div>
                         </form>
                     </div>
