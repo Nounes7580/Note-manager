@@ -23,61 +23,32 @@
 
     <div class="container mt-5">
 
-        <!-- Pinned Notes -->
-        <?php 
-        $pinnedNotes = array_filter($notes, function($note) {
-            return $note->isPinned();
-        });
 
-        $otherNotes = array_filter($notes, function($note) {
-            return !$note->isPinned();
+        <?php
+        $archivedNotes = array_filter($notes, function($note) {
+            return $note->isArchived();
         });
         ?>
 
-        <!-- Pinned Notes -->
-        <?php if (!empty($pinnedNotes)): ?>
-            <h2 class="mb-4">Pinned</h2>
+
+        <?php if (!empty($archivedNotes)): ?>
+            <h2 class="mb-4">Archived</h2>
             <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3">
-                <?php foreach ($pinnedNotes as $note): ?>
+                <?php foreach ($archivedNotes as $note): ?>
                     <div class="col-6 col-md-4 mb-3">
                         <div class="card h-100" style="max-width: 18rem;">
                             <div class="card-header"><?= htmlspecialchars($note->title) ?></div>
                             <div class="card-body">
                                 <p class="card-text"><?= nl2br(htmlspecialchars($note->content)) ?></p>
                             </div>
-                            <div class="card-footer">
-                                <!-- Footer buttons here -->
-                            </div>
                         </div>
                     </div>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
-
-        <!-- Other Notes -->
-        <?php if (!empty($otherNotes)): ?>
-
-            <h2 class="mb-4">Others</h2>
-            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3">
-                <?php foreach ($otherNotes as $note): ?>
-                    <?php if (!$note->isArchived()): ?>
-                    <div class="col-6 col-md-4 mb-3">
-                        <div class="card h-100" style="max-width: 18rem;">
-                            <div class="card-header"><?= htmlspecialchars($note->title) ?></div>
-                            <div class="card-body">
-                                <p class="card-text"><?= nl2br(htmlspecialchars($note->content)) ?></p>
-                            </div>
-                            <div class="card-footer">
-                                <!-- Footer buttons here -->
-                            </div>
-                        </div>
-                    </div>
-                    <?php endif; ?>
                 <?php endforeach; ?>
             </div>
         <?php elseif (empty($pinnedNotes)): ?>
-            <p>No notes found.</p>
+             <p>No notes found.</p>
         <?php endif; ?>
+
     </div>
 
     <!-- Bootstrap JS, Popper.js, and jQuery -->

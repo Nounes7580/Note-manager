@@ -47,5 +47,7 @@ abstract class Note extends Model {
         return $weight;
     }
 
+
+
 }
 

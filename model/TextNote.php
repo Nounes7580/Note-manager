@@ -31,6 +31,16 @@ class TextNote extends Note {
         $this->content = $content;
     }
 
+    // function isPinned and not archived pour ne pas montrer  les notes archivés meme si pinned
+    public function isPinned() : bool {
+        return $this->pinned && !$this->archived;
+    }
+
+
+    public function isArchived() : bool {
+        return $this->archived;
+    }
+
     // Implement the save method as required by the abstract parent class.
     public function save() {
         if (is_null($this->id)) {
@@ -97,6 +107,7 @@ class TextNote extends Note {
         }
         return $notes;
     }
+
 
     // You may add additional methods that are specific to a TextNote here.
 }

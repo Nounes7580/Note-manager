@@ -13,8 +13,10 @@
       <div class="offcanvas-body">
         <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
           <li class="nav-item active">
-            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            <a class="nav-link" href="./Notes/">My notes <span class="sr-only"></span></a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="../index.php?controller=notes&action=archives">My archives</a>
           <li class="nav-item">
             <a class="nav-link" href="../index.php?controller=main&action=logout">Logout</a>
           </li>
@@ -25,6 +27,7 @@
     </div>
   </div>
 </nav>
+<br>
 
 <!-- Add custom CSS to style the shorter offcanvas menu -->
 <style>
