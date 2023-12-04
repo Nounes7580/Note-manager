@@ -15,7 +15,7 @@ class ControllerMain extends Controller {
         }
     }
 
-
+    
     // Handle user login
     public function login() : void {
         // Check if the user is already logged in
