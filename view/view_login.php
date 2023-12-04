@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
+<html lang="en" data-bs-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
@@ -8,7 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 </head>
-<body class="bg-dark text-white">
+<body>
     <div class="d-flex justify-content-center align-items-center vh-100">
         <div class="container">
             <div class="row justify-content-center">

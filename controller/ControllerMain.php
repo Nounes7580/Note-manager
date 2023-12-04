@@ -11,7 +11,7 @@ class ControllerMain extends Controller {
         if ($this->user_logged()) {
             $this->redirect("notes", "index");
         } else {
-            (new View("index"))->show();
+            (new View("login"))->show();
         }
     }
 
