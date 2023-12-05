@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 
@@ -22,18 +24,6 @@
     <?php include('navbar.php'); ?>
 
     <div class="container mt-5">
-
-        <!-- Pinned Notes -->
-        <?php 
-        $pinnedNotes = array_filter($notes, function($note) {
-            return $note->isPinned();
-        });
-
-        $otherNotes = array_filter($notes, function($note) {
-            return !$note->isPinned();
-        });
-        ?>
-
         <!-- Pinned Notes -->
         <?php if (!empty($pinnedNotes)): ?>
             <h2 class="mb-4">Pinned</h2>
@@ -43,7 +33,17 @@
                         <div class="card h-100" style="max-width: 18rem;">
                             <div class="card-header"><?= htmlspecialchars($note->title) ?></div>
                             <div class="card-body">
-                                <p class="card-text"><?= nl2br(htmlspecialchars($note->content)) ?></p>
+                                <?php if ($note instanceof TextNote): ?>
+                                    <p class="card-text"><?= nl2br(htmlspecialchars($note->content)) ?></p>
+                                <?php elseif ($note instanceof CheckListNote): ?>
+                                    <ul class="list-group">
+                                        <?php foreach ($note->getItems() as $item): ?>
+                                            <li class="list-group-item <?= $item->checked ? 'list-group-item-success' : '' ?>">
+                                                <?= htmlspecialchars($item->content) ?>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                <?php endif; ?>
                             </div>
                             <div class="card-footer">
                                 <!-- Footer buttons here -->
@@ -56,22 +56,31 @@
 
         <!-- Other Notes -->
         <?php if (!empty($otherNotes)): ?>
-
             <h2 class="mb-4">Others</h2>
             <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3">
                 <?php foreach ($otherNotes as $note): ?>
                     <?php if (!$note->isArchived()): ?>
-                    <div class="col-6 col-md-4 mb-3">
-                        <div class="card h-100" style="max-width: 18rem;">
-                            <div class="card-header"><?= htmlspecialchars($note->title) ?></div>
-                            <div class="card-body">
-                                <p class="card-text"><?= nl2br(htmlspecialchars($note->content)) ?></p>
-                            </div>
-                            <div class="card-footer">
-                                <!-- Footer buttons here -->
+                        <div class="col-6 col-md-4 mb-3">
+                            <div class="card h-100" style="max-width: 18rem;">
+                                <div class="card-header"><?= htmlspecialchars($note->title) ?></div>
+                                <div class="card-body">
+                                    <?php if ($note instanceof TextNote): ?>
+                                        <p class="card-text"><?= nl2br(htmlspecialchars($note->content)) ?></p>
+                                    <?php elseif ($note instanceof CheckListNote): ?>
+                                        <ul class="list-group">
+                                            <?php foreach ($note->getItems() as $item): ?>
+                                                <li class="list-group-item <?= $item->checked ? 'list-group-item-success' : '' ?>">
+                                                    <?= htmlspecialchars($item->content) ?>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="card-footer">
+                                    <!-- Footer buttons here -->
+                                </div>
                             </div>
                         </div>
-                    </div>
                     <?php endif; ?>
                 <?php endforeach; ?>
             </div>

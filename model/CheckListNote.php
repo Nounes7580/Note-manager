@@ -27,6 +27,26 @@ class CheckListNote extends Note {
         );
     }
 
+    public function getItems(): array {
+        $items = [];
+        try {
+            $sql = 'SELECT * FROM checklist_note_items WHERE checklist_note = :id';
+            $stmt = self::execute($sql, ['id' => $this->id]);
+            while ($row = $stmt->fetch()) {
+                $items[] = new CheckListNoteItem(
+                    checklist_note_id: $row['checklist_note'],
+                    content: $row['content'],
+                    checked: $row['checked'],
+                    id: $row['id']
+                );
+            }
+        } catch (PDOException $e) {
+            // Log error message
+            error_log('PDOException in getItems: ' . $e->getMessage());
+        }
+        return $items;
+    }
+
     // Implement the save method as required by the abstract parent class.
     public function save() {
         // Save the base Note properties first
