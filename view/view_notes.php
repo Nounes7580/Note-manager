@@ -1,8 +1,5 @@
-
-
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -19,7 +16,6 @@
         }
     </style>
 </head>
-
 <body>
     <?php include('navbar.php'); ?>
 
@@ -36,9 +32,10 @@
                                 <?php if ($note instanceof TextNote): ?>
                                     <p class="card-text"><?= nl2br(htmlspecialchars($note->content)) ?></p>
                                 <?php elseif ($note instanceof CheckListNote): ?>
-                                    <ul class="list-group">
+                                    <ul class="list-group list-group-flush">
                                         <?php foreach ($note->getItems() as $item): ?>
-                                            <li class="list-group-item <?= $item->checked ? 'list-group-item-success' : '' ?>">
+                                            <li class="list-group-item">
+                                                <input class="form-check-input me-1" type="checkbox" <?= $item->checked ? 'checked' : '' ?> disabled>
                                                 <?= htmlspecialchars($item->content) ?>
                                             </li>
                                         <?php endforeach; ?>
@@ -67,9 +64,10 @@
                                     <?php if ($note instanceof TextNote): ?>
                                         <p class="card-text"><?= nl2br(htmlspecialchars($note->content)) ?></p>
                                     <?php elseif ($note instanceof CheckListNote): ?>
-                                        <ul class="list-group">
+                                        <ul class="list-group list-group-flush">
                                             <?php foreach ($note->getItems() as $item): ?>
-                                                <li class="list-group-item <?= $item->checked ? 'list-group-item-success' : '' ?>">
+                                                <li class="list-group-item">
+                                                    <input class="form-check-input me-1" type="checkbox" <?= $item->checked ? 'checked' : '' ?> disabled>
                                                     <?= htmlspecialchars($item->content) ?>
                                                 </li>
                                             <?php endforeach; ?>
@@ -88,7 +86,6 @@
             <p>No notes found.</p>
         <?php endif; ?>
     </div>
-
     <!-- Bootstrap JS, Popper.js, and jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.9.3/dist/umd/popper.min.js"></script>
