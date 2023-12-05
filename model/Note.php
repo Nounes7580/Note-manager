@@ -49,6 +49,10 @@ abstract class Note extends Model {
     public function isPinned(): bool {
         return $this->pinned && !$this->archived;
     }
+
+    public function isArchived(): bool {
+        return $this->archived;
+    }
     public static function get_notes_by_owner(int $owner_id): array {
         $notes = [];
         try {
