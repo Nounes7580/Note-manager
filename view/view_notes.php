@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -34,10 +35,11 @@
                                 <?php elseif ($note instanceof CheckListNote): ?>
                                     <ul class="list-group list-group-flush">
                                         <?php foreach ($note->getItems() as $item): ?>
-                                            <li class="list-group-item">
+                                                <div class="list-item-truncate">
+
                                                 <input class="form-check-input me-1" type="checkbox" <?= $item->checked ? 'checked' : '' ?> disabled>
                                                 <?= htmlspecialchars($item->content) ?>
-                                            </li>
+                                        </div>
                                         <?php endforeach; ?>
                                     </ul>
                                 <?php endif; ?>
