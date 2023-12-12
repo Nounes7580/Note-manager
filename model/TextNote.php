@@ -39,9 +39,19 @@ class TextNote extends Note {
         return $this->archived;
     }
 
+    public function persist(): TextNote {
+        parent::persist(); // First, call parent's persist method
+        // Now handle the saving of TextNote specific fields
+        if ($this->id) {
+            self::execute("UPDATE text_notes SET content = :content WHERE id = :id",
+                          ["content" => $this->content, "id" => $this->id]);
+        } else {
+            self::execute("INSERT INTO text_notes (content, id) VALUES (:content, :id)",
+                          ["content" => $this->content, "id" => $this->id]);
+        }
+        return $this;
+    }
 
-
-    
 
 
     // You may add additional methods that are specific to a TextNote here.

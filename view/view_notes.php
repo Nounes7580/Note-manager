@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 
@@ -7,6 +8,8 @@
     <title>Notes</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
     <style>
         .card-text {
             overflow: hidden;
@@ -15,11 +18,23 @@
             -webkit-line-clamp: 3; /* Limit to 3 lines */
             -webkit-box-orient: vertical;
         }
+        .checkbox-item {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+            white-space: nowrap;
+            width: 100%; /* Adjust the width as needed */
+        }
     </style>
 </head>
 <body>
+    
     <?php include('navbar.php'); ?>
-
+<?php if (isset($_SESSION['feedback'])) {
+    echo "<div class='alert alert-info'>" . $_SESSION['feedback'] . "</div>";
+    unset($_SESSION['feedback']);
+}
+ ?>
     <div class="container mt-5">
         <!-- Pinned Notes -->
         <?php if (!empty($pinnedNotes)): ?>
@@ -35,7 +50,7 @@
                                 <?php elseif ($note instanceof CheckListNote): ?>
                                     <ul class="list-group list-group-flush">
                                         <?php foreach ($note->getItems() as $item): ?>
-                                                <div class="list-item-truncate">
+                                                <div class="checkbox-item">
 
                                                 <input class="form-check-input me-1" type="checkbox" <?= $item->checked ? 'checked' : '' ?> disabled>
                                                 <?= htmlspecialchars($item->content) ?>
@@ -45,8 +60,21 @@
                                 <?php endif; ?>
                             </div>
                             <div class="card-footer">
-                                <!-- Footer buttons here -->
-                            </div>
+    <form action="./moveNoteLeft" method="post" style="display: inline;">
+        <input type="hidden" name="noteId" value="<?= $note->id ?>">
+        <button type="submit" class="btn btn-link text-light-blue">
+            <i class="bi bi-arrow-left-circle"></i>
+        </button>
+    </form>
+
+    <form action="./moveNoteRight" method="post" style="display: inline;">
+        <input type="hidden" name="noteId" value="<?= $note->id ?>">
+        <button type="submit" class="btn btn-link text-light-blue">
+            <i class="bi bi-arrow-right-circle"></i>
+        </button>
+    </form>
+</div>
+
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -68,17 +96,23 @@
                                     <?php elseif ($note instanceof CheckListNote): ?>
                                         <ul class="list-group list-group-flush">
                                             <?php foreach ($note->getItems() as $item): ?>
-                                                <li class="list-group-item">
+                                                <div class="checkbox-item">
                                                     <input class="form-check-input me-1" type="checkbox" <?= $item->checked ? 'checked' : '' ?> disabled>
                                                     <?= htmlspecialchars($item->content) ?>
-                                                </li>
+                                                </div>
                                             <?php endforeach; ?>
                                         </ul>
                                     <?php endif; ?>
                                 </div>
                                 <div class="card-footer">
-                                    <!-- Footer buttons here -->
-                                </div>
+                                <a href="./moveNoteLeft?noteId=<?= $note->id ?>" class="btn btn-link text-light-blue">
+                                    <i class="bi bi-arrow-left-circle"></i>
+                                </a>
+                                <a href="./moveNoteRight?noteId=<?= $note->id ?>" class="btn btn-link text-light-blue">
+                                    <i class="bi bi-arrow-right-circle"></i>
+                                </a>
+                            </div>
+
                             </div>
                         </div>
                     <?php endif; ?>

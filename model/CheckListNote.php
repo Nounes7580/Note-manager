@@ -48,27 +48,37 @@ class CheckListNote extends Note {
     }
 
     // Implement the save method as required by the abstract parent class.
-    public function save() {
-        // Save the base Note properties first
-        if (is_null($this->id)) {
-            // Insert into the notes table and set the ID
-            parent::save();  // Assuming the parent save handles the insertion to the notes table.
-            // Now insert the specific CheckListNote record, using the ID from the notes table.
-            $sql = 'INSERT INTO checklist_notes (id) VALUES (:id)';
-            self::execute($sql, ['id' => $this->id]);
+
+    public function persist (): CheckListNote {
+        if ($this->id) {
+            self::execute(
+                'UPDATE notes SET title = :title, owner = :owner, pinned = :pinned, archived = :archived, weight = :weight, edited_at = :edited_at WHERE id = :id',
+                [
+                    'title' => $this->title,
+                    'owner' => $this->owner,
+                    'pinned' => $this->pinned,
+                    'archived' => $this->archived,
+                    'weight' => $this->weight,
+                    'edited_at' => $this->edited_at->format('Y-m-d H:i:s'),
+                    'id' => $this->id
+                ]
+            );
         } else {
-            // If the note already exists, just call update
-            $this->update();
+            self::execute(
+                'INSERT INTO notes (title, owner, pinned, archived, weight) VALUES (:title, :owner, :pinned, :archived, :weight)',
+                [
+                    'title' => $this->title,
+                    'owner' => $this->owner,
+                    'pinned' => $this->pinned,
+                    'archived' => $this->archived,
+                    'weight' => $this->weight
+                ]
+            );
+            $this->id = self::lastInsertId();
         }
+        return $this;
     }
-
-    public function update() {
-        // Update the base Note properties
-        parent::update();  // Assuming the parent update handles the update to the notes table.
-        // If there are additional properties to update in the checklist_notes table, handle them here
-        // If not, no additional SQL query is needed since the checklist_notes table only holds the foreign key to notes table.
-    }
-
+    
 
     // Additional CheckListNote-specific methods...
 }
