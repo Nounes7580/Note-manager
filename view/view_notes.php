@@ -60,20 +60,20 @@
                                 <?php endif; ?>
                             </div>
                             <div class="card-footer">
-    <form action="./moveNoteLeft" method="post" style="display: inline;">
-        <input type="hidden" name="noteId" value="<?= $note->id ?>">
-        <button type="submit" class="btn btn-link text-light-blue">
-            <i class="bi bi-arrow-left-circle"></i>
-        </button>
-    </form>
+                                <form action="./moveNoteLeft" method="post" class="float-start">
+                                    <input type="hidden" name="noteId" value="<?= $note->id ?>">
+                                    <button type="submit" class="btn btn-link text-light-blue">
+                                        <i class="bi bi-arrow-left-circle"></i>
+                                    </button>
+                                </form>
 
-    <form action="./moveNoteRight" method="post" style="display: inline;">
-        <input type="hidden" name="noteId" value="<?= $note->id ?>">
-        <button type="submit" class="btn btn-link text-light-blue">
-            <i class="bi bi-arrow-right-circle"></i>
-        </button>
-    </form>
-</div>
+                                <form action="./moveNoteRight" method="post" class="float-end">
+                                    <input type="hidden" name="noteId" value="<?= $note->id ?>">
+                                    <button type="submit" class="btn btn-link text-light-blue">
+                                        <i class="bi bi-arrow-right-circle"></i>
+                                    </button>
+                                </form>
+                            </div>
 
                         </div>
                     </div>
@@ -105,12 +105,19 @@
                                     <?php endif; ?>
                                 </div>
                                 <div class="card-footer">
-                                <a href="./moveNoteLeft?noteId=<?= $note->id ?>" class="btn btn-link text-light-blue">
-                                    <i class="bi bi-arrow-left-circle"></i>
-                                </a>
-                                <a href="./moveNoteRight?noteId=<?= $note->id ?>" class="btn btn-link text-light-blue">
-                                    <i class="bi bi-arrow-right-circle"></i>
-                                </a>
+                                <form action="./moveNoteLeft" method="post" class="float-start">
+                                    <input type="hidden" name="noteId" value="<?= $note->id ?>">
+                                    <button type="submit" class="btn btn-link text-light-blue">
+                                        <i class="bi bi-arrow-left-circle"></i>
+                                    </button>
+                                </form>
+
+                                <form action="./moveNoteRight" method="post" class="float-end">
+                                    <input type="hidden" name="noteId" value="<?= $note->id ?>">
+                                    <button type="submit" class="btn btn-link text-light-blue">
+                                        <i class="bi bi-arrow-right-circle"></i>
+                                    </button>
+                                </form>
                             </div>
 
                             </div>

@@ -32,19 +32,127 @@ abstract class Note extends Model {
         $this->edited_at = $edited_at; // Allow null
     }
     
+    public function getWeight(): float {
+        return $this->weight;
+    }
 
-    public function moveNotesRight(): bool {
-        $this->weight += 1;
-        $this->edited_at = new DateTime();
-        $this->persist();
-        return true;  // Assuming persist always succeeds, adjust based on your error handling
+    public function setWeight(float $weight): void {
+        $this->weight = $weight;
+    }
+
+    public static function createFromRow($row): ?Note {
+        if ($row === false) {
+            return null;
+        }
+        
+        // Assuming $row['type'] can be 'text' or 'checklist' to differentiate the note types
+        $created_at = new DateTime($row['created_at']);
+        $edited_at = $row['edited_at'] ? new DateTime($row['edited_at']) : null;
+    
+        if (isset($row['checklist_id'])) {
+            // Return a CheckListNote instance
+            return new CheckListNote(
+                title: $row['title'],
+                owner: $row['owner'],
+                pinned: $row['pinned'],
+                archived: $row['archived'],
+                weight: $row['weight'],
+                id: $row['id'],
+                created_at: $created_at,
+                edited_at: $edited_at
+            );
+        } else {
+            // Return a TextNote instance
+            $content = $row['content'] ?? '';
+            return new TextNote(
+                title: $row['title'],
+                owner: $row['owner'],
+                pinned: $row['pinned'],
+                archived: $row['archived'],
+                weight: $row['weight'],
+                content: $content,
+                id: $row['id'],
+                created_at: $created_at,
+                edited_at: $edited_at
+            );
+        }
     }
     
+
+    public function updateNoteWeight(Note $note) {
+        $sql = 'UPDATE notes SET weight = :weight WHERE id = :id';
+        $stmt = self::execute($sql, ['weight' => $note->getWeight(), 'id' => $note->getId()]);
+        error_log("Updated rows: " . $stmt->rowCount());  // Log the number of updated rows
+    }
+    public function moveNotesRight(): bool {
+        $nextNote = $this->getNextNote();
+        if ($nextNote) {
+            $this->swapNotes($this, $nextNote);
+            return true;
+        }
+        return false;
+    }
+    
+
+
     public function moveNotesLeft(): bool {
-        $this->weight -= 1;
-        $this->edited_at = new DateTime();
-        $this->persist();
-        return true;  // Assuming persist always succeeds, adjust based on your error handling
+        $previousNote = $this->getPreviousNote();
+        if ($previousNote) {
+            $this->swapNotes($this, $previousNote);
+            return true;
+        }
+        return false;
+    }
+
+
+    private function getNextNote(): ?Note {
+        try {
+            $sql = 'SELECT * FROM notes WHERE weight > :weight AND owner = :owner AND pinned = :pinned AND archived = :archived ORDER BY weight ASC LIMIT 1';
+            $stmt = self::execute($sql, [
+                'weight' => $this->weight,
+                'owner' => $this->owner,
+                'pinned' => $this->pinned,
+                'archived' => $this->archived
+            ]);
+            $row = $stmt->fetch();
+            return $row ? Note::createFromRow($row) : null;
+        } catch (PDOException $e) {
+            error_log('PDOException in getNextNote: ' . $e->getMessage());
+            return null;
+        }
+    }
+    
+    private function getPreviousNote(): ?Note {
+        try {
+            $sql = 'SELECT * FROM notes WHERE weight < :weight AND owner = :owner AND pinned = :pinned AND archived = :archived ORDER BY weight DESC LIMIT 1';
+            $stmt = self::execute($sql, [
+                'weight' => $this->weight,
+                'owner' => $this->owner,
+                'pinned' => $this->pinned,
+                'archived' => $this->archived
+            ]);
+            $row = $stmt->fetch();
+            return $row ? Note::createFromRow($row) : null;
+        } catch (PDOException $e) {
+            error_log('PDOException in getPreviousNote: ' . $e->getMessage());
+            return null;
+        }
+    }
+    
+
+    private function swapNotes(Note $note1, Note $note2): void {
+        // Swap the weights of the two notes
+        $tempWeight = $note1->weight;
+        $note1->weight = $note2->weight;
+        $note2->weight = $tempWeight;
+    
+        // Update the timestamps
+        $note1->edited_at = new DateTime();
+        $note2->edited_at = new DateTime();
+    
+        // Persist changes to the database
+        $note1->persist();
+        $note2->persist();
     }
 
 

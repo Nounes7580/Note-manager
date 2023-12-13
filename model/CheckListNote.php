@@ -49,35 +49,12 @@ class CheckListNote extends Note {
 
     // Implement the save method as required by the abstract parent class.
 
-    public function persist (): CheckListNote {
-        if ($this->id) {
-            self::execute(
-                'UPDATE notes SET title = :title, owner = :owner, pinned = :pinned, archived = :archived, weight = :weight, edited_at = :edited_at WHERE id = :id',
-                [
-                    'title' => $this->title,
-                    'owner' => $this->owner,
-                    'pinned' => $this->pinned,
-                    'archived' => $this->archived,
-                    'weight' => $this->weight,
-                    'edited_at' => $this->edited_at->format('Y-m-d H:i:s'),
-                    'id' => $this->id
-                ]
-            );
-        } else {
-            self::execute(
-                'INSERT INTO notes (title, owner, pinned, archived, weight) VALUES (:title, :owner, :pinned, :archived, :weight)',
-                [
-                    'title' => $this->title,
-                    'owner' => $this->owner,
-                    'pinned' => $this->pinned,
-                    'archived' => $this->archived,
-                    'weight' => $this->weight
-                ]
-            );
-            $this->id = self::lastInsertId();
-        }
+    public function persist(): CheckListNote {
+        parent::persist(); // First, call parent's persist method
+        // Now handle the saving of CheckListNote specific fields
         return $this;
     }
+
     
 
     // Additional CheckListNote-specific methods...

@@ -32,22 +32,13 @@ class ControllerNotes extends Controller {
         ]);
     }  
     
-    // Controller for moving notes right
     public function moveNoteRight() {
         $noteId = $_POST['noteId'] ?? null;
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note) {
-                if ($note->moveNotesRight()) {
-                    $_SESSION['feedback'] = "Note moved right successfully.";
-                } else {
-                    $_SESSION['feedback'] = "Failed to move note right.";
-                }
-            } else {
-                $_SESSION['feedback'] = "Note not found.";
+                $note->moveNotesRight(); // No need to check the return value
             }
-        } else {
-            $_SESSION['feedback'] = "No note ID provided.";
         }
         $this->redirect("notes");
     }
@@ -57,19 +48,12 @@ class ControllerNotes extends Controller {
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note) {
-                if ($note->moveNotesLeft()) {
-                    $_SESSION['feedback'] = "Note moved left successfully.";
-                } else {
-                    $_SESSION['feedback'] = "Failed to move note left.";
-                }
-            } else {
-                $_SESSION['feedback'] = "Note not found.";
+                $note->moveNotesLeft(); // No need to check the return value
             }
-        } else {
-            $_SESSION['feedback'] = "No note ID provided.";
         }
         $this->redirect("notes");
     }
+    
 
 
     // Controller for moving notes left
