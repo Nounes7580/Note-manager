@@ -60,19 +60,27 @@
                                 <?php endif; ?>
                             </div>
                             <div class="card-footer">
-                                <form action="./moveNoteLeft" method="post" class="float-start">
-                                    <input type="hidden" name="noteId" value="<?= $note->id ?>">
-                                    <button type="submit" class="btn btn-link text-light-blue">
-                                        <i class="bi bi-arrow-left-circle"></i>
-                                    </button>
-                                </form>
+                                    <!-- Display Move Left Button if not at extreme left -->
+                                <?php if ($note->getPreviousNote() !== null): ?>
+                                    <form action="./moveNoteLeft" method="post" class="float-start">
+                                        <input type="hidden" name="noteId" value="<?= $note->id ?>">
+                                        <button type="submit" class="btn btn-link text-light-blue">
+                                            <i class="bi bi-arrow-left-circle"></i>
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
 
-                                <form action="./moveNoteRight" method="post" class="float-end">
-                                    <input type="hidden" name="noteId" value="<?= $note->id ?>">
-                                    <button type="submit" class="btn btn-link text-light-blue">
-                                        <i class="bi bi-arrow-right-circle"></i>
-                                    </button>
-                                </form>
+
+                           
+                                    <!-- Display Move Right Button if not at extreme right -->  
+                                <?php if ($note->getNextNote() !== null): ?>
+                                    <form action="./moveNoteRight" method="post" class="float-end">
+                                        <input type="hidden" name="noteId" value="<?= $note->id ?>">
+                                        <button type="submit" class="btn btn-link text-light-blue">
+                                            <i class="bi bi-arrow-right-circle"></i>
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
                             </div>
 
                         </div>
@@ -105,19 +113,27 @@
                                     <?php endif; ?>
                                 </div>
                                 <div class="card-footer">
-                                <form action="./moveNoteLeft" method="post" class="float-start">
-                                    <input type="hidden" name="noteId" value="<?= $note->id ?>">
-                                    <button type="submit" class="btn btn-link text-light-blue">
-                                        <i class="bi bi-arrow-left-circle"></i>
-                                    </button>
-                                </form>
+                                    <!-- Display Move Left Button if not at extreme left -->
+                                <?php if ($note->getPreviousNote() !== null): ?>
+                                    <form action="./moveNoteLeft" method="post" class="float-start">
+                                        <input type="hidden" name="noteId" value="<?= $note->id ?>">
+                                        <button type="submit" class="btn btn-link text-light-blue">
+                                            <i class="bi bi-arrow-left-circle"></i>
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
 
-                                <form action="./moveNoteRight" method="post" class="float-end">
-                                    <input type="hidden" name="noteId" value="<?= $note->id ?>">
-                                    <button type="submit" class="btn btn-link text-light-blue">
-                                        <i class="bi bi-arrow-right-circle"></i>
-                                    </button>
-                                </form>
+
+                           
+                                    <!-- Display Move Right Button if not at extreme right -->  
+                                <?php if ($note->getNextNote() !== null): ?>
+                                    <form action="./moveNoteRight" method="post" class="float-end">
+                                        <input type="hidden" name="noteId" value="<?= $note->id ?>">
+                                        <button type="submit" class="btn btn-link text-light-blue">
+                                            <i class="bi bi-arrow-right-circle"></i>
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
                             </div>
 
                             </div>

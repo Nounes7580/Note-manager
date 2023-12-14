@@ -105,7 +105,7 @@ abstract class Note extends Model {
     }
 
 
-    private function getNextNote(): ?Note {
+    public function getNextNote(): ?Note {
         try {
             $sql = 'SELECT * FROM notes WHERE weight > :weight AND owner = :owner AND pinned = :pinned AND archived = :archived ORDER BY weight ASC LIMIT 1';
             $stmt = self::execute($sql, [
@@ -122,7 +122,7 @@ abstract class Note extends Model {
         }
     }
     
-    private function getPreviousNote(): ?Note {
+    public function getPreviousNote(): ?Note {
         try {
             $sql = 'SELECT * FROM notes WHERE weight < :weight AND owner = :owner AND pinned = :pinned AND archived = :archived ORDER BY weight DESC LIMIT 1';
             $stmt = self::execute($sql, [
