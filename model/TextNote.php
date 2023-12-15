@@ -39,6 +39,11 @@ class TextNote extends Note {
         return $this->archived;
     }
 
+    public function get_id() : int {
+        return $this->id;
+    }
+
+
 
 //persist method as required by the abstract parent class. in order to save the content of the note
     public function persist(): TextNote {

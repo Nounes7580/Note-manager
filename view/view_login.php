@@ -9,6 +9,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+<style>
+    
+</style>
+    
 </head>
 <body>
     <div class="d-flex justify-content-center align-items-center vh-100">
@@ -28,7 +32,7 @@
                                 </div>
                             <?php endif; ?>
 
-                            <form action="index.php?controller=main&action=login" method="post">
+                            <form action="main/login" method="post">
                                 <div class="mb-3">
                                     <label for="mail" class="input-group">
                                         <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
@@ -47,7 +51,7 @@
                                     <button type="submit" class="btn btn-primary">Login</button>
                                 </div>
                                 <div class="d-grid">
-                                    <a class="btn btn-outline-success" href="index.php?controller=main&action=signup">New here? Click here to subscribe!</a>
+                                    <a class="btn btn-outline-success" href="main/signup">New here? Click here to subscribe!</a>
                                 </div>
                             </form>
                         </div>

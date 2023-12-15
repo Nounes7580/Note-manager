@@ -27,7 +27,7 @@
                                 </div>
                             <?php endif; ?>
 
-                            <form action="index.php?controller=main&action=signup" method="post">
+                            <form action="main/signup" method="post">
                             <div class="mb-3">
                                 <label for="mail" class="input-group">
                                     <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
@@ -60,7 +60,7 @@
                                 <button type="submit" class="btn btn-primary">Sign Up</button>
                             </div>
                             <div class="d-grid">
-                                <a class="btn btn-outline-danger" href="index.php?controller=main&action=login">Cancel</a>
+                                <a class="btn btn-outline-danger" href="main/login">Cancel</a>
                             </div>
                         </form>
                         </form>

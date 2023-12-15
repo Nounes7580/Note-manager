@@ -54,9 +54,63 @@ class ControllerNotes extends Controller {
         $this->redirect("notes");
     }
     
+    public function add_checklistnote(): void {
+        $user = $this->get_user_or_redirect();
+        $title = $_POST['title'] ?? null;
+        $items = $_POST['items'] ?? null;
+        $items = explode("\n", $items);
+        $items = array_filter($items, function($item) {
+            return !empty($item);
+        });
+        $items = array_map(function($item) {
+            return trim($item);
+        }, $items);
+        $note = new CheckListNote();
+        $note->set_title($title);
+        $note->set_owner_id($user->get_id());
+        $note->save();
+        foreach ($items as $item) {
+            $noteItem = new CheckListNoteItem();
+            $noteItem->set_text($item);
+            $noteItem->set_note_id($note->get_id());
+            $noteItem->save();
+        }
+        $this->redirect("notes");
+    }
 
+    public function add_textnote(): void {
+        $user = $this->get_user_or_redirect();
+        $title = $_POST['title'] ?? null;
+        $text = $_POST['text'] ?? null;
+        $note = new TextNote();
+        $note->set_title($title);
+        $note->set_text($text);
+        $note->set_owner_id($user->get_id());
+        $note->save();
+        $this->redirect("notes");
+    }
 
-    // Controller for moving notes left
+    public function show_note(): void {
+    
+        $user = $this->get_user_or_redirect();
+    
+        // Retrieve 'param1' from the URL, which should contain the note ID
+        $noteId = isset($_GET['param1']) && $_GET['param1'] !== '' ? $_GET['param1'] : null;
+    
+        if ($noteId) {
+            $note = Note::get_note_by_id((int)$noteId);
+            if ($note) {
+                if ($note instanceof TextNote) {
+                    (new View("open_textnote"))->show(["user" => $user, "note" => $note]);
+                } else {
+                    (new View("note"))->show(["user" => $user, "note" => $note]);
+                }
+                return;
+            }
+        }
+        $this->redirect("notes");
+    }
+    
 
     
     // Controller for archived notes, same as index but with archived notes

@@ -180,7 +180,12 @@ abstract class Note extends Model {
 
     public static function get_note_by_id(int $id): ?Note {
         try {
-            $sql = 'SELECT * FROM notes WHERE id = :id';
+            $sql = 'SELECT n.*, tn.content AS text_content, cn.id AS checklist_id
+            FROM notes n
+            LEFT JOIN text_notes tn ON n.id = tn.id
+            LEFT JOIN checklist_notes cn ON n.id = cn.id
+            WHERE n.id = :id';
+
             $stmt = self::execute($sql, ['id' => $id]);
             $row = $stmt->fetch();
             if ($row === false) {
@@ -203,7 +208,7 @@ abstract class Note extends Model {
                     edited_at: $edited_at
                 );
             } else {
-                $content = $row['content'] ?? '';
+                $content = $row['text_content'] ?? '';
                 return new TextNote(
                     title: $row['title'],
                     owner: $row['owner'],
@@ -245,8 +250,7 @@ abstract class Note extends Model {
         return $this;
     }
     
-
-
+ 
 
     public static function get_notes_by_owner(int $owner_id): array {
         $notes = [];

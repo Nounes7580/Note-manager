@@ -19,22 +19,40 @@
             -webkit-box-orient: vertical;
         }
         .checkbox-item {
+            display: none;
             overflow: hidden;
             text-overflow: ellipsis;
-            display: block;
             white-space: nowrap;
             width: 100%; /* Adjust the width as needed */
         }
+        .checkbox-item:nth-child(-n+3) {
+            display: block;
+        }
+        .stretched-link {
+    display: block; /* Ensures it behaves like a block element */
+    color: inherit; /* Maintains the text color */
+    text-decoration: none; /* Removes underline */
+    width: 100%; /* Ensures it covers the full width */
+    height: 100%; /* Ensures it covers the full height */
+    position: relative; /* Adjust as necessary */
+    z-index: 1; /* Brings the link to the front */
+}
+
+.stretched-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+
     </style>
 </head>
 <body>
     
     <?php include('navbar.php'); ?>
-<?php if (isset($_SESSION['feedback'])) {
-    echo "<div class='alert alert-info'>" . $_SESSION['feedback'] . "</div>";
-    unset($_SESSION['feedback']);
-}
- ?>
     <div class="container mt-5">
         <!-- Pinned Notes -->
         <?php if (!empty($pinnedNotes)): ?>
@@ -44,21 +62,27 @@
                     <div class="col-6 col-md-4 mb-3">
                         <div class="card h-100" style="max-width: 18rem;">
                             <div class="card-header"><?= htmlspecialchars($note->title) ?></div>
-                            <div class="card-body">
-                                <?php if ($note instanceof TextNote): ?>
-                                    <p class="card-text"><?= nl2br(htmlspecialchars($note->content)) ?></p>
-                                <?php elseif ($note instanceof CheckListNote): ?>
-                                    <ul class="list-group list-group-flush">
-                                        <?php foreach ($note->getItems() as $item): ?>
-                                                <div class="checkbox-item">
+                                
+                            <a href="./show_note/<?= $note->id ?>" class="stretched-link">
+                                <div class="card-body">
 
-                                                <input class="form-check-input me-1" type="checkbox" <?= $item->checked ? 'checked' : '' ?> disabled>
-                                                <?= htmlspecialchars($item->content) ?>
-                                        </div>
-                                        <?php endforeach; ?>
-                                    </ul>
-                                <?php endif; ?>
-                            </div>
+                                    <?php if ($note instanceof TextNote): ?>
+                                        <p class="card-text"><?= nl2br(htmlspecialchars($note->content)) ?></p>
+                                    <?php elseif ($note instanceof CheckListNote): ?>
+                                        <ul class="list-group list-group-flush">
+                                            <?php foreach ($note->getItems() as $item): ?>
+                                                    <div class="checkbox-item">
+
+                                                    <input class="form-check-input me-1" type="checkbox" <?= $item->checked ? 'checked' : '' ?> disabled>
+                                                    <?= htmlspecialchars($item->content) ?>
+                                            </div>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    <?php endif; ?>
+                                </div>
+
+                            </a>
+
                             <div class="card-footer">
                                     <!-- Display Move Left Button if not at extreme left -->
                                 <?php if ($note->getPreviousNote() !== null): ?>
@@ -98,20 +122,24 @@
                         <div class="col-6 col-md-4 mb-3">
                             <div class="card h-100" style="max-width: 18rem;">
                                 <div class="card-header"><?= htmlspecialchars($note->title) ?></div>
-                                <div class="card-body">
-                                    <?php if ($note instanceof TextNote): ?>
-                                        <p class="card-text"><?= nl2br(htmlspecialchars($note->content)) ?></p>
-                                    <?php elseif ($note instanceof CheckListNote): ?>
-                                        <ul class="list-group list-group-flush">
-                                            <?php foreach ($note->getItems() as $item): ?>
-                                                <div class="checkbox-item">
-                                                    <input class="form-check-input me-1" type="checkbox" <?= $item->checked ? 'checked' : '' ?> disabled>
-                                                    <?= htmlspecialchars($item->content) ?>
-                                                </div>
-                                            <?php endforeach; ?>
-                                        </ul>
-                                    <?php endif; ?>
-                                </div>
+                                
+                                <a href="./show_note/<?= $note->id ?>" class="stretched-link">
+                                    <div class="card-body">
+                                        <?php if ($note instanceof TextNote): ?>
+                                            <p class="card-text"><?= nl2br(htmlspecialchars($note->content)) ?></p>
+                                        <?php elseif ($note instanceof CheckListNote): ?>
+                                            <ul class="list-group list-group-flush">
+                                                <?php foreach ($note->getItems() as $item): ?>
+                                                    <div class="checkbox-item">
+                                                        <input class="form-check-input me-1" type="checkbox" <?= $item->checked ? 'checked' : '' ?> disabled>
+                                                        <?= htmlspecialchars($item->content) ?>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        <?php endif; ?>
+                                    </div>
+                                </a>
+
                                 <div class="card-footer">
                                     <!-- Display Move Left Button if not at extreme left -->
                                 <?php if ($note->getPreviousNote() !== null): ?>

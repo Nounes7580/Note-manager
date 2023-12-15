@@ -1,13 +1,15 @@
-<nav class="navbar fixed-top">
+<nav class="navbar fixed-top navbar-light" style="background-color: ##343434;">
   <div class="container-fluid">
     <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <a class="navbar-brand" href="#">MyApp</a>
-    <div class="offcanvas offcanvas-start custom-offcanvas" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+    <a class="navbar-brand" href="#">
+      <img src="../css/logo.png" alt="Logo" style="height: 60px; margin-right: 10px;"> <!-- Adjust the height as needed -->
+      NoteSpark
+    </a>    <div class="offcanvas offcanvas-start custom-offcanvas" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
       <div class="offcanvas-header">
         <!-- Use the Bootstrap class for text color -->
-        <h5 class="offcanvas-title text-warning" id="offcanvasNavbarLabel">NoteApp</h5>
+        <h5 class="offcanvas-title text-warning" id="offcanvasNavbarLabel">Menu</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
       <div class="offcanvas-body">
