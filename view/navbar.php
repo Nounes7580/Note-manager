@@ -1,10 +1,10 @@
-<nav class="navbar fixed-top navbar-light" style="background-color: ##343434;">
+<nav class="navbar fixed-top navbar-dark bg-dark">
   <div class="container-fluid">
     <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
       <span class="navbar-toggler-icon"></span>
     </button>
     <a class="navbar-brand" href="#">
-      <img src="../css/logo.png" alt="Logo" style="height: 60px; margin-right: 10px;"> <!-- Adjust the height as needed -->
+      <img src="../css/logo.png" alt="Logo" style="height: 50px; margin-right: 10px;"> <!-- Adjust the height as needed -->
       NoteSpark
     </a>    <div class="offcanvas offcanvas-start custom-offcanvas" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
       <div class="offcanvas-header">

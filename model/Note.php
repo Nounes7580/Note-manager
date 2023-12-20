@@ -241,14 +241,27 @@ abstract class Note extends Model {
 
     public function persist(): Note {
         if ($this->id) {
+            // Convert boolean values to integers
+            $pinnedInt = $this->pinned ? 1 : 0;
+            $archivedInt = $this->archived ? 1 : 0;
+    
             $stmt = self::execute("UPDATE notes SET title = :title, owner = :owner, pinned = :pinned, archived = :archived, weight = :weight, edited_at = :edited_at WHERE id = :id",
-                ["id" => $this->id, "title" => $this->title, "owner" => $this->owner, "pinned" => $this->pinned, "archived" => $this->archived, "weight" => $this->weight, "edited_at" => $this->edited_at->format('Y-m-d H:i:s')]);
+                [
+                    "id" => $this->id, 
+                    "title" => $this->title, 
+                    "owner" => $this->owner, 
+                    "pinned" => $pinnedInt, 
+                    "archived" => $archivedInt, 
+                    "weight" => $this->weight, 
+                    "edited_at" => $this->edited_at->format('Y-m-d H:i:s')
+                ]);
             error_log("Updated rows: " . $stmt->rowCount());  // Log the number of updated rows
         } else {
             // Handle insert scenario if needed
         }
         return $this;
     }
+    
     
  
 
