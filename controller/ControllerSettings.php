@@ -4,13 +4,17 @@ require_once "model/User.php";
 
 class ControllerSettings extends Controller {
     public function index() : void {
-        echo "<h1>Hello !</h1>";
+        if ($this->user_logged()) {
+            $this->redirect("settings", "settings");
+        } else {
+            $this->log_user(User::get_user_by_mail("boverhaegen@epfc.eu"));
+            (new View("index"))->show();
+        }
     }
 
     public function settings() : void{
-        $this->log_user(User::get_user_by_mail("boverhaegen@epfc.eu"));
         $user = $this->get_user_or_redirect();
-        if($this->user_logged()){
+        if(!$this->user_logged()){
             $this->redirect("settings","index");
         }
         else{

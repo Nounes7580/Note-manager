@@ -117,6 +117,9 @@ class User extends Model {
         return $errors;
     }
     
+    public function getFullName() : string {
+        return $this->full_name;
+    }
 
     
    
