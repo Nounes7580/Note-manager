@@ -27,28 +27,35 @@ class CheckListNote extends Note {
         );
     }
 
-    // Implement the save method as required by the abstract parent class.
-    public function save() {
-        // Save the base Note properties first
-        if (is_null($this->id)) {
-            // Insert into the notes table and set the ID
-            parent::save();  // Assuming the parent save handles the insertion to the notes table.
-            // Now insert the specific CheckListNote record, using the ID from the notes table.
-            $sql = 'INSERT INTO checklist_notes (id) VALUES (:id)';
-            self::execute($sql, ['id' => $this->id]);
-        } else {
-            // If the note already exists, just call update
-            $this->update();
+    public function getItems(): array {
+        $items = [];
+        try {
+            $sql = 'SELECT * FROM checklist_note_items WHERE checklist_note = :id';
+            $stmt = self::execute($sql, ['id' => $this->id]);
+            while ($row = $stmt->fetch()) {
+                $items[] = new CheckListNoteItem(
+                    checklist_note_id: $row['checklist_note'],
+                    content: $row['content'],
+                    checked: $row['checked'],
+                    id: $row['id']
+                );
+            }
+        } catch (PDOException $e) {
+            // Log error message
+            error_log('PDOException in getItems: ' . $e->getMessage());
         }
+        return $items;
     }
 
-    public function update() {
-        // Update the base Note properties
-        parent::update();  // Assuming the parent update handles the update to the notes table.
-        // If there are additional properties to update in the checklist_notes table, handle them here
-        // If not, no additional SQL query is needed since the checklist_notes table only holds the foreign key to notes table.
+    // Implement the save method as required by the abstract parent class.
+
+    public function persist(): CheckListNote {
+        parent::persist(); // First, call parent's persist method
+        // Now handle the saving of CheckListNote specific fields
+        return $this;
     }
 
+    
 
     // Additional CheckListNote-specific methods...
 }

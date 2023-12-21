@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
+<html lang="en" data-bs-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <title>Sign Up</title>
@@ -8,7 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 </head>
-<body class="bg-dark text-white">
+<body>
     <div class="d-flex justify-content-center align-items-center vh-100">
         <div class="container">
             <div class="row justify-content-center">
@@ -25,7 +27,7 @@
                                 </div>
                             <?php endif; ?>
 
-                            <form action="index.php?controller=main&action=signup" method="post">
+                            <form action="main/signup" method="post">
                             <div class="mb-3">
                                 <label for="mail" class="input-group">
                                     <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
@@ -58,7 +60,7 @@
                                 <button type="submit" class="btn btn-primary">Sign Up</button>
                             </div>
                             <div class="d-grid">
-                                <a class="btn btn-outline-danger" href="index.php?controller=main&action=login">Cancel</a>
+                                <a class="btn btn-outline-danger" href="main/login">Cancel</a>
                             </div>
                         </form>
                         </form>

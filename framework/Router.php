@@ -62,6 +62,7 @@ class Router
 
     //analyse la requête et appelle la bonne méthode sur le bon controlleur.
     public function route() : void {
+        
         try {
             $this->sanitize_all_input();
             //si un parametre 1, 2 ou 3 est vide (et donc non passé), le supprimer.

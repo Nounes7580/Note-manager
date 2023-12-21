@@ -1,4 +1,6 @@
 <?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
 require_once 'model/User.php';
 require_once 'framework/View.php';
@@ -11,11 +13,11 @@ class ControllerMain extends Controller {
         if ($this->user_logged()) {
             $this->redirect("notes", "index");
         } else {
-            (new View("index"))->show();
+            (new View("login"))->show();
         }
     }
 
-
+    
     // Handle user login
     public function login() : void {
         // Check if the user is already logged in
