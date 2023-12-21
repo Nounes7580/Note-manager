@@ -91,25 +91,28 @@ class ControllerNotes extends Controller {
     }
 
     public function show_note(): void {
-    
         $user = $this->get_user_or_redirect();
-    
-        // Retrieve 'param1' from the URL, which should contain the note ID
-        $noteId = isset($_GET['param1']) && $_GET['param1'] !== '' ? $_GET['param1'] : null;
+        $noteId = $_GET['param1'] ?? null;
     
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note) {
                 if ($note instanceof TextNote) {
                     (new View("open_textnote"))->show(["user" => $user, "note" => $note]);
+                } elseif ($note instanceof CheckListNote) {
+                    $items = $note->getItems(); // Fetch items using the method
+                    (new View("open_checklist_note"))->show(["user" => $user, "note" => $note, "items" => $items]);
                 } else {
-                    (new View("note"))->show(["user" => $user, "note" => $note]);
+                    // Handle other note types if necessary
                 }
                 return;
             }
         }
         $this->redirect("notes");
     }
+    
+    
+    
     
 
     
