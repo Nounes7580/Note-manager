@@ -111,7 +111,20 @@ class ControllerNotes extends Controller {
         $this->redirect("notes");
     }
     
-    
+    public function check_or_uncheck_item() {
+        $itemId = $_POST['item_id'] ?? null; // Correct the variable name here
+        $noteId = $_POST['note_id'] ?? null;
+            
+        if ($itemId) {
+            $item = CheckListNoteItem::get_item_by_id((int)$itemId);
+            if ($item) {
+                $item->toggleChecked();
+                $item->persist();
+            }
+        }
+        $this->redirect("notes/show_note/" . $noteId);
+
+    }
     
     
 
