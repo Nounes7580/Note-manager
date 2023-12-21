@@ -1,0 +1,126 @@
+<?php
+
+require_once "framework/Model.php";
+
+class User extends Model {
+
+
+
+
+    public function __construct(
+        public string $mail,
+        public string $hashed_password,
+        public string $full_name,
+        public string $role = 'user',
+        public ?int $id = null  // Optional parameter moved to the end
+    ) {}
+
+    public function get_id() : ?int {
+        return $this->id;
+    }
+
+
+    public function persist() : User {
+        if($this->id) {
+            self::execute("UPDATE users SET mail=:mail, hashed_password=:hashed_password, full_name=:full_name, role=:role WHERE id=:id", 
+                          ["id"=>$this->id, "mail"=>$this->mail, "hashed_password"=>$this->hashed_password, "full_name"=>$this->full_name, "role"=>$this->role]);
+        } else {
+            self::execute("INSERT INTO users(mail, hashed_password, full_name, role) VALUES(:mail, :hashed_password, :full_name, :role)", 
+                          ["mail"=>$this->mail, "hashed_password"=>$this->hashed_password, "full_name"=>$this->full_name, "role"=>$this->role]);
+            $this->id = self::lastInsertId();
+        }
+        return $this;
+    }
+
+    public static function get_user_by_mail(string $mail) : User|false {
+        $query = self::execute("SELECT * FROM users where mail = :mail", ["mail"=>$mail]);
+        $data = $query->fetch();
+        if ($query->rowCount() == 0) {
+            return false;
+        } else {
+            // Ensure that $data["id"] is cast to an integer
+            return new User($data["mail"], $data["hashed_password"], $data["full_name"], $data["role"], intval($data["id"]));
+        }
+    }
+
+   
+    
+    private static function validate_password(string $password) : array {
+        $errors = [];
+        if (strlen($password) < 8 || strlen($password) > 16) {
+            $errors[] = "Password length must be between 8 and 16.";
+        } if (!((preg_match("/[A-Z]/", $password)) && preg_match("/\d/", $password) && preg_match("/['\";:,.\/?!\\-]/", $password))) {
+            $errors[] = "Password must contain one uppercase letter, one number and one punctuation mark.";
+        }
+        return $errors;
+    }
+    
+    public static function validate_passwords(string $password, string $password_confirm) : array {
+        $errors = User::validate_password($password);
+        if ($password != $password_confirm) {
+            $errors[] = "You have to enter twice the same password.";
+        }
+        return $errors;
+    }
+    
+    public static function validate_email_unicity(string $mail) : array {
+        $errors = [];
+        $user = self::get_user_by_mail($mail); // Assuming you have or will create this method
+        if ($user) {
+            $errors[] = "A user with this email already exists.";
+        } 
+        return $errors;
+    }
+
+    public static function validate_full_name(string $full_name) : array {
+        $errors = [];
+        if (!strlen($full_name) > 0) {
+            $errors[] = "Full name is required.";
+        } if (!(strlen($full_name) >= 3 && strlen($full_name) <= 16)) {
+            $errors[] = "Full name length must be between 3 and 16.";
+        } if (!(preg_match("/^[a-zA-Z][a-zA-Z0-9]*$/", $full_name))) {
+            $errors[] = "Full name must start by a letter and must contain only letters and numbers.";
+        }
+        return $errors;
+    }
+
+
+
+    private static function check_password(string $clear_password, string $hash) : bool {
+        return $hash === Tools::my_hash($clear_password);
+    }
+
+    public function validate() : array {
+        $errors = [];
+        // Assuming you now use $mail and $full_name instead of $pseudo
+        if (is_null($this->mail) || strlen($this->mail) == 0) {
+            $errors[] = "Email is required.";
+        }
+        if (is_null($this->full_name) || strlen($this->full_name) == 0) {
+            $errors[] = "Full name is required.";
+        }
+        // ... other checks
+        return $errors;
+    }
+    
+    
+    public static function validate_login(string $mail, string $password) : array {
+        $errors = [];
+        $user = User::get_user_by_mail($mail);
+        if ($user) {
+            if (!self::check_password($password, $user->hashed_password)) {
+                $errors[] = "Wrong password. Please try again.";
+            }
+        } else {
+            $errors[] = "Can't find a user with the email '$mail'. Please sign up.";
+        }
+        return $errors;
+    }
+    
+
+    
+   
+
+
+
+}
