@@ -37,31 +37,39 @@
         }
     ?>
 
+
+
     <?php if (isset($items) && is_array($items)): ?>
         <?php foreach ($items as $item): ?>
-            <!-- Separate Form for Each Checklist Item -->
-            <form action="/prwb_2324_c08/Notes/check_or_uncheck_item
-" method="post" class="input-group mb-2">
+            <!-- Form for Each Checklist Item -->
+            <form action="/prwb_2324_c08/Notes/check_or_uncheck_item" method="post">
+            <!-- Hidden Inputs -->
+            
+            <input type="hidden" name="item_id" value="<?= $item->id ?>">
+            <input type="hidden" name="note_id" value="<?= $note->id ?>">
 
-                <input type="hidden" name="item_id" value="<?= $item->id ?>">
-                <input type="hidden" name="note_id" value="<?= $note->id ?>">
+            <div class="input-group mb-3">
 
-                <button type="submit" class="btn btn-primary">
-                    <?php if ($item->checked): ?>
-                        <i class="bi bi-check-square-fill"></i> <!-- Icon for checked -->
-                    <?php else: ?>
-                        <i class="bi bi-square"></i> <!-- Icon for unchecked -->
-                    <?php endif; ?>
-                </button>
+                    <!-- Button Addon -->
+                    <button class="btn btn-primary" type="submit" id="button-addon<?= $item->id ?>">
+                        <?php if ($item->checked): ?>
+                            <i class="bi bi-check-square-fill"></i> <!-- Icon for checked -->
+                        <?php else: ?>
+                            <i class="bi bi-square"></i> <!-- Icon for unchecked -->
+                        <?php endif; ?>
+                    </button>
 
-                <input type="text" class="form-control" 
-                       id="item<?= $item->id ?>" 
+                    <!-- Readonly Textbox for the Item -->
+                    <input type="text" class="form-control" 
                        value="<?= htmlspecialchars($item->content) ?>" 
-                       readonly>
+                       readonly 
+                       style="<?= $item->checked ? 'text-decoration: line-through;' : '' ?>">
+            </div>
             </form>
         <?php endforeach; ?>
     <?php endif; ?>
-</div>
+
+
 
 
 
