@@ -37,3 +37,4 @@
     max-width: 50%; /* Adjust the width to your desired value */
   }
 </style>
+

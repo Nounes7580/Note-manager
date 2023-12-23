@@ -9,50 +9,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 </head>
 <body>
-    <div class="container mt-5">
-<?php
-// Assuming $note->created_at is a DateTime object
-$now = new DateTime();
-$interval = $now->diff($note->created_at);
+<?php include('view/standard_note_nav.php'); ?>
 
-// Function to format the interval into a human-readable format
-function formatTimeDifference($dateTime) {
-    if ($dateTime === null) {
-        return null;
-    }
-    $now = new DateTime();
-    $interval = $now->diff($dateTime);
-
-    if ($interval->y > 0) {
-        return $interval->y . " year" . ($interval->y > 1 ? "s" : "");
-    } elseif ($interval->m > 0) {
-        return $interval->m . " month" . ($interval->m > 1 ? "s" : "");
-    } elseif ($interval->d > 0) {
-        return $interval->d . " day" . ($interval->d > 1 ? "s" : "");
-    } elseif ($interval->h > 0) {
-        return $interval->h . " hour" . ($interval->h > 1 ? "s" : "");
-    } elseif ($interval->i > 0) {
-        return $interval->i . " minute" . ($interval->i > 1 ? "s" : "");
-    } else {
-        return $interval->s . " second" . ($interval->s > 1 ? "s" : "");
-    }
-}
-
-
-// Display the time difference in italic
-$createdAtMessage = "<i>Created " . formatTimeDifference($note->created_at) . " ago</i>";
-$editedAtMessage = $note->edited_at ? "<i>Edited " . formatTimeDifference($note->edited_at) . " ago</i>" : "";
-
-echo "<p>$createdAtMessage $editedAtMessage</p>";
-
-?>
-  <form>
-            <!-- Title Field -->
-            <div class="mb-3">
-                <label for="titleInput" class="form-label">Title</label>
-                <input type="text" class="form-control" id="titleInput" 
-                       placeholder="Enter title" value="<?= htmlspecialchars($note->title) ?>" readonly>
-            </div>
+            <form>
 
             <!-- Content Field -->
             <div class="mb-3">

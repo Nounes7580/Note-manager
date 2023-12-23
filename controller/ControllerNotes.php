@@ -91,19 +91,19 @@ class ControllerNotes extends Controller {
     }
 
     public function show_note(): void {
-    
         $user = $this->get_user_or_redirect();
-    
-        // Retrieve 'param1' from the URL, which should contain the note ID
-        $noteId = isset($_GET['param1']) && $_GET['param1'] !== '' ? $_GET['param1'] : null;
+        $noteId = $_GET['param1'] ?? null;
     
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note) {
                 if ($note instanceof TextNote) {
                     (new View("open_textnote"))->show(["user" => $user, "note" => $note]);
+                } elseif ($note instanceof CheckListNote) {
+                    $items = $note->getItems(); // Fetch items using the method
+                    (new View("open_checklist_note"))->show(["user" => $user, "note" => $note, "items" => $items]);
                 } else {
-                    (new View("note"))->show(["user" => $user, "note" => $note]);
+                    // Handle other note types if necessary
                 }
                 return;
             }
@@ -111,7 +111,44 @@ class ControllerNotes extends Controller {
         $this->redirect("notes");
     }
     
+    public function check_or_uncheck_item() {
+        $itemId = $_POST['item_id'] ?? null; // Correct the variable name here
+        $noteId = $_POST['note_id'] ?? null;
+            
+        if ($itemId) {
+            $item = CheckListNoteItem::get_item_by_id((int)$itemId);
+            if ($item) {
+                $item->toggleChecked();
+                $item->persist();
+            }
+        }
+        $this->redirect("notes/show_note/" . $noteId);
 
+    }
+    
+    public function pin_or_unpin_note() {
+        $noteId = $_GET['param1'] ?? null;
+        if ($noteId) {
+            $note = Note::get_note_by_id((int)$noteId);
+            if ($note) {
+                $note->togglePinned();
+                $note->persist();
+            }
+        }
+        $this->redirect("notes/show_note/" . $noteId);
+    }
+
+    public function archive_note() {
+        $noteId = $_GET['param1'] ?? null;
+        if ($noteId) {
+            $note = Note::get_note_by_id((int)$noteId);
+            if ($note) {
+                $note->archive();
+                $note->persist();
+            }
+        }
+        $this->redirect("notes");
+    }
     
     // Controller for archived notes, same as index but with archived notes
     public function archives(): void {

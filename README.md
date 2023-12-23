@@ -14,13 +14,42 @@
 
 ### Liste des bugs connus
 
-  * bug 1
+  * lorsqu'on pin ou unpin une note, check ou uncheck il faut que son état "edited" change
   * bug 2
   * ...
 
 ### Liste des fonctionnalités supplémentaires
 
 ### Divers
+
+login               ok                
+logout              ok                  
+signup              ok
+settings            
+edit_profile
+change_password     
+view_notes          ok
+view_archives       ok
+view_shared_notes
+move_note           ok
+open_note           ok
+pin_unpin           ok
+archive             
+unarchive
+delete
+open_text_note      ok
+edit_text_note
+add_text_note
+add_checklist_note
+open_checklist_note ok
+check_uncheck       ok
+edit_checklist_note
+add_item
+delete_item
+view_shares
+add_share
+delete_share
+toggle_permission
 
 ## Notes de version itération 2
 
