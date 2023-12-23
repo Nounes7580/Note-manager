@@ -27,7 +27,7 @@
 <nav class="navbar navbar-expand navbar-custom">
   <div class="container-fluid">
     <!-- Left aligned return button -->
-    <a class="navbar-brand" href="notes/">
+    <a class="navbar-brand" href="<?php echo $web_root; ?>notes/">
       <i class="bi bi-arrow-left"></i> <!-- Left-pointing arrow -->
     </a>
 

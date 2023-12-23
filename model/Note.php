@@ -44,6 +44,10 @@ abstract class Note extends Model {
         $this->pinned = !$this->pinned;
     }
 
+    public function toggleArchived(): void {
+        $this->archived = !$this->archived;
+    }
+
     public static function createFromRow($row): ?Note {
         if ($row === false) {
             return null;

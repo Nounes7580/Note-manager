@@ -138,6 +138,17 @@ class ControllerNotes extends Controller {
         $this->redirect("notes/show_note/" . $noteId);
     }
 
+    public function archive_note() {
+        $noteId = $_GET['param1'] ?? null;
+        if ($noteId) {
+            $note = Note::get_note_by_id((int)$noteId);
+            if ($note) {
+                $note->archive();
+                $note->persist();
+            }
+        }
+        $this->redirect("notes");
+    }
     
     // Controller for archived notes, same as index but with archived notes
     public function archives(): void {
