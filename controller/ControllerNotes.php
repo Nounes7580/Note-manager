@@ -143,7 +143,7 @@ class ControllerNotes extends Controller {
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note) {
-                $note->archive();
+                $note->toggleArchived();
                 $note->persist();
             }
         }

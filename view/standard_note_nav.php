@@ -43,7 +43,7 @@
                     <i class="bi bi-pin"></i> <!-- Pin or thumbtack -->
                 <?php } ?>
             </a>
-      <a class="nav-link" href="#">
+      <a class="nav-link" href="<?php echo $web_root; ?>Notes/archive_note/<?php echo $note->id; ?>">
         <i class="bi bi-download"></i> <!-- Download icon -->
       </a>
       <a class="nav-link" href="#">

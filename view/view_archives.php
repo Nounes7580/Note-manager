@@ -4,9 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Notes</title>
+    <title>Archived Notes</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
     <style>
         .card-text {
             overflow: hidden;
@@ -15,42 +17,70 @@
             -webkit-line-clamp: 3; /* Limit to 3 lines */
             -webkit-box-orient: vertical;
         }
+        .stretched-link {
+            display: block; /* Ensures it behaves like a block element */
+            color: inherit; /* Maintains the text color */
+            text-decoration: none; /* Removes underline */
+            width: 100%; /* Ensures it covers the full width */
+            height: 100%; /* Ensures it covers the full height */
+            position: relative; /* Adjust as necessary */
+            z-index: 1; /* Brings the link to the front */
+        }
+        .stretched-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
     </style>
 </head>
-
 <body>
+    
     <?php include('navbar.php'); ?>
-
+    
     <div class="container mt-5">
-
-
         <?php
         $archivedNotes = array_filter($notes, function($note) {
             return $note->isArchived();
         });
         ?>
 
-
-        <?php if (!empty($archivedNotes)): ?>
-            <h2 class="mb-4">Archived</h2>
-            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3">
-                <?php foreach ($archivedNotes as $note): ?>
-                    <div class="col-6 col-md-4 mb-3">
-                        <div class="card h-100" style="max-width: 18rem;">
-                            <div class="card-header"><?= htmlspecialchars($note->title) ?></div>
+    <!-- Archived Notes -->
+    <?php if (!empty($archivedNotes)): ?>
+        <h2 class="mb-4">Archived</h2>
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3">
+            <?php foreach ($archivedNotes as $note): ?>
+                <div class="col-6 col-md-4 mb-3">
+                    <div class="card h-100" style="max-width: 18rem;">
+                        <div class="card-header"><?= htmlspecialchars($note->title) ?></div>
+                        <a href="./show_note/<?= $note->id ?>" class="stretched-link">
                             <div class="card-body">
-                                <p class="card-text"><?= nl2br(htmlspecialchars($note->content)) ?></p>
+                                <?php if ($note instanceof TextNote): ?>
+                                    <p class="card-text"><?= nl2br(htmlspecialchars($note->content)) ?></p>
+                                <?php elseif ($note instanceof ChecklistNote): ?>
+                                    <ul class="list-group list-group-flush">
+                                        <?php foreach ($note->getItems() as $item): ?>
+                                            <li class="list-group-item">
+                                                <input class="form-check-input me-1" type="checkbox" <?= $item->checked ? 'checked' : '' ?> disabled>
+                                                <?= htmlspecialchars($item->content) ?>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                <?php endif; ?>
                             </div>
-                        </div>
+                        </a>
                     </div>
-                <?php endforeach; ?>
-            </div>
-        <?php elseif (empty($pinnedNotes)): ?>
-             <p>No notes found.</p>
-        <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php else: ?>
+        <p>No archived notes found.</p>
+    <?php endif; ?>
+</div>
 
-    </div>
-
+    
     <!-- Bootstrap JS, Popper.js, and jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.9.3/dist/umd/popper.min.js"></script>
