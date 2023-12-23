@@ -9,8 +9,15 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 </head>
 <body>
-<?php include('view/standard_note_nav.php'); ?>
 
+<?php
+    if($note->isArchived()) { // Assuming $note is your note object and isArchived is a method that returns true if the note is archived
+        include('view/archived_note_nav.php');
+    } else {
+        include('view/standard_note_nav.php');
+    }
+?>
+ 
             <form>
 
             <!-- Content Field -->

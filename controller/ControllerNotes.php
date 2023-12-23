@@ -111,6 +111,8 @@ class ControllerNotes extends Controller {
         $this->redirect("notes");
     }
     
+
+
     public function check_or_uncheck_item() {
         $itemId = $_POST['item_id'] ?? null; // Correct the variable name here
         $noteId = $_POST['note_id'] ?? null;
@@ -147,7 +149,7 @@ class ControllerNotes extends Controller {
                 $note->persist();
             }
         }
-        $this->redirect("notes");
+        $this->redirect("notes/show_note/" . $noteId);
     }
     
     // Controller for archived notes, same as index but with archived notes

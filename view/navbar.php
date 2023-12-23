@@ -15,12 +15,12 @@
       <div class="offcanvas-body">
         <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
           <li class="nav-item active">
-            <a class="nav-link" href="./Notes/">My notes <span class="sr-only"></span></a>
+            <a class="nav-link" href="<?php echo $web_root; ?>Notes/">My notes <span class="sr-only"></span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="../index.php?controller=notes&action=archives">My archives</a>
+            <a class="nav-link" href="<?php echo $web_root; ?>Notes/archives">My archives</a>
           <li class="nav-item">
-            <a class="nav-link" href="../index.php?controller=main&action=logout">Logout</a>
+            <a class="nav-link" href="<?php echo $web_root; ?>Main/logout">Logout</a>
           </li>
           <!-- Add more menu items here as needed -->
         </ul>
