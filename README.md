@@ -14,7 +14,7 @@
 
 ### Liste des bugs connus
 
-  * lorsqu'on pin ou unpin une note, check ou uncheck il faut que son état "edited" change
+  * afficher "..." en dessous des cartes de checklist notes
   * bug 2
   * ...
 
@@ -34,8 +34,8 @@ view_shared_notes
 move_note           ok
 open_note           ok
 pin_unpin           ok
-archive             
-unarchive
+archive             ok
+unarchive           ok
 delete
 open_text_note      ok
 edit_text_note
@@ -56,5 +56,5 @@ toggle_permission
 ...
 
 ## Notes de version itération 3 
-
+S
 ...
