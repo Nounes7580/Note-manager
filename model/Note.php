@@ -39,6 +39,10 @@ abstract class Note extends Model {
     public function setWeight(float $weight): void {
         $this->weight = $weight;
     }
+    
+    public function togglePinned(): void {
+        $this->pinned = !$this->pinned;
+    }
 
     public static function createFromRow($row): ?Note {
         if ($row === false) {

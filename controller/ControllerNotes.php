@@ -126,7 +126,17 @@ class ControllerNotes extends Controller {
 
     }
     
-    
+    public function pin_or_unpin_note() {
+        $noteId = $_GET['param1'] ?? null;
+        if ($noteId) {
+            $note = Note::get_note_by_id((int)$noteId);
+            if ($note) {
+                $note->togglePinned();
+                $note->persist();
+            }
+        }
+        $this->redirect("notes/show_note/" . $noteId);
+    }
 
     
     // Controller for archived notes, same as index but with archived notes

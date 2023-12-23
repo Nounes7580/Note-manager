@@ -9,16 +9,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 </head>
 <body>
-    <div class="container mt-5">
-    <?php include('utils/util_dates.php'); ?>
+<?php include('view/standard_note_nav.php'); ?>
 
-  <form>
-            <!-- Title Field -->
-            <div class="mb-3">
-                <label for="titleInput" class="form-label">Title</label>
-                <input type="text" class="form-control" id="titleInput" 
-                       placeholder="Enter title" value="<?= htmlspecialchars($note->title) ?>" readonly>
-            </div>
+            <form>
 
             <!-- Content Field -->
             <div class="mb-3">

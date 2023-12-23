@@ -10,21 +10,11 @@
 </head>
 
 <body>
-    <div class="container mt-5">
-
-    <?php include('utils/util_dates.php'); ?>
+    <?php include('view/standard_note_nav.php'); ?>
 
 
-    <div class="container py-4">
-    <!-- Main Form for Title -->
-    <form>
-        <!-- Title Field -->
-        <div class="mb-3">
-            <label for="titleInput" class="form-label">Title</label>
-            <input type="text" class="form-control" id="titleInput" 
-                   placeholder="Enter title" value="<?= htmlspecialchars($note->title) ?>" readonly>
-        </div>
-    </form> <!-- End of Main Form -->
+
+ 
 
     <!-- Checklist Items -->
     <label for="titleInput" class="form-label">Items</label>
@@ -36,7 +26,6 @@
             });
         }
     ?>
-
 
 
     <?php if (isset($items) && is_array($items)): ?>
@@ -73,7 +62,5 @@
 
 
 
-    <!-- Bootstrap JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
