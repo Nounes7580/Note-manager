@@ -1,5 +1,4 @@
 <?php
-// Assuming $note->created_at is a DateTime object
 $now = new DateTime();
 $interval = $now->diff($note->created_at);
 
@@ -21,16 +20,26 @@ function formatTimeDifference($dateTime) {
         return $interval->h . " hour" . ($interval->h > 1 ? "s" : "");
     } elseif ($interval->i > 0) {
         return $interval->i . " minute" . ($interval->i > 1 ? "s" : "");
-    } else {
+    } elseif ($interval->s > 0) {
         return $interval->s . " second" . ($interval->s > 1 ? "s" : "");
+    } else {
+        return "just now";
     }
 }
 
-
 // Display the time difference in italic
-$createdAtMessage = "<i>Created " . formatTimeDifference($note->created_at) . " ago. </i>";
-$editedAtMessage = $note->edited_at ? "<i>Edited " . formatTimeDifference($note->edited_at) . " ago</i>" : "";
+$createdAtMessage = "<i>Created " . formatTimeDifference($note->created_at) . " ago.</i>";
+
+// Logic for displaying the edited message
+$editedAtMessage = "";
+if ($note->edited_at) {
+    $editedTime = formatTimeDifference($note->edited_at);
+    if ($editedTime != "just now") {
+        $editedAtMessage = "<i>Edited " . $editedTime . " ago</i>";
+    } else {
+        $editedAtMessage = "<i>Edited just now</i>";
+    }
+}
 
 echo "<p>$createdAtMessage $editedAtMessage</p>";
-
 ?>

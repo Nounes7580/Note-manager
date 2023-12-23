@@ -42,10 +42,15 @@ abstract class Note extends Model {
     
     public function togglePinned(): void {
         $this->pinned = !$this->pinned;
+        $this->edited_at = new DateTime(); // Update edited_at timestamp
+    
+
     }
 
     public function toggleArchived(): void {
         $this->archived = !$this->archived;
+        $this->edited_at = new DateTime(); // Update edited_at timestamp
+    
     }
 
     public static function createFromRow($row): ?Note {
