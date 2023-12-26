@@ -44,13 +44,15 @@ class TextNote extends Note {
     }
 
     public function save(): void {
-        parent::save(); // Appele de la méthode save() de la classe parente
+        parent::save(); // Appel de la méthode save() de la classe parente
+    
+        error_log("Saving TextNote"); // Pour le débogage
     
         try {
             $sql = 'INSERT INTO text_notes (note, content) VALUES (:note, :content)';
             $stmt = self::execute($sql, ['note' => $this->id, 'content' => $this->content]);
+            error_log("TextNote saved with ID: " . $this->id); // Confirmation que la note a été enregistrée
         } catch (PDOException $e) {
-            // Gérez les erreurs de sauvegarde ici (par exemple, en enregistrant un journal d'erreurs)
             error_log('PDOException in save: ' . $e->getMessage());
         }
     }

@@ -78,10 +78,13 @@ class ControllerNotes extends Controller {
         $this->redirect("notes");
     }
 public function add_textnote(): void {
+    error_log("add_textnote method called"); // Ceci enregistrera dans le journal des erreurs PHP
+    error_log(print_r($_POST, true)); // Ceci imprimera les données POST dans le journal des erreurs PHP
     
         $user = $this->get_user_or_redirect();
         $title = $_POST['title'] ?? 'Nouveau Titre';
         $text = $_POST['text'] ?? 'Nouveau Texte';
+        require 'view/view_addtextnote.php';
         $owner = $user->get_id();
         $pinned = false; // Mettez la valeur appropriée ici
         $archived = false; // Mettez la valeur appropriée ici
@@ -95,9 +98,9 @@ public function add_textnote(): void {
             weight: $weight,
             content: $text
         );
-    
-        $note->save();
-        $this->redirect("notes");
+        
+        $note->persist();
+      
     }
 
     public function show_note(): void {
