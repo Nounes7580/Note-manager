@@ -91,7 +91,14 @@ abstract class Note extends Model {
         }
     }
     
-
+    public function save(): void {
+        try {
+           
+        } catch (PDOException $e) {
+            // Gérez les erreurs de la base de données ici (par exemple, enregistrez l'erreur)
+            error_log('PDOException dans save : ' . $e->getMessage());
+        }
+    }
     public function updateNoteWeight(Note $note) {
         $sql = 'UPDATE notes SET weight = :weight WHERE id = :id';
         $stmt = self::execute($sql, ['weight' => $note->getWeight(), 'id' => $note->getId()]);

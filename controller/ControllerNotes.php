@@ -1,7 +1,7 @@
 <?php
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
-
+ini_set('display_errors', 1); error_reporting(E_ALL);
 require_once 'model/User.php';
 require_once 'model/TextNote.php';
 require_once 'model/Note.php';
@@ -77,15 +77,25 @@ class ControllerNotes extends Controller {
         }
         $this->redirect("notes");
     }
-
-    public function add_textnote(): void {
+public function add_textnote(): void {
+    
         $user = $this->get_user_or_redirect();
-        $title = $_POST['title'] ?? null;
-        $text = $_POST['text'] ?? null;
-        $note = new TextNote();
-        $note->set_title($title);
-        $note->set_text($text);
-        $note->set_owner_id($user->get_id());
+        $title = $_POST['title'] ?? 'Nouveau Titre';
+        $text = $_POST['text'] ?? 'Nouveau Texte';
+        $owner = $user->get_id();
+        $pinned = false; // Mettez la valeur appropriée ici
+        $archived = false; // Mettez la valeur appropriée ici
+        $weight = 0.0; // Mettez la valeur appropriée ici
+    
+        $note = new TextNote(
+            title: $title,
+            owner: $owner,
+            pinned: $pinned,
+            archived: $archived,
+            weight: $weight,
+            content: $text
+        );
+    
         $note->save();
         $this->redirect("notes");
     }

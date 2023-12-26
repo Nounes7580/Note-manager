@@ -54,6 +54,17 @@
     
     <?php include('navbar.php'); ?>
     <div class="container mt-5">
+        <!-- Bouton pour créer une nouvelle note -->
+        <div class="fixed-bottom d-flex justify-content-end p-3">
+    <form action="./add_textnote" method="post">
+        <input type="hidden" name="title" value="Nouvelle Note">
+        <input type="hidden" name="text" value="Contenu de la note">
+        <button type="submit" class="btn" style="border-radius: 40px; padding: 10px 20px;">
+            <img src="../css/icons8-add-file-48.png" alt="Ajouter">
+        </button>
+    </form>
+</div>
+
         <!-- Pinned Notes -->
         <?php if (!empty($pinnedNotes)): ?>
             <h2 class="mb-4">Pinned</h2>

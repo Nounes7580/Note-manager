@@ -43,6 +43,18 @@ class TextNote extends Note {
         return $this->id;
     }
 
+    public function save(): void {
+        parent::save(); // Appele de la méthode save() de la classe parente
+    
+        try {
+            $sql = 'INSERT INTO text_notes (note, content) VALUES (:note, :content)';
+            $stmt = self::execute($sql, ['note' => $this->id, 'content' => $this->content]);
+        } catch (PDOException $e) {
+            // Gérez les erreurs de sauvegarde ici (par exemple, en enregistrant un journal d'erreurs)
+            error_log('PDOException in save: ' . $e->getMessage());
+        }
+    }
+
 
 
 //persist method as required by the abstract parent class. in order to save the content of the note
