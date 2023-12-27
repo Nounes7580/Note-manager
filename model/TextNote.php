@@ -39,7 +39,7 @@ class TextNote extends Note {
         return $this->archived;
     }
 
-    public function get_id() : int {
+    public function get_id(): ?int {
         return $this->id;
     }
 
@@ -70,6 +70,10 @@ class TextNote extends Note {
             // Log error message
             error_log('PDOException in persist: ' . $e->getMessage());
         }
+        if (!$this->id && self::$db) { // Si l'ID n'est pas déjà défini et que $db est disponible
+            $this->id = self::$db->lastInsertId();
+        }
+    
         return $this;
     }
     

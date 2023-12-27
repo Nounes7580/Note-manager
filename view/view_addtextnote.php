@@ -30,6 +30,7 @@ $text = ''; // Valeur par défaut pour le texte
     .form-label {
         color: #aaa; /* Couleur des étiquettes de formulaire */
     }
+   
     .btn-create-note {
         position: fixed; /* Fixed position */
         top: 20px; /* Distance from the top */
@@ -44,15 +45,36 @@ $text = ''; // Valeur par défaut pour le texte
         width: 30px; /* Largeur de l'image */
         height: 30px; /* Hauteur de l'image */
     }
+    .bi-arrow-left {
+        font-size: 30px;
+    position: fixed;
+    top: 20px;
+    left: 40px; /* Déplacer légèrement vers la droite */
+    z-index: 1000;
+    color: white;
+    
+}
+.container-form {
+    margin-top: 100px; /* Ajoutez plus de marge pour pousser le formulaire vers le bas */
+}
+#text {
+        height: 300px; /* Définir une hauteur spécifique pour la zone de texte */
+    }
 </style>
 <body>
-<a href="#"><button type="submit" class="btn-create-note">
+    <div><a href="#"><button type="submit" class="btn-create-note">
         <img src="../css/save-icon-14.png" alt="Créer la note" />
     </button></a>
-    <div class="container">
-        <form action="" method="post">
+    <a href="javascript:history.back()" class="bi bi-arrow-left">
+        
+    </a>
+</div>
+
+
+    <div class="container container-form">
+        <form action="./add_textnote" method="post">
             <div class="mb-3">
-                <label for="title" class="form-label">Titre de la note</label>
+                <label for="title" class="form-label">Title</label>
                 <input type="text" class="form-control" id="title" name="title" placeholder="Entrez le titre de la note" required>
             </div>
             <div class="mb-3">

@@ -82,6 +82,7 @@ public function add_textnote(): void {
     error_log(print_r($_POST, true)); // Ceci imprimera les données POST dans le journal des erreurs PHP
     
         $user = $this->get_user_or_redirect();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $title = $_POST['title'] ?? 'Nouveau Titre';
         $text = $_POST['text'] ?? 'Nouveau Texte';
         require 'view/view_addtextnote.php';
@@ -100,8 +101,14 @@ public function add_textnote(): void {
         );
         
         $note->persist();
-      
+        if ($note->get_id() !== null) {
+            $this->redirect("show_note/" . $note->get_id());
+        }
     }
+    
+        require 'view/view_addtextnote.php';
+    
+}
 
     public function show_note(): void {
         $user = $this->get_user_or_redirect();
