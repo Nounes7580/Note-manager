@@ -3,6 +3,7 @@ require_once "Note.php";
 
 class TextNote extends Note {
     public string $content;
+    public static $db;
 
     public function __construct(
         string $title,
@@ -60,21 +61,27 @@ class TextNote extends Note {
 
 
 //persist method as required by the abstract parent class. in order to save the content of the note
-    public function persist(): TextNote {
-        parent::persist(); // First, call parent's persist method
-        // Now handle the saving of TextNote specific fields
-        try {
-            $sql = 'INSERT INTO text_notes (note, content) VALUES (:note, :content)';
-            self::execute($sql, ['note' => $this->id, 'content' => $this->content]);
-        } catch (PDOException $e) {
-            // Log error message
-            error_log('PDOException in persist: ' . $e->getMessage());
-        }
-        if (!$this->id && self::$db) { // Si l'ID n'est pas déjà défini et que $db est disponible
+public function persist(): TextNote {
+    // Assurez-vous d'appeler la méthode persist() du parent si nécessaire
+    parent::persist();
+
+    try {
+        // La requête ne devrait inclure que la colonne 'content'
+        $sql = 'INSERT INTO text_notes (content) VALUES (:content)';
+        // Exécutez la requête avec seulement la variable 'content' liée
+        self::execute($sql, ['content' => $this->content]);
+
+        // Si l'ID n'est pas déjà défini, récupérez-le de l'objet de connexion à la base de données
+        if (!$this->id && self::$db) {
             $this->id = self::$db->lastInsertId();
         }
-    
-        return $this;
+    } catch (PDOException $e) {
+        // Log l'erreur pour le débogage
+        error_log('PDOException in persist: ' . $e->getMessage());
     }
+
+    // Retournez l'instance de l'objet pour permettre le chaînage des méthodes si nécessaire
+    return $this;
+}
     
 }

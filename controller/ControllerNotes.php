@@ -1,4 +1,7 @@
 <?php
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 ini_set('display_errors', 1); error_reporting(E_ALL);
@@ -77,38 +80,44 @@ class ControllerNotes extends Controller {
         }
         $this->redirect("notes");
     }
-public function add_textnote(): void {
-    error_log("add_textnote method called"); // Ceci enregistrera dans le journal des erreurs PHP
-    error_log(print_r($_POST, true)); // Ceci imprimera les données POST dans le journal des erreurs PHP
-    
+    public function add_textnote(): void {
         $user = $this->get_user_or_redirect();
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $title = $_POST['title'] ?? 'Nouveau Titre';
-        $text = $_POST['text'] ?? 'Nouveau Texte';
-        require 'view/view_addtextnote.php';
-        $owner = $user->get_id();
-        $pinned = false; // Mettez la valeur appropriée ici
-        $archived = false; // Mettez la valeur appropriée ici
-        $weight = 0.0; // Mettez la valeur appropriée ici
-    
-        $note = new TextNote(
-            title: $title,
-            owner: $owner,
-            pinned: $pinned,
-            archived: $archived,
-            weight: $weight,
-            content: $text
-        );
         
-        $note->persist();
-        if ($note->get_id() !== null) {
-            $this->redirect("show_note/" . $note->get_id());
+        // Vérifie si la méthode de requête est POST pour traiter la soumission du formulaire.
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            error_log("add_textnote method called"); // Pour le débogage
+            error_log(print_r($_POST, true)); // Imprime les données POST pour le débogage
+    
+            $title = $_POST['title'] ?? 'Nouveau Titre';
+            $text = $_POST['text'] ?? 'Nouveau Texte';
+            $owner = $user->get_id();
+            $pinned = false;
+            $archived = false;
+            $weight = 0.0; // Définir la valeur de poids appropriée ici si nécessaire
+    
+            // Création de la nouvelle note.
+            $note = new TextNote(
+                title: $title,
+                owner: $owner,
+                pinned: $pinned,
+                archived: $archived,
+                weight: $weight,
+                content: $text
+            );
+            
+            // Persiste la note dans la base de données.
+            $note->persist();
+            
+            // Rediriger vers la page de la note si la note a été créée avec succès.
+            if ($note->get_id() !== null) {
+                $this->redirect("notes", "show", $note->get_id());
+            }
+            
         }
-    }
-    
+        
+        // Inclure la vue seulement si la méthode n'est pas POST ou si la création de la note échoue.
         require 'view/view_addtextnote.php';
-    
-}
+    }
 
     public function show_note(): void {
         $user = $this->get_user_or_redirect();
