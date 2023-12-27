@@ -264,6 +264,7 @@ abstract class Note extends Model {
             // Convert boolean values to integers
             $pinnedInt = $this->pinned ? 1 : 0;
             $archivedInt = $this->archived ? 1 : 0;
+            
     
             $stmt = self::execute("UPDATE notes SET title = :title, owner = :owner, pinned = :pinned, archived = :archived, weight = :weight, edited_at = :edited_at WHERE id = :id",
                 [

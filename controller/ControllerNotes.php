@@ -82,8 +82,12 @@ class ControllerNotes extends Controller {
     }
     public function add_textnote(): void {
         $user = $this->get_user_or_redirect();
-        require 'view/view_addtextnote.php';
-        // Vérifie si la méthode de requête est POST pour traiter la soumission du formulaire.
+      //  $previousNote = Note::get_previous_note($user->get_id()); // À adapter à votre structure de données
+
+//$previousWeight = $previousNote->getWeight();
+
+//$newWeight = $previousWeight + 1; 
+       
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             error_log("add_textnote method called"); // Pour le débogage
             error_log(print_r($_POST, true)); // Imprime les données POST pour le débogage
@@ -110,15 +114,19 @@ class ControllerNotes extends Controller {
             
             // Rediriger vers la page de la note si la note a été créée avec succès.
             if ($note->get_id() !== null) {
-                $this->redirect("notes", "show", $note->get_id());
+                $this->redirect("notes/show_note/" . $note->get_id());
             }
             
         }
         
         // Inclure la vue seulement si la méthode n'est pas POST ou si la création de la note échoue.
-        
+       
     }
-
+    
+    public function show_addtextnote(): void {
+        $user = $this->get_user_or_redirect();
+        require 'view/view_addtextnote.php';
+    }
     public function show_note(): void {
         $user = $this->get_user_or_redirect();
         $noteId = $_GET['param1'] ?? null;
