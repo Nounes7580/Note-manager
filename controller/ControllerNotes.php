@@ -82,7 +82,7 @@ class ControllerNotes extends Controller {
     }
     public function add_textnote(): void {
         $user = $this->get_user_or_redirect();
-        
+        require 'view/view_addtextnote.php';
         // Vérifie si la méthode de requête est POST pour traiter la soumission du formulaire.
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             error_log("add_textnote method called"); // Pour le débogage
@@ -116,7 +116,7 @@ class ControllerNotes extends Controller {
         }
         
         // Inclure la vue seulement si la méthode n'est pas POST ou si la création de la note échoue.
-        require 'view/view_addtextnote.php';
+        
     }
 
     public function show_note(): void {

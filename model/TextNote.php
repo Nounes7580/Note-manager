@@ -62,26 +62,26 @@ class TextNote extends Note {
 
 //persist method as required by the abstract parent class. in order to save the content of the note
 public function persist(): TextNote {
-    // Assurez-vous d'appeler la méthode persist() du parent si nécessaire
+    // Appel de la méthode persist() du parent pour gérer l'insertion/mise à jour dans la table `notes`
     parent::persist();
-
-    try {
-        // La requête ne devrait inclure que la colonne 'content'
-        $sql = 'INSERT INTO text_notes (content) VALUES (:content)';
-        // Exécutez la requête avec seulement la variable 'content' liée
-        self::execute($sql, ['content' => $this->content]);
-
-        // Si l'ID n'est pas déjà défini, récupérez-le de l'objet de connexion à la base de données
-        if (!$this->id && self::$db) {
-            $this->id = self::$db->lastInsertId();
-        }
-    } catch (PDOException $e) {
-        // Log l'erreur pour le débogage
-        error_log('PDOException in persist: ' . $e->getMessage());
+    if ($this->id === null) {
+        throw new Exception("L'ID de la note n'a pas été défini.");
     }
+    // Après l'appel à parent::persist(), $this->id devrait être défini.
+    // Insérez ou mettez à jour la partie text_note.
+    $this->persistTextNote();
 
-    // Retournez l'instance de l'objet pour permettre le chaînage des méthodes si nécessaire
     return $this;
 }
-    
+
+private function persistTextNote() {
+    // Vérifiez si l'ID de la note est défini
+    if ($this->id !== null) {
+        // Insérez ou mettez à jour dans la table `text_notes`
+        $sql = "INSERT INTO text_notes (id, content) VALUES (:id, :content) ON DUPLICATE KEY UPDATE content = :content";
+        self::execute($sql, ['id' => $this->id, 'content' => $this->content]);
+    }
+}
+
+
 }

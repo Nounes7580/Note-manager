@@ -277,7 +277,15 @@ abstract class Note extends Model {
                 ]);
             error_log("Updated rows: " . $stmt->rowCount());  // Log the number of updated rows
         } else {
-            // Handle insert scenario if needed
+            self::execute("INSERT INTO notes (title, owner, pinned, archived, weight, created_at) VALUES (:title, :owner, :pinned, :archived, :weight, :created_at)", [
+                "title" => $this->title, 
+                "owner" => $this->owner, 
+                "pinned" => $this->pinned ? 1 : 0, 
+                "archived" => $this->archived ? 1 : 0, 
+                "weight" => $this->weight, 
+                "created_at" => $this->created_at->format('Y-m-d H:i:s')
+            ]);
+            $this->id = self::execute("SELECT LAST_INSERT_ID()", [])->fetchColumn();
         }
         return $this;
     }
