@@ -162,30 +162,20 @@ abstract class Note extends Model {
     
 
     private function swapNotes(Note $note1, Note $note2): void {
-        // Swap only the common attributes (like weight)
+        // Swap the weights of the two notes
         $tempWeight = $note1->weight;
         $note1->weight = $note2->weight;
         $note2->weight = $tempWeight;
     
-        // Update timestamps
+        // Update the timestamps
         $note1->edited_at = new DateTime();
         $note2->edited_at = new DateTime();
     
-        // Persist changes based on the specific type of each note
-        if ($note1 instanceof TextNote) {
-            $note1->persistTextNote(); // Custom method for TextNote
-        } else if ($note1 instanceof ChecklistNote) {
-            $note1->persistChecklistNote(); // Custom method for ChecklistNote
-        }
-    
-        // Repeat for the second note
-        if ($note2 instanceof TextNote) {
-            $note2->persistTextNote();
-        } else if ($note2 instanceof ChecklistNote) {
-            $note2->persistChecklistNote();
-        }
+        // Persist changes to the database
+        $note1->persist();
+        $note2->persist();
     }
-    
+        
 
 
     private function validateTitle(string $title): string {
@@ -302,7 +292,37 @@ abstract class Note extends Model {
         }
         return $this;
     }
+    public function persistAdd(): Note {
+        if ($this->id) {
+            // Convert boolean values to integers
+            $pinnedInt = $this->pinned ? 1 : 0;
+            $archivedInt = $this->archived ? 1 : 0;
+            
     
+            $stmt = self::execute("UPDATE notes SET title = :title, owner = :owner, pinned = :pinned, archived = :archived, weight = :weight, edited_at = :edited_at WHERE id = :id",
+                [
+                    "id" => $this->id, 
+                    "title" => $this->title, 
+                    "owner" => $this->owner, 
+                    "pinned" => $pinnedInt, 
+                    "archived" => $archivedInt, 
+                    "weight" => $this->weight, 
+                    "edited_at" => $this->edited_at->format('Y-m-d H:i:s')
+                ]);
+            error_log("Updated rows: " . $stmt->rowCount());  // Log the number of updated rows
+        } else {
+            self::execute("INSERT INTO notes (title, owner, pinned, archived, weight, created_at) VALUES (:title, :owner, :pinned, :archived, :weight, :created_at)", [
+                "title" => $this->title, 
+                "owner" => $this->owner, 
+                "pinned" => $this->pinned ? 1 : 0, 
+                "archived" => $this->archived ? 1 : 0, 
+                "weight" => $this->weight, 
+                "created_at" => $this->created_at->format('Y-m-d H:i:s')
+            ]);
+            $this->id = self::execute("SELECT LAST_INSERT_ID()", [])->fetchColumn();
+        }
+        return $this;
+    }
     
  
 

@@ -107,7 +107,7 @@ class ControllerNotes extends Controller {
             );
             
             // Persiste la note dans la base de données.
-            $note->persist();
+            $note->persistAdd();
             
             // Rediriger vers la page de la note si la note a été créée avec succès.
             if ($note->get_id() !== null) {
