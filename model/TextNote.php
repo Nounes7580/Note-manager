@@ -62,19 +62,19 @@ class TextNote extends Note {
 
 //persist method as required by the abstract parent class. in order to save the content of the note
 public function persist(): TextNote {
-    // Appel de la méthode persist() du parent pour gérer l'insertion/mise à jour dans la table `notes`
-    parent::persist();
-    if ($this->id === null) {
-        throw new Exception("L'ID de la note n'a pas été défini.");
+    parent::persist(); // First, call parent's persist method
+    try {
+        error_log("Persisting TextNote - ID: {$this->id}, Content: {$this->content}");
+        $sql = 'INSERT INTO text_notes (id, content) VALUES (:id, :content) ON DUPLICATE KEY UPDATE content = :content';
+        self::execute($sql, ['id' => $this->id, 'content' => $this->content]);
+            } catch (PDOException $e) {
+        error_log('PDOException in persist: ' . $e->getMessage());
     }
-    // Après l'appel à parent::persist(), $this->id devrait être défini.
-    // Insérez ou mettez à jour la partie text_note.
-    $this->persistTextNote();
-
     return $this;
 }
 
-private function persistTextNote() {
+
+public function persistTextNote() {
     // Vérifiez si l'ID de la note est défini
     if ($this->id !== null) {
         // Insérez ou mettez à jour dans la table `text_notes`

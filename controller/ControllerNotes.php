@@ -1,10 +1,7 @@
 <?php
-header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-header('Pragma: no-cache');
-header('Expires: 0');
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
-ini_set('display_errors', 1); error_reporting(E_ALL);
+
 require_once 'model/User.php';
 require_once 'model/TextNote.php';
 require_once 'model/Note.php';

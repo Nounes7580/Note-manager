@@ -99,6 +99,7 @@ abstract class Note extends Model {
             error_log('PDOException dans save : ' . $e->getMessage());
         }
     }
+    
     public function updateNoteWeight(Note $note) {
         $sql = 'UPDATE notes SET weight = :weight WHERE id = :id';
         $stmt = self::execute($sql, ['weight' => $note->getWeight(), 'id' => $note->getId()]);
@@ -161,19 +162,30 @@ abstract class Note extends Model {
     
 
     private function swapNotes(Note $note1, Note $note2): void {
-        // Swap the weights of the two notes
+        // Swap only the common attributes (like weight)
         $tempWeight = $note1->weight;
         $note1->weight = $note2->weight;
         $note2->weight = $tempWeight;
     
-        // Update the timestamps
+        // Update timestamps
         $note1->edited_at = new DateTime();
         $note2->edited_at = new DateTime();
     
-        // Persist changes to the database
-        $note1->persist();
-        $note2->persist();
+        // Persist changes based on the specific type of each note
+        if ($note1 instanceof TextNote) {
+            $note1->persistTextNote(); // Custom method for TextNote
+        } else if ($note1 instanceof ChecklistNote) {
+            $note1->persistChecklistNote(); // Custom method for ChecklistNote
+        }
+    
+        // Repeat for the second note
+        if ($note2 instanceof TextNote) {
+            $note2->persistTextNote();
+        } else if ($note2 instanceof ChecklistNote) {
+            $note2->persistChecklistNote();
+        }
     }
+    
 
 
     private function validateTitle(string $title): string {

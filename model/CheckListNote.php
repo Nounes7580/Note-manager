@@ -55,6 +55,19 @@ class CheckListNote extends Note {
         return $this;
     }
 
+    public function persistCheckListNote(): CheckListNote {
+        parent::persist(); // First, call parent's persist method
+        // Now handle the saving of CheckListNote specific fields
+        try {
+            $sql = 'INSERT INTO checklist_notes (note) VALUES (:note)';
+            $stmt = self::execute($sql, ['note' => $this->id]);
+            error_log("CheckListNote saved with ID: " . $this->id); // Confirmation que la note a été enregistrée
+        } catch (PDOException $e) {
+            error_log('PDOException in save: ' . $e->getMessage());
+        }
+        return $this;
+    }
+
     
 
     // Additional CheckListNote-specific methods...
