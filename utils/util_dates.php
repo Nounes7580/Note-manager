@@ -32,9 +32,9 @@ $createdAtMessage = "<i>Created " . formatTimeDifference($note->created_at) . " 
 
 // Logic for displaying the edited message
 $editedAtMessage = "";
-if ($note->edited_at) {
+if ($note->edited_at !== null) { // Vérifier si edited_at n'est pas null
     $editedTime = formatTimeDifference($note->edited_at);
-    if ($editedTime != "just now") {
+    if ($editedTime !== "just now") {
         $editedAtMessage = "<i>Edited " . $editedTime . " ago</i>";
     } else {
         $editedAtMessage = "<i>Edited just now</i>";

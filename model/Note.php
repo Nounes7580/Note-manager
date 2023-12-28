@@ -59,9 +59,9 @@ abstract class Note extends Model {
         }
         
         // Assuming $row['type'] can be 'text' or 'checklist' to differentiate the note types
-        $created_at = new DateTime($row['created_at']);
-        $edited_at = $row['edited_at'] ? new DateTime($row['edited_at']) : null;
-    
+        $created_at = isset($row['created_at']) ? new DateTime($row['created_at']) : new DateTime();
+        $edited_at = isset($row['edited_at']) && $row['edited_at'] ? new DateTime($row['edited_at']) : null;
+        
         if (isset($row['checklist_id'])) {
             // Return a CheckListNote instance
             return new CheckListNote(
@@ -91,7 +91,15 @@ abstract class Note extends Model {
         }
     }
     
-
+    public function save(): void {
+        try {
+           
+        } catch (PDOException $e) {
+            // Gérez les erreurs de la base de données ici (par exemple, enregistrez l'erreur)
+            error_log('PDOException dans save : ' . $e->getMessage());
+        }
+    }
+    
     public function updateNoteWeight(Note $note) {
         $sql = 'UPDATE notes SET weight = :weight WHERE id = :id';
         $stmt = self::execute($sql, ['weight' => $note->getWeight(), 'id' => $note->getId()]);
@@ -167,6 +175,7 @@ abstract class Note extends Model {
         $note1->persist();
         $note2->persist();
     }
+        
 
 
     private function validateTitle(string $title): string {
@@ -205,8 +214,11 @@ abstract class Note extends Model {
                 return null;
             }
         
-            $created_at = new DateTime($row['created_at']);
-            $edited_at = new DateTime($row['edited_at']);
+            // Initialisation de $created_at
+            $created_at = isset($row['created_at']) ? new DateTime($row['created_at']) : new DateTime();
+        
+            // Initialisation de $edited_at
+            $edited_at = isset($row['edited_at']) && $row['edited_at'] ? new DateTime($row['edited_at']) : null;
         
             // Check if the note is a checklist note
             if (isset($row['checklist_id'])) {
@@ -241,6 +253,18 @@ abstract class Note extends Model {
         }
     }
 
+    public static function get_highest_weight_by_owner(int $owner_id): float {
+        try {
+            $sql = 'SELECT MAX(weight) AS max_weight FROM notes WHERE owner = :owner_id';
+            $stmt = self::execute($sql, ['owner_id' => $owner_id]);
+            $row = $stmt->fetch();
+            return $row['max_weight'] ?? 0.0;
+        } catch (PDOException $e) {
+            error_log('PDOException in get_highest_weight_by_owner: ' . $e->getMessage());
+            return 0.0;
+        }
+    }
+
     public function validate(): array {
         $errors = [];
         // Add validation logic here. For example:
@@ -257,6 +281,38 @@ abstract class Note extends Model {
             // Convert boolean values to integers
             $pinnedInt = $this->pinned ? 1 : 0;
             $archivedInt = $this->archived ? 1 : 0;
+            
+    
+            $stmt = self::execute("UPDATE notes SET title = :title, owner = :owner, pinned = :pinned, archived = :archived, weight = :weight, edited_at = :edited_at WHERE id = :id",
+                [
+                    "id" => $this->id, 
+                    "title" => $this->title, 
+                    "owner" => $this->owner, 
+                    "pinned" => $pinnedInt, 
+                    "archived" => $archivedInt, 
+                    "weight" => $this->weight, 
+                    "edited_at" => $this->edited_at ? $this->edited_at->format('Y-m-d H:i:s') : null
+                ]);
+            error_log("Updated rows: " . $stmt->rowCount());  // Log the number of updated rows
+        } else {
+            self::execute("INSERT INTO notes (title, owner, pinned, archived, weight, created_at) VALUES (:title, :owner, :pinned, :archived, :weight, :created_at)", [
+                "title" => $this->title, 
+                "owner" => $this->owner, 
+                "pinned" => $this->pinned ? 1 : 0, 
+                "archived" => $this->archived ? 1 : 0, 
+                "weight" => $this->weight, 
+                "created_at" => $this->created_at->format('Y-m-d H:i:s')
+            ]);
+            $this->id = self::execute("SELECT LAST_INSERT_ID()", [])->fetchColumn();
+        }
+        return $this;
+    }
+    public function persistAdd(): Note {
+        if ($this->id) {
+            // Convert boolean values to integers
+            $pinnedInt = $this->pinned ? 1 : 0;
+            $archivedInt = $this->archived ? 1 : 0;
+            
     
             $stmt = self::execute("UPDATE notes SET title = :title, owner = :owner, pinned = :pinned, archived = :archived, weight = :weight, edited_at = :edited_at WHERE id = :id",
                 [
@@ -270,11 +326,18 @@ abstract class Note extends Model {
                 ]);
             error_log("Updated rows: " . $stmt->rowCount());  // Log the number of updated rows
         } else {
-            // Handle insert scenario if needed
+            self::execute("INSERT INTO notes (title, owner, pinned, archived, weight, created_at) VALUES (:title, :owner, :pinned, :archived, :weight, :created_at)", [
+                "title" => $this->title, 
+                "owner" => $this->owner, 
+                "pinned" => $this->pinned ? 1 : 0, 
+                "archived" => $this->archived ? 1 : 0, 
+                "weight" => $this->weight, 
+                "created_at" => $this->created_at->format('Y-m-d H:i:s')
+            ]);
+            $this->id = self::execute("SELECT LAST_INSERT_ID()", [])->fetchColumn();
         }
         return $this;
     }
-    
     
  
 
