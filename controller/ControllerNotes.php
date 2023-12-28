@@ -79,22 +79,17 @@ class ControllerNotes extends Controller {
     }
     public function add_textnote(): void {
         $user = $this->get_user_or_redirect();
-      //  $previousNote = Note::get_previous_note($user->get_id()); // À adapter à votre structure de données
-
-//$previousWeight = $previousNote->getWeight();
-
-//$newWeight = $previousWeight + 1; 
        
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            error_log("add_textnote method called"); // Pour le débogage
-            error_log(print_r($_POST, true)); // Imprime les données POST pour le débogage
+           
+            $highestWeight = Note::get_highest_weight_by_owner($user->get_id());
     
             $title = $_POST['title'] ?? 'Nouveau Titre';
             $text = $_POST['text'] ?? 'Nouveau Texte';
             $owner = $user->get_id();
             $pinned = false;
             $archived = false;
-            $weight = 0.0; // Définir la valeur de poids appropriée ici si nécessaire
+            $weight = $highestWeight + 1; // Augmenter le poids le plus élevé de 1.
     
             // Création de la nouvelle note.
             $note = new TextNote(
@@ -115,9 +110,7 @@ class ControllerNotes extends Controller {
             }
             
         }
-        
-        // Inclure la vue seulement si la méthode n'est pas POST ou si la création de la note échoue.
-       
+               
     }
     
     public function show_addtextnote(): void {
