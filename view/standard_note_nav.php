@@ -46,7 +46,7 @@
       <a class="nav-link" href="<?php echo $web_root; ?>Notes/archive_note/<?php echo $note->id; ?>">
         <i class="bi bi-download"></i> <!-- Download icon -->
       </a>
-      <a class="nav-link" href="#">
+      <a class="nav-link" href="<?php echo $web_root; ?>Notes/edit_note/<?php echo $note->id; ?>">
         <i class="bi bi-pencil"></i> <!-- Pencil for editing -->
       </a>
     </div>
