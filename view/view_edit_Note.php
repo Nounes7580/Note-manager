@@ -58,16 +58,18 @@ if (!isset($note)) {
     }
 </style>
 <body>
-<div><a href="#"><button type="submit" class="btn-create-note">
-        <img src="../css/save-icon-14.png" alt="Créer la note" />
+<div>
+    <a href="#"><button type="submit" class="btn-create-note">
+        <img src="../css/save-icon-14.png"  />
     </button></a>
     <a href="javascript:history.back()" class="bi bi-arrow-left">
         
     </a>
 </div>
 
-    <div class="container container-form"> <!-- Utiliser des classes Bootstrap pour la mise en page -->
-        <form action="./save_edited_note" method="post">
+    <div class="container container-form"> 
+        
+        <form action="./../save_edited_note" method="post">
             <input type="hidden" name="id" value="<?= htmlspecialchars($note->id) ?>">
 
             <div class="mb-3">
@@ -81,7 +83,7 @@ if (!isset($note)) {
             </div>
 
             <button type="submit" class="btn-create-note">
-            <img src="../css/save-icon-14.png" alt="Créer la note" />
+            <img src="../css/save-icon-14.png" />
         </button>
           
         </form>

@@ -1,6 +1,7 @@
 <?php
-ini_set('display_errors', 1);
 error_reporting(E_ALL);
+
+ini_set('display_errors', 1);
 
 require_once 'model/User.php';
 require_once 'model/TextNote.php';
@@ -115,9 +116,31 @@ class ControllerNotes extends Controller {
     
 
 
-
-
+    public function save_edited_note(): void {
+        $user = $this->get_user_or_redirect();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $noteId = $_POST['id'] ?? null;
+            $title = $_POST['title'] ?? '';
+            $content = $_POST['text'] ?? '';  // Assurez-vous que cela correspond au nom du champ dans votre formulaire
     
+            $note = Note::get_note_by_id((int)$noteId);
+            if ($note && $note->owner == $user->get_id()) {
+               
+                $note->title = $title;
+                $note->content = $content; 
+                
+                
+                $note->persist(); 
+    
+                $this->redirect("notes/show_note/" . $note->id);
+            } else {
+                // Gestion des erreurs
+                // ...
+            }
+        }
+    
+    }
+ 
     public function show_addtextnote(): void {
         $user = $this->get_user_or_redirect();
         require 'view/view_addtextnote.php';
@@ -151,32 +174,17 @@ class ControllerNotes extends Controller {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note && $note->owner == $user->get_id()) {
                 (new View("edit_Note"))->show(["note" => $note]);
+                
             } else {
                 
             }
         }
     }
-    public function save_edited_note() {
-    $user = $this->get_user_or_redirect();
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $noteId = $_POST['id'] ?? null;
-        $title = $_POST['title'] ?? '';
-        $content = $_POST['text'] ?? '';
-            $note = Note::get_note_by_id((int)$noteId);
-        if ($note && $note->owner == $user->get_id()) {
-            $note->title = $title;
-            $content;
-            $note->persistAdd(); // ou une méthode similaire pour enregistrer les modifications
-            $this->redirect("notes/show_note/" . $noteId);
-        } else {
-            
-        } 
+   
             
        
 
-      
-    }
-}
+
 
     public function check_or_uncheck_item() {
         $itemId = $_POST['item_id'] ?? null; // Correct the variable name here
