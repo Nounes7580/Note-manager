@@ -51,9 +51,10 @@ class CheckListNote extends Note {
 
     public function persist(): CheckListNote {
         parent::persist(); // First, call parent's persist method
-        // Now handle the saving of CheckListNote specific fields
+        
         return $this;
     }
+
 
     
 

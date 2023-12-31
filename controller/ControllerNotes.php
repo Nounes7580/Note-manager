@@ -1,6 +1,7 @@
 <?php
-ini_set('display_errors', 1);
 error_reporting(E_ALL);
+
+ini_set('display_errors', 1);
 
 require_once 'model/User.php';
 require_once 'model/TextNote.php';
@@ -77,19 +78,73 @@ class ControllerNotes extends Controller {
         }
         $this->redirect("notes");
     }
-
     public function add_textnote(): void {
         $user = $this->get_user_or_redirect();
-        $title = $_POST['title'] ?? null;
-        $text = $_POST['text'] ?? null;
-        $note = new TextNote();
-        $note->set_title($title);
-        $note->set_text($text);
-        $note->set_owner_id($user->get_id());
-        $note->save();
-        $this->redirect("notes");
+       
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+           
+            $highestWeight = Note::get_highest_weight_by_owner($user->get_id());
+    
+            $title = $_POST['title'] ?? 'Nouveau Titre';
+            $text = $_POST['text'] ?? 'Nouveau Texte';
+            $owner = $user->get_id();
+            $pinned = false;
+            $archived = false;
+            $weight = $highestWeight + 1; // Augmenter le poids le plus élevé de 1.
+    
+            // Création de la nouvelle note.
+            $note = new TextNote(
+                title: $title,
+                owner: $owner,
+                pinned: $pinned,
+                archived: $archived,
+                weight: $weight,
+                content: $text
+            );
+            
+            // Persiste la note dans la base de données.
+            $note->persistAdd();
+            
+            // Rediriger vers la page de la note si la note a été créée avec succès.
+            if ($note->get_id() !== null) {
+                $this->redirect("notes/show_note/" . $note->get_id());
+            }
+            
+        }
+               
     }
+    
 
+
+    public function save_edited_note(): void {
+        $user = $this->get_user_or_redirect();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $noteId = $_POST['id'] ?? null;
+            $title = $_POST['title'] ?? '';
+            $content = $_POST['text'] ?? '';  // Assurez-vous que cela correspond au nom du champ dans votre formulaire
+    
+            $note = Note::get_note_by_id((int)$noteId);
+            if ($note && $note->owner == $user->get_id()) {
+               
+                $note->title = $title;
+                $note->content = $content; 
+                
+                
+                $note->persist(); 
+    
+                $this->redirect("notes/show_note/" . $note->id);
+            } else {
+                // Gestion des erreurs
+             
+            }
+        }
+    
+    }
+ 
+    public function show_addtextnote(): void {
+        $user = $this->get_user_or_redirect();
+        require 'view/view_addtextnote.php';
+    }
     public function show_note(): void {
         $user = $this->get_user_or_redirect();
         $noteId = $_GET['param1'] ?? null;
@@ -111,6 +166,24 @@ class ControllerNotes extends Controller {
         $this->redirect("notes");
     }
     
+    public function edit_note() {
+        $user = $this->get_user_or_redirect();
+        $noteId = $_GET['param1'] ?? null;
+    
+        if ($noteId) {
+            $note = Note::get_note_by_id((int)$noteId);
+            if ($note && $note->owner == $user->get_id()) {
+                (new View("edit_Note"))->show(["note" => $note]);
+                
+            } else {
+                
+            }
+        }
+    }
+   
+            
+       
+
 
 
     public function check_or_uncheck_item() {
@@ -158,4 +231,5 @@ class ControllerNotes extends Controller {
         $notes = Note::get_notes_by_owner($user->get_id());
         (new View("archives"))->show(["user" => $user, "notes" => $notes]);
     }
+ 
 }

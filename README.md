@@ -15,7 +15,7 @@
 ### Liste des bugs connus
 
   * afficher "..." en dessous des cartes de checklist notes
-  * bug 2
+  * deplacement des notes avec la nouvelle methode persist -> Solution temporaire : 2 méthodes persist, une pour swap et une pour add des notes
   * ...
 
 ### Liste des fonctionnalités supplémentaires
