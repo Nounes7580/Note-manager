@@ -135,7 +135,7 @@ class ControllerNotes extends Controller {
                 $this->redirect("notes/show_note/" . $note->id);
             } else {
                 // Gestion des erreurs
-                // ...
+             
             }
         }
     
