@@ -26,6 +26,9 @@ class CheckListNote extends Note {
             edited_at: $edited_at
         );
     }
+    public function getId() {
+        return $this->id;
+    }
 
     public function getItems(): array {
         $items = [];

@@ -1,7 +1,7 @@
 <?php
-error_reporting(E_ALL);
-
 ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 require_once 'model/User.php';
 require_once 'model/TextNote.php';
@@ -57,27 +57,61 @@ class ControllerNotes extends Controller {
     
     public function add_checklistnote(): void {
         $user = $this->get_user_or_redirect();
-        $title = $_POST['title'] ?? null;
-        $items = $_POST['items'] ?? null;
-        $items = explode("\n", $items);
-        $items = array_filter($items, function($item) {
-            return !empty($item);
-        });
-        $items = array_map(function($item) {
-            return trim($item);
-        }, $items);
-        $note = new CheckListNote();
-        $note->set_title($title);
-        $note->set_owner_id($user->get_id());
-        $note->save();
-        foreach ($items as $item) {
-            $noteItem = new CheckListNoteItem();
-            $noteItem->set_text($item);
-            $noteItem->set_note_id($note->get_id());
-            $noteItem->save();
+        $highestWeight = Note::get_highest_weight_by_owner($user->get_id());
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Collecter les données du formulaire.
+            $title = $_POST['title'] ?? 'Titre par défaut';
+            $items = [];
+            for ($i = 1; $i <= 5; $i++) {
+                if (!empty($_POST["item$i"])) {
+                    $items[] = $_POST["item$i"];
+                }
+            }
+    
+            // Créer une nouvelle note checklist.
+            $checklistNote = new CheckListNote(
+                title: $title,
+                owner: $user->get_id(),
+                pinned: false, // ou toute autre logique pour 'pinned'
+                archived: false, // ou toute autre logique pour 'archived'
+                weight: $highestWeight // ou calculer le poids en fonction de votre logique d'application
+            );
+    
+            // Sauvegarder la note checklist.
+             $checklistNote->persist();
+            $checklistNoteId = $checklistNote->getId();
+            error_log("CheckListNote ID: " . $checklistNoteId);
+
+// Si l'ID est null ou non valide, gérez cette situation
+     if ($checklistNoteId === null) {
+    error_log("Erreur : L'ID de CheckListNote est null.");
+    // Gérer l'erreur, par exemple en arrêtant l'exécution ou en affichant un message d'erreur
+}
+            // Parcourir les éléments et les sauvegarder.
+            foreach ($items as $itemContent) {
+                $item = new CheckListNoteItem(
+                    checklist_note_id: $checklistNoteId,
+                    content: $itemContent,
+                    checked: false
+                );
+                $item->persistAdd();
+            }
+       
+            // Rediriger vers la page de la note ou une autre page appropriée.
+            $this->redirect("notes/show_note/" . $checklistNote->getId());
+        } else {
+            // Afficher le formulaire si la méthode n'est pas POST.
+            $this->show_addchecklistnote();
         }
-        $this->redirect("notes");
     }
+
+
+    public function show_addchecklistnote(): void {
+        $user = $this->get_user_or_redirect();
+        require 'view/view_addchecklistnote.php';
+    }
+
+
     public function add_textnote(): void {
         $user = $this->get_user_or_redirect();
        
@@ -145,6 +179,7 @@ class ControllerNotes extends Controller {
         $user = $this->get_user_or_redirect();
         require 'view/view_addtextnote.php';
     }
+
     public function show_note(): void {
         $user = $this->get_user_or_redirect();
         $noteId = $_GET['param1'] ?? null;

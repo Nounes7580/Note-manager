@@ -1,5 +1,6 @@
 
 <!DOCTYPE html>
+
 <html lang="en" data-bs-theme="dark">
 
 <head>
@@ -56,6 +57,8 @@
     <div class="container mt-5">
         <!-- Bouton pour créer une nouvelle note -->
         <div class="fixed-bottom d-flex justify-content-end p-3">
+       <a href="./show_addchecklistnote" class=" bi-card-checklist" style="border-radius: 40px; padding: 10px 20px;"></a>
+   
     <form action="./show_addtextnote" method="post">
         <input type="hidden" name="title" value="Nouvelle Note">
         <input type="hidden" name="text" value="Contenu de la note">

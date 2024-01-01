@@ -1,11 +1,16 @@
 <?php
 require_once "framework/Model.php";
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 class CheckListNoteItem extends Model {
     public int $checklist_note_id;
     public string $content;
     public bool $checked;
     public ?int $id;
+    private static $instance = null;
+    private $error;
+
 
     public function __construct(
         int $checklist_note_id,
@@ -28,6 +33,7 @@ class CheckListNoteItem extends Model {
     public function toggleChecked() {
         $this->checked = !$this->checked;
     }
+   
 
     public static  function get_item_by_id(int $id): ?CheckListNoteItem {
         $sql = 'SELECT * FROM checklist_note_items WHERE id = :id';
@@ -42,7 +48,9 @@ class CheckListNoteItem extends Model {
         }
         return null;
     }
-    
+    public function getError(): ?string {
+        return $this->error;
+    }
 
     public function save() {
         $sql = 'INSERT INTO checklist_note_items (checklist_note, content, checked) 
@@ -63,7 +71,23 @@ class CheckListNoteItem extends Model {
             'checked' => $this->checked ? 1 : 0, // Convert to integer
         ]);
     }
-        
+    public static function connect() {
+        if (self::$instance === null) {
+            try {
+                $dsn = 'mysql:host=your_host;dbname=your_db_name;charset=utf8';
+                $username = 'your_username';
+                $password = 'your_password';
+                self::$instance = new PDO($dsn, $username, $password);
+                self::$instance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            } catch (PDOException $e) {
+                // Gérer l'erreur de connexion ici
+                error_log("Erreur de connexion PDO : " . $e->getMessage());
+                // Vous pouvez choisir de lever une exception ou gérer l'erreur différemment
+                throw $e;
+            }
+        }
+        return self::$instance;
+    }
     public function persist() {
         // Convert boolean value to integer
         $checkedInt = $this->checked ? 1 : 0;
@@ -87,9 +111,37 @@ class CheckListNoteItem extends Model {
                 'checked' => $checkedInt
             ]);
             $this->id = self::connect()->lastInsertId(); // Set the ID of the new checklist note item
-            error_log("Inserted new checklist note item with ID: " . $this->id);
+            if ($this->id === null) {
+                $this->error = "Erreur lors de la récupération de l'ID de CheckListNote après insertion.";
+            }
         }
     }
+    public function persistAdd() {
+        // Convertir la valeur booléenne en entier
+        $checkedInt = $this->checked ? 1 : 0;
+
+        if ($this->id) {
+            // Mise à jour d'un élément de checklist existant
+            $sql = 'UPDATE checklist_note_items SET checklist_note = :checklist_note_id, content = :content, checked = :checked WHERE id = :id';
+            self::execute($sql, [
+                'id' => $this->id,
+                'checklist_note_id' => $this->checklist_note_id,
+                'content' => $this->content,
+                'checked' => $checkedInt
+            ]);
+        } else {
+            // Insertion d'un nouvel élément de checklist
+            $sql = 'INSERT INTO checklist_note_items (checklist_note, content, checked) VALUES (:checklist_note_id, :content, :checked)';
+            self::execute($sql, [
+                'checklist_note_id' => $this->checklist_note_id,
+                'content' => $this->content,
+                'checked' => $checkedInt
+            ]);
+            
+            $this->id = self::connect()->lastInsertId(); // Récupération de l'ID du nouvel élément
+        }
+    }
+
 
 
     // Additional CheckListNoteItem-specific methods...
