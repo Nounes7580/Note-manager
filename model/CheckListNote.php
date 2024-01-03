@@ -53,13 +53,30 @@ class CheckListNote extends Note {
     // Implement the save method as required by the abstract parent class.
 
     public function persist(): CheckListNote {
-        parent::persist(); // First, call parent's persist method
-        
+        parent::persist(); // Persist the common note attributes
+
+        if ($this->id) {
+            // Check if this checklist note already exists in the checklist_notes table
+            $sql = 'SELECT COUNT(*) FROM checklist_notes WHERE id = :id';
+            $exists = self::execute($sql, ['id' => $this->id])->fetchColumn() > 0;
+
+            if (!$exists) {
+                // Insert into checklist_notes table since it doesn't exist
+                $sql = 'INSERT INTO checklist_notes (id) VALUES (:id)';
+                self::execute($sql, ['id' => $this->id]);
+            }
+        }
+
         return $this;
     }
 
-
     
+    // Cette méthode doit être définie dans votre classe CheckListNote pour vérifier l'existence d'une note
+    public static function exists($id) {
+        $sql = 'SELECT COUNT(*) FROM checklist_notes WHERE id = :id';
+        $stmt = self::execute($sql, ['id' => $id]);
+        return $stmt->fetchColumn() > 0;
+    }
 
     // Additional CheckListNote-specific methods...
 }

@@ -57,7 +57,7 @@ class ControllerNotes extends Controller {
     
     public function add_checklistnote(): void {
         $user = $this->get_user_or_redirect();
-        $highestWeight = Note::get_highest_weight_by_owner($user->get_id());
+        $highestWeight = Note::get_highest_weight_by_owner($user->get_id())+1;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Collecter les données du formulaire.
             $title = $_POST['title'] ?? 'Titre par défaut';

@@ -116,33 +116,59 @@ class CheckListNoteItem extends Model {
             }
         }
     }
-    public function persistAdd() {
-        // Convertir la valeur booléenne en entier
-        $checkedInt = $this->checked ? 1 : 0;
+    public function setChecklistNoteId($id) {
+        $this->checklist_note_id = $id;
+    }
 
-        if ($this->id) {
-            // Mise à jour d'un élément de checklist existant
-            $sql = 'UPDATE checklist_note_items SET checklist_note = :checklist_note_id, content = :content, checked = :checked WHERE id = :id';
-            self::execute($sql, [
-                'id' => $this->id,
-                'checklist_note_id' => $this->checklist_note_id,
-                'content' => $this->content,
-                'checked' => $checkedInt
-            ]);
-        } else {
-            // Insertion d'un nouvel élément de checklist
-            $sql = 'INSERT INTO checklist_note_items (checklist_note, content, checked) VALUES (:checklist_note_id, :content, :checked)';
-            self::execute($sql, [
-                'checklist_note_id' => $this->checklist_note_id,
-                'content' => $this->content,
-                'checked' => $checkedInt
-            ]);
-            
-            $this->id = self::connect()->lastInsertId(); // Récupération de l'ID du nouvel élément
+    public function persistAdd() {
+        // Convertir la valeur booléenne en entier pour la base de données
+        $checkedInt = $this->checked ? 1 : 0;
+        
+        try {
+            // Vérifiez que l'ID de la note de checklist est valide
+            if (!$this->checklist_note_id || !CheckListNote::exists($this->checklist_note_id)) {
+                throw new Exception("L'ID de CheckListNote n'est pas valide ou n'existe pas.");
+            }
+
+            if ($this->id) {
+                // Mise à jour d'un élément de checklist existant
+                $sql = 'UPDATE checklist_note_items SET checklist_note = :checklist_note_id, content = :content, checked = :checked WHERE id = :id';
+                $stmt = self::execute($sql, [
+                    'id' => $this->id,
+                    'checklist_note_id' => $this->checklist_note_id,
+                    'content' => $this->content,
+                    'checked' => $checkedInt
+                ]);
+                
+                // Si aucune ligne n'est affectée, log l'erreur
+                if ($stmt->rowCount() === 0) {
+                    throw new Exception("Aucune mise à jour effectuée, vérifiez l'ID.");
+                }
+            } else {
+                // Insertion d'un nouvel élément de checklist
+                $sql = 'INSERT INTO checklist_note_items (checklist_note, content, checked) VALUES (:checklist_note_id, :content, :checked)';
+                $stmt = self::execute($sql, [
+                    'checklist_note_id' => $this->checklist_note_id,
+                    'content' => $this->content,
+                    'checked' => $checkedInt
+                ]);
+                
+                // Vérifier si l'insertion a été réussie et récupérer l'ID
+                if ($stmt->rowCount() > 0) {
+                    $this->id = self::lastInsertId();
+                } else {
+                    throw new Exception("L'insertion a échoué, aucun élément ajouté.");
+                }
+            }
+        } catch (Exception $e) {
+            // Log l'erreur avec l'exception capturée
+            error_log("Erreur lors de l'insertion/mise à jour de l'élément : " . $e->getMessage());
+            // Vous pouvez choisir de renvoyer l'erreur, de lancer une nouvelle exception ou de gérer autrement
         }
     }
 
-
+    
+    
 
     // Additional CheckListNoteItem-specific methods...
 }
