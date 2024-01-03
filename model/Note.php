@@ -418,18 +418,48 @@ abstract class Note extends Model
         return $notes;
     }
 
-    function checkSharedNote($user_id_1, $user_id_2, $conn)
+    public static function checkSharedNote($user_id_1, $user_id_2): bool
     {
-        $query = self::execute("SELECT COUNT(*) AS count FROM note_shares ns1 JOIN note_shares ns2 ON ns1.note = ns2.note WHERE ns1.user = :user_id_1 AND ns2.user = :user_id_2",["user_id_1"=>$user_id_1, "user_id_2"=>$user_id_2]);
+        $query = self::execute("SELECT COUNT(*) AS count FROM note_shares ns1 JOIN note_shares ns2 ON ns1.note = ns2.note WHERE ns1.user = :user_id_1 AND ns2.user = :user_id_2", ["user_id_1" => $user_id_1, "user_id_2" => $user_id_2]);
         $result = $query->fetch();
         // Préparation de la requête
 
-            // Vérification du résultat pour déterminer s'il y a une note partagée
-            if ($result['count'] > 0) {
-                return true;  // Il y a une note partagée entre les deux utilisateurs
-            } else {
-                return false; // Aucune note partagée entre les utilisateurs
-            }
-        
+        // Vérification du résultat pour déterminer s'il y a une note partagée
+        if (!empty($result)) {
+            return true;  // Il y a une note partagée entre les deux utilisateurs
+        } else {
+            return false; // Aucune note partagée entre les utilisateurs
+        }
+    }
+    public static function getSharedNotesIds($user_id_1, $user_id_2): array
+    {
+        $query = self::execute(
+            "
+        SELECT DISTINCT ns1.note AS shared_note_id
+        FROM note_shares ns1
+        JOIN note_shares ns2 ON ns1.note = ns2.note
+        WHERE ns1.user = :user_id_1 AND ns2.user = :user_id_2",
+            ["user_id_1" => $user_id_1, "user_id_2" => $user_id_2]
+        );
+
+        $result = $query->fetchAll(PDO::FETCH_COLUMN);
+
+        return $result ?: [];
+    }
+    public static function getSharedNotesDetails($owner_id, $user_id): ?array
+    {
+        $query = self::execute(
+            "
+        SELECT n.id AS note_id
+        FROM notes n
+        INNER JOIN note_shares ns1 ON n.id = ns1.note
+        INNER JOIN note_shares ns2 ON ns1.note = ns2.note
+        WHERE n.owner = :owner_id AND ns2.user = :user_id",
+            ["owner_id" => $owner_id, "user_id" => $user_id]
+        );
+
+        $results = $query->fetchAll(PDO::FETCH_ASSOC);
+
+        return !empty($results) ? $results : null;
     }
 }

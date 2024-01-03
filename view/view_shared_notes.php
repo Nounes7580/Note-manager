@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 
@@ -73,9 +72,10 @@
                     <div class="col-6 col-md-4 mb-3">
                         <div class="card h-100" style="max-width: 18rem;">
                             <div class="card-header"><?= htmlspecialchars($note->title) ?></div>
-                            <?= var_dump($share)?>
+                                
                             <a href="./show_note/<?= $note->id ?>" class="stretched-link">
                                 <div class="card-body">
+
                                     <?php if ($note instanceof TextNote): ?>
                                         <p class="card-text"><?= nl2br(htmlspecialchars($note->content)) ?></p>
                                     <?php elseif ($note instanceof CheckListNote): ?>
