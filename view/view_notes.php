@@ -47,6 +47,16 @@
     bottom: 0;
     left: 0;
 }
+.bi-card-checklist {
+  
+    color: #F1C40F; /* Couleur du texte en noir pour un bon contraste */
+    font-size: 35px; /* Augmente la taille du texte (et du bouton) */
+    padding: 10px 15px; /* Espacement intérieur pour augmenter la taille du bouton */
+    border: none; /* Supprime la bordure par défaut */
+    border-radius: 5px; /* Arrondit les coins du bouton */
+    cursor: pointer; /* Change le curseur en main lors du survol */
+    
+}
 
 
     </style>

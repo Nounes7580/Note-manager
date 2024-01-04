@@ -26,13 +26,10 @@
   <div class="container-fluid">
     <!-- Left aligned return button -->
     <a class="navbar-brand" href="javascript:history.back()">
-      <i class="bi bi-arrow-left"></i> <!-- Left-pointing arrow -->
-    </a>
-      <a class="nav-link" href="">
-        <i class="bi bi-pencil"></i> <!-- Pencil for editing -->
-      </a>
+  <i class="bi bi-arrow-left"></i> <!-- Left-pointing arrow -->
+</a>
     </div>
-  </div>
+
 </nav>
     <!-- Formulaire pour ajouter une note checklist -->
     <div class="container mt-5">
