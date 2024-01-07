@@ -6,7 +6,8 @@
     <a class="navbar-brand" href="#">
       <img src="../css/logo.png" alt="Logo" style="height: 50px; margin-right: 10px;"> <!-- Adjust the height as needed -->
       NoteSpark
-    </a>    <div class="offcanvas offcanvas-start custom-offcanvas" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+    </a>
+    <div class="offcanvas offcanvas-start custom-offcanvas" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
       <div class="offcanvas-header">
         <!-- Use the Bootstrap class for text color -->
         <h5 class="offcanvas-title text-warning" id="offcanvasNavbarLabel">Menu</h5>
@@ -22,7 +23,16 @@
           <li class="nav-item">
             <a class="nav-link" href="<?php echo $web_root; ?>Main/logout">Logout</a>
           </li>
-          <!-- Add more menu items here as needed -->
+          <li class="nav-item">
+            <?php foreach ($sharingUsers as $user) : ?>
+          <li class="nav-item">
+            <a class="nav-link" href="<?= $web_root; ?>Notes/shared_by/<?= $user['id']; ?>">
+              Shared by <?= htmlspecialchars($user['name']); ?>
+            </a>
+          </li>
+        <?php endforeach; ?>
+        </li>
+        <!-- Add more menu items here as needed -->
         </ul>
         <!-- Optional: Add a search form or other elements here -->
       </div>
@@ -34,7 +44,7 @@
 <!-- Add custom CSS to style the shorter offcanvas menu -->
 <style>
   .custom-offcanvas {
-    max-width: 50%; /* Adjust the width to your desired value */
+    max-width: 50%;
+    /* Adjust the width to your desired value */
   }
 </style>
-
