@@ -56,55 +56,113 @@ class ControllerNotes extends Controller {
     }
     
     public function add_checklistnote(): void {
+        // Obtenir l'utilisateur actuel ou rediriger si non connecté
         $user = $this->get_user_or_redirect();
-        $highestWeight = Note::get_highest_weight_by_owner($user->get_id())+1;
+    
+        // Calculer le poids le plus élevé pour les notes de cet utilisateur
+        $highestWeight = Note::get_highest_weight_by_owner($user->get_id()) + 1;
+    
+       
+        $errors = [];
+     $items = [];
+    $validFields = [];
+        $title = '';
+       
+    
+        // Vérifier si le formulaire a été soumis
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Collecter les données du formulaire.
-            $title = $_POST['title'] ?? 'Titre par défaut';
-            $items = [];
+            // Récupérer le titre du formulaire, ou lui attribuer une valeur par défaut
+        $title = $_POST['title'] ?? 'Titre par défaut';
+            if (empty($title)) {
+                $errors['title'] = "Le titre est requis.";
+            }
+          
             for ($i = 1; $i <= 5; $i++) {
+               
                 if (!empty($_POST["item$i"])) {
-                    $items[] = $_POST["item$i"];
+                    $items[] = trim($_POST["item$i"]);
+                }
+                $unique_items = array_unique($items);
+                if (count($items) !== count($unique_items)) {
+                    foreach ($items as $index => $item) {
+                        if (count(array_filter($items, fn($i) => $i === $item)) > 1) {
+                            // Ajouter une erreur spécifique à l'élément dupliqué
+                            $errors["item" . ($index + 1)] = "Item" . ($index + 1) . " must be unique.";
+                        }
+                    }
                 }
             }
     
-            // Créer une nouvelle note checklist.
-            $checklistNote = new CheckListNote(
-                title: $title,
-                owner: $user->get_id(),
-                pinned: false, // ou toute autre logique pour 'pinned'
-                archived: false, // ou toute autre logique pour 'archived'
-                weight: $highestWeight // ou calculer le poids en fonction de votre logique d'application
-            );
-    
-            // Sauvegarder la note checklist.
-             $checklistNote->persist();
-            $checklistNoteId = $checklistNote->getId();
-            error_log("CheckListNote ID: " . $checklistNoteId);
-
-// Si l'ID est null ou non valide, gérez cette situation
-     if ($checklistNoteId === null) {
-    error_log("Erreur : L'ID de CheckListNote est null.");
-    // Gérer l'erreur, par exemple en arrêtant l'exécution ou en affichant un message d'erreur
-}
-            // Parcourir les éléments et les sauvegarder.
-            foreach ($items as $itemContent) {
-                $item = new CheckListNoteItem(
-                    checklist_note_id: $checklistNoteId,
-                    content: $itemContent,
-                    checked: false
-                );
-                $item->persistAdd();
+            // Vérifier s'il y a des doublons dans les éléments
+            if (count($items) !== count(array_unique($items))) {
+                // Ajouter une erreur si des doublons sont trouvés
+                $errors[] = "Les éléments doivent être uniques.";
             }
-       
-            // Rediriger vers la page de la note ou une autre page appropriée.
-            $this->redirect("notes/show_note/" . $checklistNote->getId());
-        } else {
-            // Afficher le formulaire si la méthode n'est pas POST.
-            $this->show_addchecklistnote();
+    
+            // Si aucune erreur n'est détectée
+            if (empty($errors)) {
+                // Créer une nouvelle note de checklist
+                $checklistNote = new CheckListNote(
+                    title: $title,
+                    owner: $user->get_id(),
+                    pinned: false,
+                    archived: false,
+                    weight: $highestWeight
+                );
+    
+                // Sauvegarder la note et récupérer son identifiant
+                $checklistNote->persist();
+                $checklistNoteId = $checklistNote->getId();
+    
+                // Si l'ID de la note est récupéré avec succès
+                if ($checklistNoteId !== null) {
+                    // Sauvegarder chaque élément de la checklist
+                    foreach ($items as $itemContent) {
+                        $item = new CheckListNoteItem(
+                            checklist_note_id: $checklistNoteId,
+                            content: $itemContent,
+                            checked: false
+                        );
+                        $item->persistAdd();
+                    }
+    
+                    // Rediriger l'utilisateur vers la note nouvellement créée
+                    $this->redirect("notes/show_note/" . $checklistNoteId);
+                    return;
+                } else {
+                    // Loguer l'erreur et ajouter un message d'erreur
+                    error_log("Erreur : L'ID de CheckListNote est null.");
+                    $errors[] = "Une erreur est survenue lors de l'enregistrement de la note.";
+                }
+            }
         }
-    }
 
+     $validFields = [
+            'title' => !empty($title) && empty($errors['title']),
+            // Répétez pour chaque champ d'élément
+            'item1' => !empty($items[0]) && empty($errors['item1']),
+            'item2' => !empty($items[1]) && empty($errors['item2']),
+            'item3' => !empty($items[2]) && empty($errors['item3']),
+            'item4' => !empty($items[3]) && empty($errors['item4']),
+            'item5' => !empty($items[4]) && empty($errors['item5']),
+           
+        ];
+
+        // Préparer les données pour la vue
+        $data = [
+            "user" => $user,
+            "errors" => $errors,
+            "validFields" => $validFields,
+            "title" => $title,
+            "items" => $items
+            
+        ];
+       
+    
+        // Afficher la vue avec les données et les erreurs
+        (new View("addchecklistnote"))->show($data);
+    }
+    
 
     public function show_addchecklistnote(): void {
         $user = $this->get_user_or_redirect();
@@ -216,7 +274,18 @@ class ControllerNotes extends Controller {
         }
     }
    
-            
+    public function editchecklistnote() {
+        $user = $this->get_user_or_redirect();
+        $noteId = $_GET['param1'] ?? null;
+    
+        if ($noteId) {
+            $note = Note::get_note_by_id((int)$noteId);
+            if ($note && $note instanceof CheckListNote && $note->owner == $user->get_id()) {
+                // Afficher la vue 'editchecklistnote' pour une note checklist
+                (new View("editchecklistnote"))->show(["note" => $note]);
+            }  
+        } 
+    }
        
 
 
