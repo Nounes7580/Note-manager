@@ -11,18 +11,22 @@ require_once 'model/CheckListNoteItem.php';
 require_once 'framework/View.php';
 require_once 'framework/Controller.php';
 
-class ControllerNotes extends Controller {
-    public function index(): void {
+class ControllerNotes extends Controller
+{
+    public function index(): void
+    {
         $user = $this->get_user_or_redirect();
         $allNotes = Note::get_notes_by_owner($user->get_id());
-        $verif = Note::getSharedNotesDetails(4,1);
+        $verif = Note::getSharedNotesDetails(4, 1);
+        $currentUser = $this->get_user_or_redirect();
+        $sharedByUsers = Note::getUsersSharingWithCurrentUser($currentUser->get_id());
 
         // Separate pinned and other notes
-        $pinnedNotes = array_filter($allNotes, function($note) {
+        $pinnedNotes = array_filter($allNotes, function ($note) {
             return $note->isPinned();
         });
 
-        $otherNotes = array_filter($allNotes, function($note) {
+        $otherNotes = array_filter($allNotes, function ($note) {
             return !$note->isPinned();
         });
 
@@ -31,12 +35,17 @@ class ControllerNotes extends Controller {
             "user" => $user,
             "pinnedNotes" => $pinnedNotes,
             "otherNotes" => $otherNotes,
-            "share"=>$verif
+            "share" => $verif
 
         ]);
-    }  
-    
-    public function moveNoteRight() {
+        (new View("main"))->show([
+            "sharingUsers" => $sharingUsers,
+            // ... autres données nécessaires ...
+        ]);
+    }
+
+    public function moveNoteRight()
+    {
         $noteId = $_POST['noteId'] ?? null;
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
@@ -46,8 +55,9 @@ class ControllerNotes extends Controller {
         }
         $this->redirect("notes");
     }
-    
-    public function moveNoteLeft() {
+
+    public function moveNoteLeft()
+    {
         $noteId = $_POST['noteId'] ?? null;
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
@@ -57,16 +67,17 @@ class ControllerNotes extends Controller {
         }
         $this->redirect("notes");
     }
-    
-    public function add_checklistnote(): void {
+
+    public function add_checklistnote(): void
+    {
         $user = $this->get_user_or_redirect();
         $title = $_POST['title'] ?? null;
         $items = $_POST['items'] ?? null;
         $items = explode("\n", $items);
-        $items = array_filter($items, function($item) {
+        $items = array_filter($items, function ($item) {
             return !empty($item);
         });
-        $items = array_map(function($item) {
+        $items = array_map(function ($item) {
             return trim($item);
         }, $items);
         $note = new CheckListNote();
@@ -81,20 +92,21 @@ class ControllerNotes extends Controller {
         }
         $this->redirect("notes");
     }
-    public function add_textnote(): void {
+    public function add_textnote(): void
+    {
         $user = $this->get_user_or_redirect();
-       
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-           
+
             $highestWeight = Note::get_highest_weight_by_owner($user->get_id());
-    
+
             $title = $_POST['title'] ?? 'Nouveau Titre';
             $text = $_POST['text'] ?? 'Nouveau Texte';
             $owner = $user->get_id();
             $pinned = false;
             $archived = false;
             $weight = $highestWeight + 1; // Augmenter le poids le plus élevé de 1.
-    
+
             // Création de la nouvelle note.
             $note = new TextNote(
                 title: $title,
@@ -104,54 +116,54 @@ class ControllerNotes extends Controller {
                 weight: $weight,
                 content: $text
             );
-            
+
             // Persiste la note dans la base de données.
             $note->persistAdd();
-            
+
             // Rediriger vers la page de la note si la note a été créée avec succès.
             if ($note->get_id() !== null) {
                 $this->redirect("notes/show_note/" . $note->get_id());
             }
-            
         }
-               
     }
-    
 
 
-    public function save_edited_note(): void {
+
+    public function save_edited_note(): void
+    {
         $user = $this->get_user_or_redirect();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $noteId = $_POST['id'] ?? null;
             $title = $_POST['title'] ?? '';
             $content = $_POST['text'] ?? '';  // Assurez-vous que cela correspond au nom du champ dans votre formulaire
-    
+
             $note = Note::get_note_by_id((int)$noteId);
             if ($note && $note->owner == $user->get_id()) {
-               
+
                 $note->title = $title;
-                $note->content = $content; 
-                
-                
-                $note->persist(); 
-    
+                $note->content = $content;
+
+
+                $note->persist();
+
                 $this->redirect("notes/show_note/" . $note->id);
             } else {
                 // Gestion des erreurs
-             
+
             }
         }
-    
     }
- 
-    public function show_addtextnote(): void {
+
+    public function show_addtextnote(): void
+    {
         $user = $this->get_user_or_redirect();
         require 'view/view_addtextnote.php';
     }
-    public function show_note(): void {
+    public function show_note(): void
+    {
         $user = $this->get_user_or_redirect();
         $noteId = $_GET['param1'] ?? null;
-    
+
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note) {
@@ -168,31 +180,31 @@ class ControllerNotes extends Controller {
         }
         $this->redirect("notes");
     }
-    
-    public function edit_note() {
+
+    public function edit_note()
+    {
         $user = $this->get_user_or_redirect();
         $noteId = $_GET['param1'] ?? null;
-    
+
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note && $note->owner == $user->get_id()) {
                 (new View("edit_Note"))->show(["note" => $note]);
-                
             } else {
-                
             }
         }
     }
-   
-            
-       
 
 
 
-    public function check_or_uncheck_item() {
+
+
+
+    public function check_or_uncheck_item()
+    {
         $itemId = $_POST['item_id'] ?? null; // Correct the variable name here
         $noteId = $_POST['note_id'] ?? null;
-            
+
         if ($itemId) {
             $item = CheckListNoteItem::get_item_by_id((int)$itemId);
             if ($item) {
@@ -201,10 +213,10 @@ class ControllerNotes extends Controller {
             }
         }
         $this->redirect("notes/show_note/" . $noteId);
-
     }
-    
-    public function pin_or_unpin_note() {
+
+    public function pin_or_unpin_note()
+    {
         $noteId = $_GET['param1'] ?? null;
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
@@ -216,7 +228,8 @@ class ControllerNotes extends Controller {
         $this->redirect("notes/show_note/" . $noteId);
     }
 
-    public function archive_note() {
+    public function archive_note()
+    {
         $noteId = $_GET['param1'] ?? null;
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
@@ -227,16 +240,23 @@ class ControllerNotes extends Controller {
         }
         $this->redirect("notes/show_note/" . $noteId);
     }
-    
+
     // Controller for archived notes, same as index but with archived notes
-    public function archives(): void {
+    public function archives(): void
+    {
         $user = $this->get_user_or_redirect();
         $notes = Note::get_notes_by_owner($user->get_id());
         (new View("archives"))->show(["user" => $user, "notes" => $notes]);
     }
-    public function shared_notes(): void{
-        $verif = Note::checkSharedNote(3,4);
-        (new View("shared_notes"))->show(["share"=>$verif]);
+    public function shared_by($sharedUserId)
+    {
+        $currentUser = $this->get_user_or_redirect();
+        // Utiliser la méthode existante pour récupérer les notes partagées.
+        $sharedNotesDetails = Note::getSharedNotesDetails($sharedUserId, $currentUser->get_id());
+
+        (new View("view_shared_notes"))->show([
+            "sharedNotes" => $sharedNotesDetails,
+            // ... autres données nécessaires ...
+        ]);
     }
-    
 }

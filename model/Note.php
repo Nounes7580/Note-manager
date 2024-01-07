@@ -462,4 +462,26 @@ abstract class Note extends Model
 
         return !empty($results) ? $results : null;
     }
+    /**
+     * Récupère les utilisateurs qui partagent une note spécifiée avec l'utilisateur connecté.
+     *
+     * @param int $noteId L'ID de la note.
+     * @param int $currentUserId L'ID de l'utilisateur connecté.
+     * @return array La liste des utilisateurs qui partagent la note avec l'utilisateur connecté.
+     */
+    public static function getUsersSharingWith($noteId, $currentUserId)
+    {
+        $query = self::execute(
+            "
+        SELECT n.id AS note_id
+        FROM notes n
+        INNER JOIN note_shares ns1 ON n.id = ns1.note
+        INNER JOIN note_shares ns2 ON ns1.note = ns2.note
+        WHERE n.owner = :owner_id AND ns2.user = :user_id",
+            ["noteId" => $noteId, "currentUserId" => $currentUserId]
+        );
+
+        $results = $query->fetchAll(PDO::FETCH_ASSOC);
+        
+    }
 }
