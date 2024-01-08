@@ -418,34 +418,6 @@ abstract class Note extends Model
         return $notes;
     }
 
-    public static function checkSharedNote($user_id_1, $user_id_2): bool
-    {
-        $query = self::execute("SELECT COUNT(*) AS count FROM note_shares ns1 JOIN note_shares ns2 ON ns1.note = ns2.note WHERE ns1.user = :user_id_1 AND ns2.user = :user_id_2", ["user_id_1" => $user_id_1, "user_id_2" => $user_id_2]);
-        $result = $query->fetch();
-        // Préparation de la requête
-
-        // Vérification du résultat pour déterminer s'il y a une note partagée
-        if (!empty($result)) {
-            return true;  // Il y a une note partagée entre les deux utilisateurs
-        } else {
-            return false; // Aucune note partagée entre les utilisateurs
-        }
-    }
-    public static function getSharedNotesIds($user_id_1, $user_id_2): array
-    {
-        $query = self::execute(
-            "
-        SELECT DISTINCT ns1.note AS shared_note_id
-        FROM note_shares ns1
-        JOIN note_shares ns2 ON ns1.note = ns2.note
-        WHERE ns1.user = :user_id_1 AND ns2.user = :user_id_2",
-            ["user_id_1" => $user_id_1, "user_id_2" => $user_id_2]
-        );
-
-        $result = $query->fetchAll(PDO::FETCH_COLUMN);
-
-        return $result ?: [];
-    }
     public static function getSharedNotesDetails($owner_id, $user_id): ?array
     {
         $query = self::execute(
@@ -482,6 +454,21 @@ abstract class Note extends Model
         );
 
         $results = $query->fetchAll(PDO::FETCH_ASSOC);
-        
+    }
+
+    public static function getSharedNotesByUser(int $currentUserId): array
+    {
+        $users = [];
+        $query = self::execute("SELECT DISTINCT users.id, users.mail,
+                                users.hashed_password , users.full_name, users.role
+                                from note_shares
+                                join notes on notes.id = note_shares.note 
+                                join users on users.id = notes.owner
+                                where note_shares.user = :id", ["id" => $currentUserId]);
+        $data = $query->fetchAll();
+        foreach ($data as $row) {
+            $users[] = new User($row["mail"], $row["hashed_password"], $row["full_name"], $row["role"] ==  $row["id"]);
+        }
+        return $users;
     }
 }

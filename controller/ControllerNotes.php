@@ -17,9 +17,8 @@ class ControllerNotes extends Controller
     {
         $user = $this->get_user_or_redirect();
         $allNotes = Note::get_notes_by_owner($user->get_id());
-        $verif = Note::getSharedNotesDetails(4, 1);
-        $currentUser = $this->get_user_or_redirect();
-        $sharedByUsers = Note::getUsersSharingWithCurrentUser($currentUser->get_id());
+        $verif = Note::getSharedNotesByUser($user->get_id());
+
 
         // Separate pinned and other notes
         $pinnedNotes = array_filter($allNotes, function ($note) {
@@ -35,12 +34,7 @@ class ControllerNotes extends Controller
             "user" => $user,
             "pinnedNotes" => $pinnedNotes,
             "otherNotes" => $otherNotes,
-            "share" => $verif
-
-        ]);
-        (new View("main"))->show([
-            "sharingUsers" => $sharingUsers,
-            // ... autres données nécessaires ...
+            "sharedNotes" => $verif,
         ]);
     }
 
@@ -248,14 +242,13 @@ class ControllerNotes extends Controller
         $notes = Note::get_notes_by_owner($user->get_id());
         (new View("archives"))->show(["user" => $user, "notes" => $notes]);
     }
-    public function shared_by($sharedUserId)
+    public function shared_notes()
     {
         $currentUser = $this->get_user_or_redirect();
-        // Utiliser la méthode existante pour récupérer les notes partagées.
-        $sharedNotesDetails = Note::getSharedNotesDetails($sharedUserId, $currentUser->get_id());
+        $sharingUsers = Note::getSharedNotesByUser($currentUser->get_id());
 
-        (new View("view_shared_notes"))->show([
-            "sharedNotes" => $sharedNotesDetails,
+        (new View("shared_notes"))->show([
+            "sharingUsers" => $sharingUsers,
             // ... autres données nécessaires ...
         ]);
     }
