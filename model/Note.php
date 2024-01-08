@@ -454,6 +454,7 @@ abstract class Note extends Model
         );
 
         $results = $query->fetchAll(PDO::FETCH_ASSOC);
+
     }
 
     public static function getSharedNotesByUser(int $currentUserId): array

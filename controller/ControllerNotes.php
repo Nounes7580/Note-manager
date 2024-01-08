@@ -19,7 +19,6 @@ class ControllerNotes extends Controller
         $allNotes = Note::get_notes_by_owner($user->get_id());
         $verif = Note::getSharedNotesByUser($user->get_id());
 
-
         // Separate pinned and other notes
         $pinnedNotes = array_filter($allNotes, function ($note) {
             return $note->isPinned();
@@ -34,6 +33,7 @@ class ControllerNotes extends Controller
             "user" => $user,
             "pinnedNotes" => $pinnedNotes,
             "otherNotes" => $otherNotes,
+
             "sharedNotes" => $verif,
         ]);
     }
@@ -242,12 +242,13 @@ class ControllerNotes extends Controller
         $notes = Note::get_notes_by_owner($user->get_id());
         (new View("archives"))->show(["user" => $user, "notes" => $notes]);
     }
+
     public function shared_notes()
     {
         $currentUser = $this->get_user_or_redirect();
         $sharingUsers = Note::getSharedNotesByUser($currentUser->get_id());
 
-        (new View("shared_notes"))->show([
+        (new View("main"))->show([
             "sharingUsers" => $sharingUsers,
             // ... autres données nécessaires ...
         ]);
