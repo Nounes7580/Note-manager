@@ -29,6 +29,7 @@ class User extends Model {
         return $notes;
     }
 
+
     public function persist() : User {
         if($this->id) {
             self::execute("UPDATE users SET mail=:mail, hashed_password=:hashed_password, full_name=:full_name, role=:role WHERE id=:id", 
@@ -75,6 +76,7 @@ class User extends Model {
     public static function validate_email_unicity(string $mail) : array {
         $errors = [];
         $user = self::get_user_by_mail($mail); // 
+
         if ($user) {
             $errors[] = "A user with this email already exists.";
         } 
@@ -101,17 +103,22 @@ class User extends Model {
 
     public function validate() : array {
         $errors = [];
-        
+
+        // Assuming you now use $mail and $full_name instead of $pseudo
         if (is_null($this->mail) || strlen($this->mail) == 0) {
             $errors[] = "Email is required.";
         }
         if (is_null($this->full_name) || strlen($this->full_name) == 0) {
             $errors[] = "Full name is required.";
         }
+
         if (is_null($this->hashed_password) || strlen($this->hashed_password) == 0) {
             $errors[] = "Password is required.";
         }
         
+
+        // ... other checks
+
         return $errors;
     }
     
@@ -129,6 +136,11 @@ class User extends Model {
         return $errors;
     }
     
+
+    public function getFullName() : string {
+        return $this->full_name;
+    }
+
 
     
    
