@@ -61,17 +61,22 @@ $validFields = $validFields ?? [];
         <a class="navbar-brand" href="javascript:history.back()">
             <i class="bi bi-arrow-left"></i> <!-- Flèche pointant vers la gauche -->
         </a>
+        <a onclick="document.getElementById('checklistForm').submit(); return false;" style="cursor: pointer;">
+        <i class="bi bi-floppy2-fill"></i>
+        </a>
+        
     </div>
 </nav>
 
 <!-- Formulaire pour ajouter une note checklist -->
 <div class="container mt-5">
-    <form action="./add_checklistnote" method="post">
+    <form id="checklistForm" action="./add_checklistnote" method="post">
+        
         <!-- Titre de la checklist -->
         <div class="mb-3">
             <label for="titleInput" class="form-label">Titre</label>
             <?php $title = $title ?? ''; ?>
-            <input type="text" class="form-control <?php echo empty($errors['title']) ? 'is-valid' : (!empty($errors['title']) ? 'is-invalid' : ''); ?>"
+            <input type="text" class="form-control <?php echo ($formSubmitted && !empty($errors['title'])) ? 'is-invalid' : (($formSubmitted && empty($errors['title'])) ? 'is-valid' : ''); ?>" id="titleInput" name="title" value="<?php echo htmlspecialchars($title); ?>"
                    id="titleInput" name="title" value="<?php echo htmlspecialchars($title); ?>">
             <?php if (!empty($errors['title'])): ?>
                 <div class="invalid-feedback">
@@ -79,7 +84,7 @@ $validFields = $validFields ?? [];
                 </div>
             <?php endif; ?>
             <?php if (!empty($validFields['title'])): ?>
-                <span class="valid-feedback"><i class="bi bi-check-circle-fill text-success"></i></span>
+               
             <?php endif; ?>
         </div>
 
@@ -95,7 +100,7 @@ $validFields = $validFields ?? [];
             ?>
             <div class="input-group mb-3 has-validation">
                 <span class="input-group-text">.</span>
-                <input type="text" name="item<?= $i ?>" class="form-control <?php if (!empty($errors["item$i"]) || !$validFields[$validKey]) echo 'is-invalid'; elseif ($validFields[$validKey]) echo 'is-valid'; ?>"
+                <input type="text" name="item<?= $i ?>" class="form-control <?php if ($formSubmitted && !empty($errors["item$i"])) echo 'is-invalid'; elseif ($formSubmitted && $validFields[$validKey]) echo 'is-valid'; ?>" value="<?php echo htmlspecialchars($items[$i - 1] ?? ''); ?>"
                        value="<?php echo htmlspecialchars($items[$i - 1] ?? ''); ?>">
                 <?php if ($validFields[$validKey]): ?>
                     <!-- Votre code pour afficher l'icône de validation -->
@@ -106,12 +111,12 @@ $validFields = $validFields ?? [];
                     </div>
                 <?php endif; ?>
                 <?php if (!empty($validFields[$validKey])): ?>
-                    <div class="valid-feedback"><i class="bi bi-check-circle-fill text-success"></i></div>
+                    
                 <?php endif; ?>
             </div>
         <?php endfor; ?>
 
-        <button type="submit" class="btn btn-primary">Créer la note</button>
+        
     </form>
 </div>
 
