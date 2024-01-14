@@ -33,7 +33,7 @@
 
     <!-- Right aligned icon buttons -->
     <div class="navbar-nav">
-      <a class="nav-link" href="#">
+      <a class="nav-link" href="<?php echo $web_root; ?>Notes/pin_or_unpin_note/<?php echo $note->id; ?>">
         <i class="bi bi-share"></i> <!-- Share/connect icon -->
       </a>
       <a class="nav-link" href="<?php echo $web_root; ?>Notes/pin_or_unpin_note/<?php echo $note->id; ?>">
