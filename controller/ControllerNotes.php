@@ -10,6 +10,7 @@ require_once 'model/CheckListNote.php';
 require_once 'model/CheckListNoteItem.php';
 require_once 'framework/View.php';
 require_once 'framework/Controller.php';
+require_once 'model/NoteShares.php';
 
 class ControllerNotes extends Controller
 {
@@ -243,14 +244,10 @@ class ControllerNotes extends Controller
         (new View("archives"))->show(["user" => $user, "notes" => $notes]);
     }
 
-    public function shared_notes()
+    public function shared()
     {
-        $currentUser = $this->get_user_or_redirect();
-        $sharingUsers = Note::getSharedNotesByUser($currentUser->get_id());
-
-        (new View("main"))->show([
-            "sharingUsers" => $sharingUsers,
-            // ... autres données nécessaires ...
-        ]);
+        $sharedAsEditor = NoteShares::getSharedNotesByRolesEdit(2, $this->get_user_or_redirect()->get_id());
+        $sharedAsReader = NoteShares::getSharedNotesByRolesRead(2, $this->get_user_or_redirect()->get_id());
+        (new View("shared_notes"))->show(["sharedAsEditor" => $sharedAsEditor, "sharedAsReader" => $sharedAsReader]);
     }
 }
