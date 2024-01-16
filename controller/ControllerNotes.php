@@ -1,7 +1,10 @@
 <?php
+
+// Activez l'affichage des erreurs PHP
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
 
 require_once 'model/User.php';
 require_once 'model/TextNote.php';
@@ -10,6 +13,7 @@ require_once 'model/CheckListNote.php';
 require_once 'model/CheckListNoteItem.php';
 require_once 'framework/View.php';
 require_once 'framework/Controller.php';
+
 
 class ControllerNotes extends Controller {
     public function index(): void {
@@ -232,7 +236,7 @@ class ControllerNotes extends Controller {
         }
     
     }
- 
+
     public function show_addtextnote(): void {
         $user = $this->get_user_or_redirect();
         require 'view/view_addtextnote.php';
@@ -241,7 +245,7 @@ class ControllerNotes extends Controller {
     public function show_note(): void {
         $user = $this->get_user_or_redirect();
         $noteId = $_GET['param1'] ?? null;
-    
+        unset($_SESSION['checklist_items']);
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note) {
@@ -273,23 +277,118 @@ class ControllerNotes extends Controller {
             }
         }
     }
-   
     public function editchecklistnote() {
         $user = $this->get_user_or_redirect();
         $noteId = $_GET['param1'] ?? null;
-    
+       
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note && $note instanceof CheckListNote && $note->owner == $user->get_id()) {
-                // Afficher la vue 'editchecklistnote' pour une note checklist
-                (new View("editchecklistnote"))->show(["note" => $note]);
-            }  
-        } 
+                // Récupérer les éléments en cours d'édition s'ils existent dans la session
+                $editedItems = isset($_SESSION['checklist_items'][$noteId]) ? $_SESSION['checklist_items'][$noteId] : [];
+    
+                // Si le formulaire est soumis, mettre à jour les éléments en cours d'édition
+                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                    $newEditedItems = [];
+                    $i = 1;
+                    while (!empty($_POST["item$i"])) {
+                        $newEditedItems[] = trim($_POST["item$i"]);
+                        $i++;
+                    }
+                    $_SESSION['checklist_items'][$noteId] = $newEditedItems;
+                    $editedItems = $newEditedItems;
+                }
+    
+                // Afficher la vue d'édition de la checklist avec les éléments en cours d'édition
+                (new View("editchecklistnote"))->show(["note" => $note, "editedItems" => $editedItems]);
+            }
+        }
     }
-       
+    public function add_checklist_item(): void {
+        $user = $this->get_user_or_redirect();
+        $noteId = $_POST['note_id'] ?? null;
+        $newItemContent = $_POST['new_item'] ?? '';
+        
+    
+        $note = CheckListNote::get_note_by_id($noteId);
+    
+        if (!$note || !$note instanceof CheckListNote || $note->owner != $user->get_id()) {
+            $_SESSION['errors']['note'] = "Vous n'êtes pas autorisé à modifier cette note ou elle n'existe pas.";
+            $this->redirect("error_page");
+            return;
+        }
+    
+        if (!isset($_SESSION['checklist_items'][$noteId])) {
+            $_SESSION['checklist_items'][$noteId] = [];
+            
+        }
+        $_SESSION['checklist_items'][$noteId][] = $newItemContent;
+    
+        $this->redirect("notes/editchecklistnote/" . $noteId);
+        exit;
+    }
+    
+   public function delete_checklist_item(): void {
+    $user = $this->get_user_or_redirect();
+    $noteId = $_POST['note_id'] ?? null;
+    $itemIndex = $_POST['item_index'] ?? null;
 
+    if (!empty($noteId) && $itemIndex !== null) {
+        $note = CheckListNote::get_note_by_id($noteId);
 
-
+        if ($note && $note instanceof CheckListNote && $note->owner == $user->get_id()) {
+            $items = $note->getItems();
+            if (isset($items[$itemIndex])) {
+                $item = $items[$itemIndex];
+                $item->delete(); // Vous devez implémenter cette méthode pour supprimer l'élément de la DB
+                $this->redirect("notes/editchecklistnote/" . $noteId);
+            }
+        } else {
+            echo "Erreur : Accès refusé ou note inexistante";
+        }
+    } else {
+        echo "Erreur : Paramètres non valides";
+    }
+}
+    public function save_edited_checklistnote():void {
+        $user = $this->get_user_or_redirect();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Utilisation de l'opérateur null coalescent pour gérer les valeurs non définies
+            $noteId = $_POST['note_id'] ?? null;
+            $title = $_POST['title'] ?? '';
+            $pinned = isset($_POST['pinned']) ? (bool)$_POST['pinned'] : false;
+            $archived = isset($_POST['archived']) ? (bool)$_POST['archived'] : false;
+            $weight = $_POST['weight'] ?? 0;
+            $items = $_POST['items'] ?? [];
+    
+          
+    
+            $checklistNote = new CheckListNote(
+                title: $title,
+                owner: $user->get_id(),
+                pinned: $pinned,
+                archived: $archived,
+                weight: $weight,
+                id: $noteId
+            );
+            $checklistNote->persist();
+    
+            // Mise à jour des items existants et ajout de nouveaux items
+            foreach ($items as $item) {
+                $checklistItem = new CheckListNoteItem(
+                    checklist_note_id: $noteId,
+                    content: $item['content'],
+                    checked: $item['checked'],
+                    id: isset($item['id']) ? $item['id'] : null
+                );
+                $checklistItem->persistAdd();
+            }
+    
+            // Redirection ou d'autres actions après la sauvegarde
+            $this->redirect("notes/show_note/" . $noteId);
+        }
+    }
+ 
     public function check_or_uncheck_item() {
         $itemId = $_POST['item_id'] ?? null; // Correct the variable name here
         $noteId = $_POST['note_id'] ?? null;

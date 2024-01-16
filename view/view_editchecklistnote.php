@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr" data-bs-theme="dark">
 <head>
@@ -61,35 +62,49 @@
     </div>
 </nav>
 <div class="container mt-4">
-    <form id="checklisteditForm" action="chemin_vers_le_script_de_traitement" method="post">
+    <form id="checklisteditForm" action="./../save_edited_checklistnote" method="post">
         <input type="hidden" name="id" value="<?php echo $note->id; ?>">
 
         <div class="mb-3">
             <label for="title" class="form-label">Titre</label>
             <input type="text" class="form-control" id="title" name="title" value="<?php echo htmlspecialchars($note->title); ?>" required>
         </div>
+       
         <label for="item">Items</label>
-            <?php foreach ($note->getItems() as $index => $item): ?>
-                <div class="input-group mb-3">
-                    <div class="input-group-text bg-secondary">
-                        <i class="bi <?php echo $item->checked ? 'bi-check-circle-fill checked-icon' : 'bi-circle unchecked-icon'; ?>"></i>
-                    </div>
-                    <input type="text" class="form-control" name="items[]" value="<?php echo htmlspecialchars($item->content); ?>" readonly>
-                    
-                    <input type="hidden" name="checked[]" value="<?php echo $item->checked ? '1' : '0'; ?>">
-                    <button class="btn btn-delete " type="button"><i class="bi bi-dash-lg"></i></button>
-                </div>
-            <?php endforeach; ?>
-        
- <label for="newItem">New Item</label> 
-        <div class="input-group mb-3">
-          
-            <input type="text" class="form-control" name="new_item">
-            <button type="button" class="btn btn-add"><i class="bi bi-plus-lg"></i></button>
+        <?php foreach ($note->getItems() as $index => $item): ?>
+    <div class="input-group mb-3 <?php echo $item->deleted ? 'deleted-item' : ''; ?>">
+        <div class="input-group-text bg-secondary">
+            <i class="bi <?php echo $item->checked ? 'bi-check-circle-fill checked-icon' : 'bi-circle unchecked-icon'; ?>"></i>
         </div>
+        <input type="text" class="form-control" name="items[]" value="<?php echo htmlspecialchars($item->content); ?>" readonly>
+        <input type="hidden" name="deleted[<?php echo $item->id; ?>]" value="<?php echo $item->deleted ? '1' : '0'; ?>">
+        <button class="btn btn-delete" type="button" onclick="this.parentElement.classList.toggle('deleted-item'); this.nextElementSibling.value = this.nextElementSibling.value === '0' ? '1' : '0';"><i class="bi bi-dash-lg"></i></button>
+    </div>
+<?php endforeach; ?>
 
+<!-- Nouveaux éléments -->
+<?php if (isset($_SESSION['checklist_items'][$note->id])): ?>
+    <?php foreach ($_SESSION['checklist_items'][$note->id] as $item): ?>
+        <div class="input-group mb-3">
+            <div class="input-group-text bg-secondary">
+                <i class="bi bi-circle unchecked-icon"></i> <!-- Icône non cochée par défaut -->
+            </div>
+            <input type="text" class="form-control" name="new_items[]" value="<?php echo htmlspecialchars($item); ?>" readonly>
+            <button class="btn btn-delete" type="button" onclick="this.parentElement.classList.toggle('deleted-item');"><i class="bi bi-dash-lg"></i></button>
+        </div>
+    <?php endforeach; ?>
+<?php endif; ?>
        
     </form>
+     <label for="newItem">New Item</label> 
+ <form action="./../add_checklist_item" method="post">
+    <input type="hidden" name="note_id" value="<?php echo $note->id; ?>">
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" name="new_item">
+        <button class="btn btn-add" type="submit"><i class="bi bi-plus-lg"></i></button>
+    </div>
+</form>
+
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
