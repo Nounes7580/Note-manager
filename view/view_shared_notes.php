@@ -9,9 +9,23 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 </head>
+<style>
+    .bi-arrow-left {
+        font-size: 30px;
+        position: fixed;
+        top: 20px;
+        left: 40px;
+        /* Déplacer légèrement vers la droite */
+        z-index: 1000;
+        color: white;
+
+    }
+</style>
 
 <body>
-    <?php include "navbar.php"; ?>
+    <div>
+        <a href="javascript:history.back()" class="bi bi-arrow-left"></a>
+    </div>
 
     <div class="container mt-5">
         <h2 class="mb-4">Notes Shared as Editor</h2>
@@ -30,8 +44,8 @@
             <?php foreach ($sharedAsReader as $note) : ?>
                 <a href="#" class="list-group-item list-group-item-action">
                     <?= htmlspecialchars($note->title) ?>
-                    </a>
-                <?php endforeach; ?>
+                </a>
+            <?php endforeach; ?>
         </div>
     </div>
     <!-- Bootstrap JS, Popper.js, and jQuery -->
