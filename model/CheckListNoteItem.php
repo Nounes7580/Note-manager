@@ -166,6 +166,19 @@ class CheckListNoteItem extends Model {
             // Vous pouvez choisir de renvoyer l'erreur, de lancer une nouvelle exception ou de gérer autrement
         }
     }
+    public function delete() {
+        // Assurez-vous que l'ID de l'élément est défini
+        if ($this->id === null) {
+            throw new Exception("L'ID de l'élément est requis pour la suppression.");
+        }
+
+        $sql = 'DELETE FROM checklist_note_items WHERE id = :id';
+        $stmt = self::execute($sql, ['id' => $this->id]);
+
+        if ($stmt->rowCount() === 0) {
+            throw new Exception("L'élément n'a pas été supprimé ou n'a pas été trouvé.");
+        }
+    }
 
     
     

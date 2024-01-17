@@ -308,7 +308,6 @@ class ControllerNotes extends Controller {
         $user = $this->get_user_or_redirect();
         $noteId = $_POST['note_id'] ?? null;
         $newItemContent = $_POST['new_item'] ?? '';
-        
     
         $note = CheckListNote::get_note_by_id($noteId);
     
@@ -318,37 +317,43 @@ class ControllerNotes extends Controller {
             return;
         }
     
-        if (!isset($_SESSION['checklist_items'][$noteId])) {
-            $_SESSION['checklist_items'][$noteId] = [];
-            
+        // Ajouter le nouvel élément si le contenu n'est pas vide
+        if (!empty($newItemContent)) {
+            if (!isset($_SESSION['checklist_items'][$noteId])) {
+                $_SESSION['checklist_items'][$noteId] = [];
+            }
+            $_SESSION['checklist_items'][$noteId][] = $newItemContent;
         }
-        $_SESSION['checklist_items'][$noteId][] = $newItemContent;
     
-        $this->redirect("notes/editchecklistnote/" . $noteId);
-        exit;
+        // Redirection vers la page d'édition de la checklist
+        $this->redirect("notes", "editchecklistnote", $noteId);
     }
     
    public function delete_checklist_item(): void {
     $user = $this->get_user_or_redirect();
     $noteId = $_POST['note_id'] ?? null;
-    $itemIndex = $_POST['item_index'] ?? null;
+    $itemId = $_POST['item_id'] ?? null;
 
-    if (!empty($noteId) && $itemIndex !== null) {
-        $note = CheckListNote::get_note_by_id($noteId);
-
-        if ($note && $note instanceof CheckListNote && $note->owner == $user->get_id()) {
-            $items = $note->getItems();
-            if (isset($items[$itemIndex])) {
-                $item = $items[$itemIndex];
-                $item->delete(); // Vous devez implémenter cette méthode pour supprimer l'élément de la DB
-                $this->redirect("notes/editchecklistnote/" . $noteId);
-            }
-        } else {
-            echo "Erreur : Accès refusé ou note inexistante";
-        }
-    } else {
-        echo "Erreur : Paramètres non valides";
+    // Vérification de la validité de la note et des permissions de l'utilisateur
+    $note = CheckListNote::get_note_by_id($noteId);
+    if (!$note || !$note instanceof CheckListNote || $note->owner != $user->get_id()) {
+        $_SESSION['errors']['note'] = "Vous n'êtes pas autorisé à modifier cette note ou elle n'existe pas.";
+        $this->redirect("error_page");
+        return;
     }
+
+    // Suppression de l'élément de la checklist
+    if ($itemId !== null) {
+        $item = CheckListNoteItem::get_item_by_id($itemId);
+        if ($item && $item->checklist_note_id == $noteId) {
+            $item->delete(); // Cette méthode doit être implémentée dans CheckListNoteItem pour supprimer l'élément de la DB
+        } else {
+            $_SESSION['errors']['item'] = "L'élément spécifié n'existe pas ou ne peut pas être supprimé.";
+        }
+    }
+
+   
+    $this->redirect("notes", "editchecklistnote", $noteId);
 }
     public function save_edited_checklistnote():void {
         $user = $this->get_user_or_redirect();

@@ -201,6 +201,9 @@ abstract class Note extends Model {
 
 
     public static function get_note_by_id(int $id): ?Note {
+        if ($id === null) {
+            return null;
+        }
         try {
             $sql = 'SELECT n.*, tn.content AS text_content, cn.id AS checklist_id
             FROM notes n

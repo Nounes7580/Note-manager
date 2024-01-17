@@ -47,13 +47,13 @@
     }
     .deleted-item {
         text-decoration: line-through;
-        color: grey;
+        color: #aaa;
     }
 </style>
 <body>
 <nav class="navbar navbar-expand navbar-custom">
     <div class="container-fluid">
-        <a class="navbar-brand" href="javascript:history.back()">
+        <a class="navbar-brand" href="<?php echo $web_root; ?>notes/show_note/<?php echo $note->id; ?>">
             <i class="bi bi-arrow-left"></i>
         </a>
         <a onclick="document.getElementById('checklisteditForm').submit(); return false;" style="cursor: pointer;">
@@ -69,7 +69,8 @@
             <label for="title" class="form-label">Titre</label>
             <input type="text" class="form-control" id="title" name="title" value="<?php echo htmlspecialchars($note->title); ?>" required>
         </div>
-       
+        </form> 
+     <form action="./../delete_checklist_item" method="post">  
         <label for="item">Items</label>
         <?php foreach ($note->getItems() as $index => $item): ?>
     <div class="input-group mb-3 <?php echo $item->deleted ? 'deleted-item' : ''; ?>">
@@ -77,8 +78,12 @@
             <i class="bi <?php echo $item->checked ? 'bi-check-circle-fill checked-icon' : 'bi-circle unchecked-icon'; ?>"></i>
         </div>
         <input type="text" class="form-control" name="items[]" value="<?php echo htmlspecialchars($item->content); ?>" readonly>
-        <input type="hidden" name="deleted[<?php echo $item->id; ?>]" value="<?php echo $item->deleted ? '1' : '0'; ?>">
-        <button class="btn btn-delete" type="button" onclick="this.parentElement.classList.toggle('deleted-item'); this.nextElementSibling.value = this.nextElementSibling.value === '0' ? '1' : '0';"><i class="bi bi-dash-lg"></i></button>
+
+       
+                    <input type="hidden" name="note_id" value="<?php echo $note->id; ?>">
+                    <input type="hidden" name="item_id" value="<?php echo $item->id; ?>">
+                    <button class="btn btn-delete" type="submit"><i class="bi bi-dash-lg"></i></button>
+                
     </div>
 <?php endforeach; ?>
 
@@ -94,8 +99,8 @@
         </div>
     <?php endforeach; ?>
 <?php endif; ?>
-       
-    </form>
+</form> 
+   
      <label for="newItem">New Item</label> 
  <form action="./../add_checklist_item" method="post">
     <input type="hidden" name="note_id" value="<?php echo $note->id; ?>">
