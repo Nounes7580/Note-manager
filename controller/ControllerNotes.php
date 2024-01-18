@@ -130,11 +130,11 @@ class ControllerNotes extends Controller {
                         $item->persistAdd();
                     }
     
-                    // Rediriger l'utilisateur vers la note nouvellement créée
+                  
                     $this->redirect("notes/show_note/" . $checklistNoteId);
                     return;
                 } else {
-                    // Loguer l'erreur et ajouter un message d'erreur
+                    
                     error_log("Erreur : L'ID de CheckListNote est null.");
                     $errors[] = "Une erreur est survenue lors de l'enregistrement de la note.";
                 }
@@ -198,7 +198,7 @@ class ControllerNotes extends Controller {
                 content: $text
             );
             
-            // Persiste la note dans la base de données.
+           
             $note->persistAdd();
             
             // Rediriger vers la page de la note si la note a été créée avec succès.
@@ -217,7 +217,7 @@ class ControllerNotes extends Controller {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $noteId = $_POST['id'] ?? null;
             $title = $_POST['title'] ?? '';
-            $content = $_POST['text'] ?? '';  // Assurez-vous que cela correspond au nom du champ dans votre formulaire
+            $content = $_POST['text'] ?? '';  
     
             $note = Note::get_note_by_id((int)$noteId);
             if ($note && $note->owner == $user->get_id()) {
@@ -355,45 +355,53 @@ class ControllerNotes extends Controller {
    
     $this->redirect("notes", "editchecklistnote", $noteId);
 }
-    public function save_edited_checklistnote():void {
-        $user = $this->get_user_or_redirect();
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Utilisation de l'opérateur null coalescent pour gérer les valeurs non définies
-            $noteId = $_POST['note_id'] ?? null;
-            $title = $_POST['title'] ?? '';
-            $pinned = isset($_POST['pinned']) ? (bool)$_POST['pinned'] : false;
-            $archived = isset($_POST['archived']) ? (bool)$_POST['archived'] : false;
-            $weight = $_POST['weight'] ?? 0;
-            $items = $_POST['items'] ?? [];
-    
-          
-    
-            $checklistNote = new CheckListNote(
-                title: $title,
-                owner: $user->get_id(),
-                pinned: $pinned,
-                archived: $archived,
-                weight: $weight,
-                id: $noteId
-            );
-            $checklistNote->persist();
-    
-            // Mise à jour des items existants et ajout de nouveaux items
-            foreach ($items as $item) {
-                $checklistItem = new CheckListNoteItem(
-                    checklist_note_id: $noteId,
-                    content: $item['content'],
-                    checked: $item['checked'],
-                    id: isset($item['id']) ? $item['id'] : null
-                );
-                $checklistItem->persistAdd();
+public function save_edited_checklistnote(): void {
+    $user = $this->get_user_or_redirect();
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $noteId = $_POST['id'] ?? null;
+        $title = $_POST['title'] ?? '';
+        $items = $_POST['items'] ?? [];
+
+        if ($noteId) {
+            $note = CheckListNote::get_note_by_id($noteId);
+
+            if ($note && $note->owner == $user->get_id()) {
+                $note->title = $title;
+                $note->persist();
+
+                // Mise à jour des items existants
+                foreach ($items as $itemData) {
+                    $itemId = $itemData['id'] ?? null;
+                    $itemContent = $itemData['content'] ?? '';
+                    $itemChecked = isset($itemData['checked']) && $itemData['checked'] == 'on';
+
+                    if ($itemId) {
+                        $item = CheckListNoteItem::get_item_by_id($itemId);
+                        if ($item && $item->checklist_note_id == $noteId) {
+                            $item->content = $itemContent;
+                            $item->checked = $itemChecked;
+                            $item->persist();
+                        }
+                    }
+                }
+
+                // Traitement des nouveaux items
+                if (isset($_SESSION['checklist_items'][$noteId])) {
+                    foreach ($_SESSION['checklist_items'][$noteId] as $itemContent) {
+                        if (!empty($itemContent)) {
+                            $newItem = new CheckListNoteItem($noteId, $itemContent, false);
+                            $newItem->persistAdd();
+                        }
+                    }
+                  
+                }
+
+                $this->redirect("notes/show_note/" . $noteId);
             }
-    
-            // Redirection ou d'autres actions après la sauvegarde
-            $this->redirect("notes/show_note/" . $noteId);
         }
     }
- 
+}
+
     public function check_or_uncheck_item() {
         $itemId = $_POST['item_id'] ?? null; // Correct the variable name here
         $noteId = $_POST['note_id'] ?? null;
