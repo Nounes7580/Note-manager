@@ -1,7 +1,10 @@
 <?php
+
+// Activez l'affichage des erreurs PHP
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-ini_set('display_errors', 1);
 
 require_once 'model/User.php';
 require_once 'model/TextNote.php';
@@ -10,6 +13,7 @@ require_once 'model/CheckListNote.php';
 require_once 'model/CheckListNoteItem.php';
 require_once 'framework/View.php';
 require_once 'framework/Controller.php';
+
 
 class ControllerNotes extends Controller {
     public function index(): void {
@@ -56,28 +60,120 @@ class ControllerNotes extends Controller {
     }
     
     public function add_checklistnote(): void {
+        // Obtenir l'utilisateur actuel ou rediriger si non connecté
         $user = $this->get_user_or_redirect();
-        $title = $_POST['title'] ?? null;
-        $items = $_POST['items'] ?? null;
-        $items = explode("\n", $items);
-        $items = array_filter($items, function($item) {
-            return !empty($item);
-        });
-        $items = array_map(function($item) {
-            return trim($item);
-        }, $items);
-        $note = new CheckListNote();
-        $note->set_title($title);
-        $note->set_owner_id($user->get_id());
-        $note->save();
-        foreach ($items as $item) {
-            $noteItem = new CheckListNoteItem();
-            $noteItem->set_text($item);
-            $noteItem->set_note_id($note->get_id());
-            $noteItem->save();
+    
+        // Calculer le poids le plus élevé pour les notes de cet utilisateur
+        $highestWeight = Note::get_highest_weight_by_owner($user->get_id()) + 1;
+    
+       
+        $errors = [];
+     $items = [];
+    $validFields = [];
+        $title = '';
+       
+    
+        // Vérifier si le formulaire a été soumis
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupérer le titre du formulaire, ou lui attribuer une valeur par défaut
+        $title = $_POST['title'] ?? 'Titre par défaut';
+            if (empty($title)) {
+                $errors['title'] = "Le titre est requis.";
+            }
+          
+            for ($i = 1; $i <= 5; $i++) {
+               
+                if (!empty($_POST["item$i"])) {
+                    $items[] = trim($_POST["item$i"]);
+                }
+                $unique_items = array_unique($items);
+                if (count($items) !== count($unique_items)) {
+                    foreach ($items as $index => $item) {
+                        if (count(array_filter($items, fn($i) => $i === $item)) > 1) {
+                            // Ajouter une erreur spécifique à l'élément dupliqué
+                            $errors["item" . ($index + 1)] = "Item" . ($index + 1) . " must be unique.";
+                        }
+                    }
+                }
+            }
+    
+            // Vérifier s'il y a des doublons dans les éléments
+            if (count($items) !== count(array_unique($items))) {
+                // Ajouter une erreur si des doublons sont trouvés
+                $errors[] = "Les éléments doivent être uniques.";
+            }
+    
+            // Si aucune erreur n'est détectée
+            if (empty($errors)) {
+                // Créer une nouvelle note de checklist
+                $checklistNote = new CheckListNote(
+                    title: $title,
+                    owner: $user->get_id(),
+                    pinned: false,
+                    archived: false,
+                    weight: $highestWeight
+                );
+    
+                // Sauvegarder la note et récupérer son identifiant
+                $checklistNote->persist();
+                $checklistNoteId = $checklistNote->getId();
+    
+                // Si l'ID de la note est récupéré avec succès
+                if ($checklistNoteId !== null) {
+                    // Sauvegarder chaque élément de la checklist
+                    foreach ($items as $itemContent) {
+                        $item = new CheckListNoteItem(
+                            checklist_note_id: $checklistNoteId,
+                            content: $itemContent,
+                            checked: false
+                        );
+                        $item->persistAdd();
+                    }
+    
+                  
+                    $this->redirect("notes/show_note/" . $checklistNoteId);
+                    return;
+                } else {
+                    
+                    error_log("Erreur : L'ID de CheckListNote est null.");
+                    $errors[] = "Une erreur est survenue lors de l'enregistrement de la note.";
+                }
+            }
         }
-        $this->redirect("notes");
+
+     $validFields = [
+            'title' => !empty($title) && empty($errors['title']),
+            // Répétez pour chaque champ d'élément
+            'item1' => !empty($items[0]) && empty($errors['item1']),
+            'item2' => !empty($items[1]) && empty($errors['item2']),
+            'item3' => !empty($items[2]) && empty($errors['item3']),
+            'item4' => !empty($items[3]) && empty($errors['item4']),
+            'item5' => !empty($items[4]) && empty($errors['item5']),
+           
+        ];
+
+        // Préparer les données pour la vue
+        $data = [
+            "user" => $user,
+            "errors" => $errors,
+            "validFields" => $validFields,
+            "title" => $title,
+            "items" => $items
+            
+        ];
+       
+    
+        // Afficher la vue avec les données et les erreurs
+        (new View("addchecklistnote"))->show($data);
     }
+    
+
+    public function show_addchecklistnote(): void {
+        $user = $this->get_user_or_redirect();
+        require 'view/view_addchecklistnote.php';
+    }
+
+
     public function add_textnote(): void {
         $user = $this->get_user_or_redirect();
        
@@ -102,7 +198,7 @@ class ControllerNotes extends Controller {
                 content: $text
             );
             
-            // Persiste la note dans la base de données.
+           
             $note->persistAdd();
             
             // Rediriger vers la page de la note si la note a été créée avec succès.
@@ -121,7 +217,7 @@ class ControllerNotes extends Controller {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $noteId = $_POST['id'] ?? null;
             $title = $_POST['title'] ?? '';
-            $content = $_POST['text'] ?? '';  // Assurez-vous que cela correspond au nom du champ dans votre formulaire
+            $content = $_POST['text'] ?? '';  
     
             $note = Note::get_note_by_id((int)$noteId);
             if ($note && $note->owner == $user->get_id()) {
@@ -140,15 +236,16 @@ class ControllerNotes extends Controller {
         }
     
     }
- 
+
     public function show_addtextnote(): void {
         $user = $this->get_user_or_redirect();
         require 'view/view_addtextnote.php';
     }
+
     public function show_note(): void {
         $user = $this->get_user_or_redirect();
         $noteId = $_GET['param1'] ?? null;
-    
+        unset($_SESSION['checklist_items']);
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note) {
@@ -180,10 +277,162 @@ class ControllerNotes extends Controller {
             }
         }
     }
-   
-            
-       
+    public function editchecklistnote() {
+        $user = $this->get_user_or_redirect();
+        $noteId = $_GET['param1'] ?? null;
+        $errors = $_SESSION['errors'] ?? []; // Récupérer les erreurs de la session
+    unset($_SESSION['errors']);
+        $validFields = [];
+    
+        if ($noteId) {
+            $note = CheckListNote::get_note_by_id((int)$noteId);
+           
+            if ($note && $note instanceof CheckListNote && $note->owner == $user->get_id()) {
+                $editedItems = isset($_SESSION['checklist_items'][$noteId]) ? $_SESSION['checklist_items'][$noteId] : [];
+                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                    $title = $_POST['title'] ?? '';
+                    $validFields['title'] = true;
+    
+                    if (empty($title)) {
+                        $errors['title'] = "Le titre est requis.";
+                        $validFields['title'] = false;
+                    } elseif (strlen($title) < 5 || strlen($title) > 25) {
+                        $errors['title'] = "Le titre doit contenir entre 5 et 25 caractères.";
+                        $validFields['title'] = false;
+                    }
+    
+                    $newEditedItems = [];
+                    $i = 1;
+                    while (isset($_POST["item$i"])) {
+                        $newEditedItems[] = trim($_POST["item$i"]);
+                        $i++;
+                    }
+                    $_SESSION['checklist_items'][$noteId] = $newEditedItems;
+                    $editedItems = $newEditedItems;
+                }
 
+                $data = [
+                    'note' => $note,
+                    'editedItems' => $editedItems,
+                    'errors' => $errors,
+                    'validFields' => $validFields
+                ];
+                (new View("editchecklistnote"))->show($data);
+            } 
+        } 
+    }
+    
+    public function add_checklist_item(): void {
+        $user = $this->get_user_or_redirect();
+        $noteId = $_POST['note_id'] ?? null;
+        $newItemContent = $_POST['new_item'] ?? '';
+    
+        $note = CheckListNote::get_note_by_id($noteId);
+    
+        if (!$note || !$note instanceof CheckListNote || $note->owner != $user->get_id()) {
+            $_SESSION['errors']['note'] = "Vous n'êtes pas autorisé à modifier cette note ou elle n'existe pas.";
+            $this->redirect("error_page");
+            return;
+        }
+    
+        // Ajouter le nouvel élément si le contenu n'est pas vide
+        if (!empty($newItemContent)) {
+            if (!isset($_SESSION['checklist_items'][$noteId])) {
+                $_SESSION['checklist_items'][$noteId] = [];
+            }
+            $_SESSION['checklist_items'][$noteId][] = $newItemContent;
+        }
+    
+        // Redirection vers la page d'édition de la checklist
+        $this->redirect("notes", "editchecklistnote", $noteId);
+    }
+    
+   public function delete_checklist_item(): void {
+    $user = $this->get_user_or_redirect();
+    $noteId = $_POST['note_id'] ?? null;
+    $itemId = $_POST['item_id'] ?? null;
+
+    // Vérification de la validité de la note et des permissions de l'utilisateur
+    $note = CheckListNote::get_note_by_id($noteId);
+    if (!$note || !$note instanceof CheckListNote || $note->owner != $user->get_id()) {
+        $_SESSION['errors']['note'] = "Vous n'êtes pas autorisé à modifier cette note ou elle n'existe pas.";
+        $this->redirect("error_page");
+        return;
+    }
+
+    // Suppression de l'élément de la checklist
+    if ($itemId !== null) {
+        $item = CheckListNoteItem::get_item_by_id($itemId);
+        if ($item && $item->checklist_note_id == $noteId) {
+            $item->delete(); // Cette méthode doit être implémentée dans CheckListNoteItem pour supprimer l'élément de la DB
+        } else {
+            $_SESSION['errors']['item'] = "L'élément spécifié n'existe pas ou ne peut pas être supprimé.";
+        }
+    }
+
+   
+    $this->redirect("notes", "editchecklistnote", $noteId);
+}
+public function save_edited_checklistnote(): void {
+    $user = $this->get_user_or_redirect();
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $noteId = $_POST['id'] ?? null;
+        $title = $_POST['title'] ?? '';
+        $items = $_POST['items'] ?? [];
+        $errors = [];
+        if (empty($title)) {
+            $errors['title'] = "Le titre est requis.";
+        } elseif (strlen($title) < 5 || strlen($title) > 25) {
+            $errors['title'] = "Le titre doit contenir entre 5 et 25 caractères.";
+        }
+
+        if (!empty($errors)) {
+            // S'il y a des erreurs, réutiliser la méthode editchecklistnote
+            $_SESSION['errors'] = $errors; // Stocker les erreurs dans la session
+            $this->redirect("notes", "editchecklistnote", $noteId);
+        return;
+        }
+        if ($noteId) {
+            $note = CheckListNote::get_note_by_id($noteId);
+
+            if ($note && $note->owner == $user->get_id()) {
+                $note->title = $title;
+                $note->persist();
+
+                foreach ($items as $itemData) {
+                    $itemId = $itemData['id'] ?? null;
+                    $itemContent = $itemData['content'] ?? '';
+                    $itemChecked = isset($itemData['checked']) && $itemData['checked'] == 'on';
+
+                    if ($itemId) {
+                        $item = CheckListNoteItem::get_item_by_id($itemId);
+                        if ($item && $item->checklist_note_id == $noteId) {
+                            $item->content = $itemContent;
+                            $item->checked = $itemChecked;
+                            $item->persist();
+                        }
+                    }
+                }
+
+                // Traitement des nouveaux items
+                if (isset($_SESSION['checklist_items'][$noteId])) {
+                    foreach ($_SESSION['checklist_items'][$noteId] as $itemContent) {
+                        if (!empty($itemContent)) {
+                            $newItem = new CheckListNoteItem($noteId, $itemContent, false);
+                            $newItem->persistAdd();
+                        }
+                    }
+                }
+
+                $this->redirect("notes/show_note/" . $noteId);
+            } else {
+              
+            }
+        } else {
+            // Redirection ou affichage d'un message d'erreur si noteId n'est pas défini
+        }
+    }
+}
 
 
     public function check_or_uncheck_item() {

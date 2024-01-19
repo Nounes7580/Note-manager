@@ -69,8 +69,6 @@ $text = ''; // Valeur par défaut pour le texte
         
     </a>
 </div>
-
-
     <div class="container container-form">
         <form action="./add_textnote" method="post">
             <div class="mb-3">
