@@ -395,6 +395,37 @@ abstract class Note extends Model {
         }
         return $notes;
     }
+
+    public function delete(): void {
+        try {
+            if ($this->id === null) {
+                throw new Exception("L'ID de la note est requis pour la suppression.");
+            }
     
+            // Supprimer les éléments de checklist associés à la note
+            $sql = 'DELETE FROM checklist_note_items WHERE checklist_note = :id';
+            self::execute($sql, ['id' => $this->id]);
     
+            // Supprimer la note de checklist (si elle existe)
+            $sql = 'DELETE FROM checklist_notes WHERE id = :id';
+            self::execute($sql, ['id' => $this->id]);
+    
+            // Supprimer d'autres enregistrements liés (text_notes, note_shares, etc.)
+            $sql = 'DELETE FROM text_notes WHERE id = :id';
+            self::execute($sql, ['id' => $this->id]);
+    
+            $sql = 'DELETE FROM note_shares WHERE note = :id';
+            self::execute($sql, ['id' => $this->id]);
+    
+            // Enfin, supprimer la note principale
+            $sql = 'DELETE FROM notes WHERE id = :id';
+            self::execute($sql, ['id' => $this->id]);
+    
+            $this->id = null;
+    
+        } catch (PDOException $e) {
+            error_log('PDOException dans delete: ' . $e->getMessage());
+            throw $e;
+        }
+    }
 }

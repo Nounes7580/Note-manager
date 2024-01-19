@@ -79,6 +79,8 @@ class ControllerNotes extends Controller {
         $title = $_POST['title'] ?? 'Titre par défaut';
             if (empty($title)) {
                 $errors['title'] = "Le titre est requis.";
+            }elseif (strlen($title) < 5 || strlen($title) > 25) {
+                $errors['title'] = "Le titre doit contenir entre 5 et 25 caractères.";
             }
           
             for ($i = 1; $i <= 5; $i++) {
@@ -480,5 +482,27 @@ public function save_edited_checklistnote(): void {
         $notes = Note::get_notes_by_owner($user->get_id());
         (new View("archives"))->show(["user" => $user, "notes" => $notes]);
     }
- 
+
+
+    public function delete_note(): void {
+        $user = $this->get_user_or_redirect();
+        $noteId = $_POST['note_id'] ?? $_GET['param1'] ?? null;
+    
+        // Vérifier si l'ID de la note est fourni
+        if (!$noteId) {
+            $this->redirect("notes/archives");
+            return;
+        }
+    
+        // Récupérer la note à supprimer
+        $note = Note::get_note_by_id($noteId);
+    
+      
+        // Supprimer la note
+        $note->delete(); // Cette méthode doit être implémentée dans votre classe Note
+    
+        // Redirection vers la page des archives après la suppression réussie
+        $this->redirect("notes/archives");
+    }
+
 }

@@ -63,24 +63,6 @@
     
 }
 
-=======
-            display: block;
-            /* Ensures it behaves like a block element */
-            color: inherit;
-            /* Maintains the text color */
-            text-decoration: none;
-            /* Removes underline */
-            width: 100%;
-            /* Ensures it covers the full width */
-            height: 100%;
-            /* Ensures it covers the full height */
-            position: relative;
-            /* Adjust as necessary */
-            z-index: 1;
-            /* Brings the link to the front */
-        }
->>>>>>> 70bb6527f454dbdb6fe6ac18c11f5f29fedb50fc
-
         .stretched-link::before {
             content: '';
             position: absolute;
@@ -143,7 +125,7 @@
     <div class="container mt-5">
         <!-- Bouton pour créer une nouvelle note -->
         <div class="fixed-bottom d-flex justify-content-end p-3">
-<<<<<<< HEAD
+
        <a href="./show_addchecklistnote" class=" bi-card-checklist" style="border-radius: 40px; padding: 10px 20px;"></a>
    
     <form action="./show_addtextnote" method="post">
@@ -154,16 +136,6 @@
         </button>
     </form>
 </div>
-=======
-            <form action="./show_addtextnote" method="post">
-                <input type="hidden" name="title" value="Nouvelle Note">
-                <input type="hidden" name="text" value="Contenu de la note">
-                <button type="submit" class="btn" style="border-radius: 40px; padding: 10px 20px;">
-                    <img src="../css/icons8-add-file-48.png" alt="Ajouter">
-                </button>
-            </form>
-        </div>
->>>>>>> 70bb6527f454dbdb6fe6ac18c11f5f29fedb50fc
 
         <!-- Pinned Notes -->
         <?php if (!empty($pinnedNotes)) : ?>
