@@ -6,10 +6,12 @@ require_once 'model/User.php';
 require_once 'framework/View.php';
 require_once 'framework/Controller.php';
 
-class ControllerMain extends Controller {
+class ControllerMain extends Controller
+{
 
     // Redirect to notes if logged in, otherwise show the home view.
-    public function index() : void {
+    public function index(): void
+    {
         if ($this->user_logged()) {
             $this->redirect("notes", "index");
         } else {
@@ -17,9 +19,10 @@ class ControllerMain extends Controller {
         }
     }
 
-    
+
     // Handle user login
-    public function login() : void {
+    public function login(): void
+    {
         // Check if the user is already logged in
         if ($this->user_logged()) {
             // Redirect to the notes page
@@ -35,7 +38,7 @@ class ControllerMain extends Controller {
 
                 $errors = User::validate_login($mail, $password);
                 if (empty($errors)) {
-                    $this->log_user(User::get_user_by_mail($mail), "notes", "index");            
+                    $this->log_user(User::get_user_by_mail($mail), "notes", "index");
                 }
             }
             (new View("login"))->show(["mail" => $mail, "password" => $password, "errors" => $errors]);
@@ -43,24 +46,27 @@ class ControllerMain extends Controller {
     }
 
     // Handle user logout
-    public function logout() : void {
+    public function logout(): void
+    {
         $this->logout_user();
         $this->redirect("main", "login");
     }
 
-    public function logout_user() : void {
+    public function logout_user(): void
+    {
         unset($_SESSION['user']);
     }
 
     // Handle user signup
-    public function signup() : void {
+    public function signup(): void
+    {
         // Check if the user is already logged in
         if ($this->user_logged()) {
             // Redirect to the notes page
             $this->redirect("notes", "index");
         } else {
             // Proceed with normal signup process
-            $mail = ''; 
+            $mail = '';
             $full_name = '';
             $password = '';
             $password_confirm = '';
@@ -73,22 +79,31 @@ class ControllerMain extends Controller {
                 $password_confirm = $_POST['password_confirm'];
 
 
-            // Updated User instantiation with full_name and a default role (if you have roles)
-            $user = new User($mail, Tools::my_hash($password), $full_name, 'user'); 
-            $errors = User::validate_email_unicity($mail);            // You may need to update the validate method in the User class or create a new one for mail and full name
-            $errors = array_merge($errors, $user->validate()); 
-            $errors = array_merge($errors, User::validate_passwords($password, $password_confirm));
-    
-            if (count($errors) == 0) { 
-                $user->persist();
-                $this->log_user($user, "notes", "index");
+                // Updated User instantiation with full_name and a default role (if you have roles)
+                $user = new User($mail, Tools::my_hash($password), $full_name, 'user');
+                $errors = User::validate_email_unicity($mail);            // You may need to update the validate method in the User class or create a new one for mail and full name
+                $errors = array_merge($errors, $user->validate());
+                $errors = array_merge($errors, User::validate_passwords($password, $password_confirm));
+
+                if (count($errors) == 0) {
+                    $user->persist();
+                    $this->log_user($user, "notes", "index");
+                }
             }
+
+            (new View("signup"))->show([
+                "mail" => $mail, "full_name" => $full_name, "password" => $password,
+                "password_confirm" => $password_confirm, "errors" => $errors
+            ]);
         }
-
-        (new View("signup"))->show(["mail" => $mail, "full_name" => $full_name, "password" => $password, 
-                                    "password_confirm" => $password_confirm, "errors" => $errors]);
     }
-}
-
-    
+    public function settings(): void
+    {
+        $user = $this->get_user_or_redirect();
+        if (!$this->user_logged()) {
+            $this->redirect("settings", "index");
+        } else {
+            (new View("settings"))->show(array("user" => $user));
+        }
+    }
 }

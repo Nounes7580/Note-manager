@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS `notes` (
   `pinned` boolean NOT NULL DEFAULT FALSE,
   `archived` boolean NOT NULL DEFAULT FALSE,
   `weight` double NOT NULL DEFAULT 1,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 ALTER TABLE `notes` ADD CONSTRAINT `fk_notes_users` FOREIGN KEY (`owner`) REFERENCES `users`(`id`);
