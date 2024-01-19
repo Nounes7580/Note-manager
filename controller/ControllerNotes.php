@@ -280,30 +280,48 @@ class ControllerNotes extends Controller {
     public function editchecklistnote() {
         $user = $this->get_user_or_redirect();
         $noteId = $_GET['param1'] ?? null;
-       
-        if ($noteId) {
-            $note = Note::get_note_by_id((int)$noteId);
-            if ($note && $note instanceof CheckListNote && $note->owner == $user->get_id()) {
-                // Récupérer les éléments en cours d'édition s'ils existent dans la session
-                $editedItems = isset($_SESSION['checklist_items'][$noteId]) ? $_SESSION['checklist_items'][$noteId] : [];
+        $errors = $_SESSION['errors'] ?? []; // Récupérer les erreurs de la session
+    unset($_SESSION['errors']);
+        $validFields = [];
     
-                // Si le formulaire est soumis, mettre à jour les éléments en cours d'édition
+        if ($noteId) {
+            $note = CheckListNote::get_note_by_id((int)$noteId);
+           
+            if ($note && $note instanceof CheckListNote && $note->owner == $user->get_id()) {
+                $editedItems = isset($_SESSION['checklist_items'][$noteId]) ? $_SESSION['checklist_items'][$noteId] : [];
                 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                    $title = $_POST['title'] ?? '';
+                    $validFields['title'] = true;
+    
+                    if (empty($title)) {
+                        $errors['title'] = "Le titre est requis.";
+                        $validFields['title'] = false;
+                    } elseif (strlen($title) < 5 || strlen($title) > 25) {
+                        $errors['title'] = "Le titre doit contenir entre 5 et 25 caractères.";
+                        $validFields['title'] = false;
+                    }
+    
                     $newEditedItems = [];
                     $i = 1;
-                    while (!empty($_POST["item$i"])) {
+                    while (isset($_POST["item$i"])) {
                         $newEditedItems[] = trim($_POST["item$i"]);
                         $i++;
                     }
                     $_SESSION['checklist_items'][$noteId] = $newEditedItems;
                     $editedItems = $newEditedItems;
                 }
-    
-                // Afficher la vue d'édition de la checklist avec les éléments en cours d'édition
-                (new View("editchecklistnote"))->show(["note" => $note, "editedItems" => $editedItems]);
-            }
-        }
+
+                $data = [
+                    'note' => $note,
+                    'editedItems' => $editedItems,
+                    'errors' => $errors,
+                    'validFields' => $validFields
+                ];
+                (new View("editchecklistnote"))->show($data);
+            } 
+        } 
     }
+    
     public function add_checklist_item(): void {
         $user = $this->get_user_or_redirect();
         $noteId = $_POST['note_id'] ?? null;
@@ -361,7 +379,19 @@ public function save_edited_checklistnote(): void {
         $noteId = $_POST['id'] ?? null;
         $title = $_POST['title'] ?? '';
         $items = $_POST['items'] ?? [];
+        $errors = [];
+        if (empty($title)) {
+            $errors['title'] = "Le titre est requis.";
+        } elseif (strlen($title) < 5 || strlen($title) > 25) {
+            $errors['title'] = "Le titre doit contenir entre 5 et 25 caractères.";
+        }
 
+        if (!empty($errors)) {
+            // S'il y a des erreurs, réutiliser la méthode editchecklistnote
+            $_SESSION['errors'] = $errors; // Stocker les erreurs dans la session
+            $this->redirect("notes", "editchecklistnote", $noteId);
+        return;
+        }
         if ($noteId) {
             $note = CheckListNote::get_note_by_id($noteId);
 
@@ -369,7 +399,6 @@ public function save_edited_checklistnote(): void {
                 $note->title = $title;
                 $note->persist();
 
-                // Mise à jour des items existants
                 foreach ($items as $itemData) {
                     $itemId = $itemData['id'] ?? null;
                     $itemContent = $itemData['content'] ?? '';
@@ -393,14 +422,18 @@ public function save_edited_checklistnote(): void {
                             $newItem->persistAdd();
                         }
                     }
-                  
                 }
 
                 $this->redirect("notes/show_note/" . $noteId);
+            } else {
+              
             }
+        } else {
+            // Redirection ou affichage d'un message d'erreur si noteId n'est pas défini
         }
     }
 }
+
 
     public function check_or_uncheck_item() {
         $itemId = $_POST['item_id'] ?? null; // Correct the variable name here

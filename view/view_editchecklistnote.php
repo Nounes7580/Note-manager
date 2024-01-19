@@ -1,4 +1,8 @@
+<?php
+$formSubmitted = isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST';
+$validFields = $validFields ?? [];
 
+?>
 <!DOCTYPE html>
 <html lang="fr" data-bs-theme="dark">
 <head>
@@ -49,6 +53,12 @@
         text-decoration: line-through;
         color: #aaa;
     }
+    .is-invalid {
+        border-color: #dc3545;
+    }
+    .is-invalid + .input-group-append .bi {
+        display: inline-block;
+    }
 </style>
 <body>
 <nav class="navbar navbar-expand navbar-custom">
@@ -64,10 +74,15 @@
 <div class="container mt-4">
     <form id="checklisteditForm" action="./../save_edited_checklistnote" method="post">
         <input type="hidden" name="id" value="<?php echo $note->id; ?>">
-
+        <?php if (isset($note)): ?>
         <div class="mb-3">
             <label for="title" class="form-label">Titre</label>
-            <input type="text" class="form-control" id="title" name="title" value="<?php echo htmlspecialchars($note->title); ?>" required>
+            <input type="text" class="form-control <?php echo ((!$formSubmitted && !empty($errors['title'])) ? 'is-invalid' :'' ); ?>" id="title" name="title" value="<?php echo htmlspecialchars($note->title); ?>" require >
+            <?php if (!empty($errors) && isset($errors['title'])): ?>
+                <div class="invalid-feedback" >
+                    <?php echo htmlspecialchars($errors['title']); ?>
+                </div>
+            <?php endif; ?>
         </div>
         </form> 
      <form action="./../delete_checklist_item" method="post">  
@@ -77,7 +92,7 @@
         <div class="input-group-text bg-secondary">
             <i class="bi <?php echo $item->checked ? 'bi-check-circle-fill checked-icon' : 'bi-circle unchecked-icon'; ?>"></i>
         </div>
-        <input type="text" class="form-control" name="items[]" value="<?php echo htmlspecialchars($item->content); ?>" readonly>
+        <input type="text" class="form-control" name="items[]" value="<?php echo htmlspecialchars($item->content); ?>" require>
 
        
                     <input type="hidden" name="note_id" value="<?php echo $note->id; ?>">
@@ -86,7 +101,7 @@
                 
     </div>
 <?php endforeach; ?>
-
+<?php endif; ?>
 <!-- Nouveaux éléments -->
 <?php if (isset($_SESSION['checklist_items'][$note->id])): ?>
     <?php foreach ($_SESSION['checklist_items'][$note->id] as $item): ?>
