@@ -34,34 +34,48 @@
         }
 
         .stretched-link {
-<<<<<<< HEAD
-    display: block; /* Ensures it behaves like a block element */
-    color: inherit; /* Maintains the text color */
-    text-decoration: none; /* Removes underline */
-    width: 100%; /* Ensures it covers the full width */
-    height: 100%; /* Ensures it covers the full height */
-    position: relative; /* Adjust as necessary */
-    z-index: 1; /* Brings the link to the front */
-}
 
-.stretched-link::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-}
-.bi-card-checklist {
-  
-    color: #F1C40F; /* Couleur du texte en noir pour un bon contraste */
-    font-size: 35px; /* Augmente la taille du texte (et du bouton) */
-    padding: 10px 15px; /* Espacement intérieur pour augmenter la taille du bouton */
-    border: none; /* Supprime la bordure par défaut */
-    border-radius: 5px; /* Arrondit les coins du bouton */
-    cursor: pointer; /* Change le curseur en main lors du survol */
-    
-}
+            display: block;
+            /* Ensures it behaves like a block element */
+            color: inherit;
+            /* Maintains the text color */
+            text-decoration: none;
+            /* Removes underline */
+            width: 100%;
+            /* Ensures it covers the full width */
+            height: 100%;
+            /* Ensures it covers the full height */
+            position: relative;
+            /* Adjust as necessary */
+            z-index: 1;
+            /* Brings the link to the front */
+        }
+
+        .stretched-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+
+        .bi-card-checklist {
+
+            color: #F1C40F;
+            /* Couleur du texte en noir pour un bon contraste */
+            font-size: 35px;
+            /* Augmente la taille du texte (et du bouton) */
+            padding: 10px 15px;
+            /* Espacement intérieur pour augmenter la taille du bouton */
+            border: none;
+            /* Supprime la bordure par défaut */
+            border-radius: 5px;
+            /* Arrondit les coins du bouton */
+            cursor: pointer;
+            /* Change le curseur en main lors du survol */
+
+        }
 
         .stretched-link::before {
             content: '';
@@ -76,44 +90,10 @@
 
 <body>
 
-    <nav class="navbar fixed-top navbar-dark bg-dark">
-        <div class="container-fluid">
-            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <a class="navbar-brand" href="#">
-                <img src="../css/logo.png" alt="Logo" style="height: 50px; margin-right: 10px;"> <!-- Adjust the height as needed -->
-                NoteSpark
-            </a>
-            <div class="offcanvas offcanvas-start custom-offcanvas" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
-                <div class="offcanvas-header">
-                    <!-- Use the Bootstrap class for text color -->
-                    <h5 class="offcanvas-title text-warning" id="offcanvasNavbarLabel">Menu</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                </div>
-                <div class="offcanvas-body">
-                    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-                        <li class="nav-item active">
-                            <a class="nav-link" href="<?php echo $web_root; ?>Notes/">My notes <span class="sr-only"></span></a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="<?php echo $web_root; ?>Notes/archives">My archives</a>
-                        <li class="nav-item">
-                            <a class="nav-link" href="<?php echo $web_root; ?>Main/logout">Logout</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="<?php echo $web_root; ?>Main/settings">Settings</a>
-                        </li>
-                        <!-- Add more menu items here as needed -->
-                    </ul>
-                    <!-- Optional: Add a search form or other elements here -->
-                </div>
-            </div>
-        </div>
-    </nav>
-    <br>
 
-    <!-- Add custom CSS to style the shorter offcanvas menu -->
+
+    <?php include "navbar.php"; ?>
+
     <style>
         .custom-offcanvas {
             max-width: 50%;
@@ -122,20 +102,22 @@
     </style>
 
 
+
     <div class="container mt-5">
         <!-- Bouton pour créer une nouvelle note -->
         <div class="fixed-bottom d-flex justify-content-end p-3">
 
-       <a href="./show_addchecklistnote" class=" bi-card-checklist" style="border-radius: 40px; padding: 10px 20px;"></a>
-   
-    <form action="./show_addtextnote" method="post">
-        <input type="hidden" name="title" value="Nouvelle Note">
-        <input type="hidden" name="text" value="Contenu de la note">
-        <button type="submit" class="btn" style="border-radius: 40px; padding: 10px 20px;">
-            <img src="../css/icons8-add-file-48.png" alt="Ajouter">
-        </button>
-    </form>
-</div>
+            <a href="./show_addchecklistnote" class=" bi-card-checklist" style="border-radius: 40px; padding: 10px 20px;"></a>
+
+            <form action="./show_addtextnote" method="post">
+                <input type="hidden" name="title" value="Nouvelle Note">
+                <input type="hidden" name="text" value="Contenu de la note">
+                <button type="submit" class="btn" style="border-radius: 40px; padding: 10px 20px;">
+                    <img src="../css/icons8-add-file-48.png" alt="Ajouter">
+                </button>
+            </form>
+        </div>
+
 
         <!-- Pinned Notes -->
         <?php if (!empty($pinnedNotes)) : ?>
@@ -145,10 +127,8 @@
                     <div class="col-6 col-md-4 mb-3">
                         <div class="card h-100" style="max-width: 18rem;">
                             <div class="card-header"><?= htmlspecialchars($note->title) ?></div>
-
                             <a href="./show_note/<?= $note->id ?>" class="stretched-link">
                                 <div class="card-body">
-
                                     <?php if ($note instanceof TextNote) : ?>
                                         <p class="card-text"><?= nl2br(htmlspecialchars($note->content)) ?></p>
                                     <?php elseif ($note instanceof CheckListNote) : ?>
@@ -163,9 +143,7 @@
                                         </ul>
                                     <?php endif; ?>
                                 </div>
-
                             </a>
-
                             <div class="card-footer">
                                 <!-- Display Move Left Button if not at extreme left -->
                                 <?php if ($note->getPreviousNote() !== null) : ?>
