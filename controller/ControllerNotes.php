@@ -242,7 +242,7 @@ class ControllerNotes extends Controller
     public function share()
     {
         $user = $this->get_user_or_redirect();
-        // Vous pouvez toujours passer $user si nécessaire, ou passer un tableau vide si aucune donnée n'est requise
-        (new View("shares"))->show(["user" => $user]);
+        $usersToShareWith = User::getAllUsersExceptCurrent($user->id);
+        (new View("shares"))->show(["user" => $user, "usersToShareWith" => $usersToShareWith]);
     }
 }
