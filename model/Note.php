@@ -454,7 +454,6 @@ abstract class Note extends Model
         );
 
         $results = $query->fetchAll(PDO::FETCH_ASSOC);
-
     }
 
     public static function getSharedNotesByUser(int $currentUserId): array
@@ -468,7 +467,7 @@ abstract class Note extends Model
                                 where note_shares.user = :id", ["id" => $currentUserId]);
         $data = $query->fetchAll();
         foreach ($data as $row) {
-            $users[] = new User($row["mail"], $row["hashed_password"], $row["full_name"], $row["role"] ==  $row["id"]);
+            $users[] = new User($row["mail"], $row["hashed_password"], $row["full_name"], $row["role"],  $row["id"]);
         }
         return $users;
     }

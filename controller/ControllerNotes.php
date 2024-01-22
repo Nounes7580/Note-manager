@@ -10,7 +10,7 @@ require_once 'model/CheckListNote.php';
 require_once 'model/CheckListNoteItem.php';
 require_once 'framework/View.php';
 require_once 'framework/Controller.php';
-require_once 'model/NoteShares.php';
+require_once 'model/NoteShare.php';
 
 class ControllerNotes extends Controller
 {
@@ -246,8 +246,16 @@ class ControllerNotes extends Controller
 
     public function shared()
     {
-        $sharedAsEditor = NoteShare::getSharedNotesByRolesEdit(4, $this->get_user_or_redirect()->get_id());
-        $sharedAsReader = NoteShare::getSharedNotesByRolesRead(4, $this->get_user_or_redirect()->get_id());
-        (new View("shared_notes"))->show(["sharedAsEditor" => $sharedAsEditor, "sharedAsReader" => $sharedAsReader]);
+        $shareOne = null;
+        $userShare = $_GET['param1'] ?? null;
+        if ($userShare) {
+            $shareOne = User::get_user_by_id($userShare);
+        }
+
+        $user = $this->get_user_or_redirect()->get_id();
+        $verif = Note::getSharedNotesByUser($user);
+        $sharedAsEditor = NoteShare::getSharedNotesByRolesEdit($userShare, $user);
+        $sharedAsReader = NoteShare::getSharedNotesByRolesRead($userShare, $user);
+        (new View("shared_notes"))->show(["sharedAsEditor" => $sharedAsEditor, "sharedAsReader" => $sharedAsReader, "sharedNotes" => $verif, "userShare" => $shareOne]);
     }
 }
