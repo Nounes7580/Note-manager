@@ -246,8 +246,8 @@ class ControllerNotes extends Controller
 
     public function shared()
     {
-        $sharedAsEditor = NoteShares::getSharedNotesByRolesEdit(3, $this->get_user_or_redirect()->get_id());
-        $sharedAsReader = NoteShares::getSharedNotesByRolesRead(3, $this->get_user_or_redirect()->get_id());
+        $sharedAsEditor = NoteShare::getSharedNotesByRolesEdit(4, $this->get_user_or_redirect()->get_id());
+        $sharedAsReader = NoteShare::getSharedNotesByRolesRead(4, $this->get_user_or_redirect()->get_id());
         (new View("shared_notes"))->show(["sharedAsEditor" => $sharedAsEditor, "sharedAsReader" => $sharedAsReader]);
     }
 }

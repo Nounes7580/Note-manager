@@ -25,7 +25,10 @@
                     </li>
                     <li class="nav-item">
                         <?php foreach ($sharedNotes as $usershared) : ?>
-                            <a class="nav-link" href="<?php echo $web_root; ?>Notes/shared/<?= $usershared->get_id(); ?>"> Shared By <?= $usershared->get_fullName(); ?> </a>
+                            <a class="nav-link" href="<?php echo $web_root; ?>Notes/shared/<?= $usershared->get_id(); ?>">
+                                Shared By <?= $usershared->get_fullName(); ?>
+                            </a>
+
                         <?php endforeach; ?>
                     </li>
                     <!-- Add more menu items here as needed -->

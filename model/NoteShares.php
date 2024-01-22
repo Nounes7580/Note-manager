@@ -2,7 +2,7 @@
 
 require_once "framework/Model.php";
 
-class NoteShares extends Model
+class NoteShare extends Model
 {
     public int $user;
     public int $note;
@@ -62,37 +62,53 @@ class NoteShares extends Model
         $this->id = $id;
     }
 
-    public static function getSharedNotesByRolesRead (int $idOwner , int $idUser):array {
+    public static function getSharedNotesByRolesRead(int $idOwner, int $idUser): array
+    {
         $query = self::execute("SELECT DISTINCT note_shares.note
                                 from note_shares
                                 join notes on notes.id = note_shares.note 
                                 join users on users.id = notes.owner
                                 where editor = 0 
                                 and note_shares.user =:iduser
-                                and users.id = :idowner" , ["iduser"=>$idUser, "idowner" => $idOwner]);
-        
+                                and users.id = :idowner", ["iduser" => $idUser, "idowner" => $idOwner]);
+
         $data = $query->fetchAll();
         $result = [];
-        foreach($data as $row){
+        foreach ($data as $row) {
             $result[] = Note::get_note_by_id($row["note"]);
         }
         return $result;
     }
 
-    public static function getSharedNotesByRolesEdit (int $idOwner , int $idUser):array {
+    public static function getSharedNotesByRolesEdit(int $idOwner, int $idUser): array
+    {
         $query = self::execute("SELECT DISTINCT note_shares.note
                                 from note_shares
                                 join notes on notes.id = note_shares.note 
                                 join users on users.id = notes.owner
                                 where editor = 1
                                 and note_shares.user =:iduser
-                                and users.id = :idowner" , ["iduser"=>$idUser, "idowner" => $idOwner]);
-        
+                                and users.id = :idowner", ["iduser" => $idUser, "idowner" => $idOwner]);
+
         $data = $query->fetchAll();
         $result = [];
-        foreach($data as $row){
+        foreach ($data as $row) {
             $result[] = Note::get_note_by_id($row["note"]);
         }
         return $result;
+    }
+    public static function getSharingUsersWithCurrentUser($currentUserId)
+    {
+        $query = self::execute(
+            "SELECT DISTINCT u.id, u.full_name
+            FROM users u
+            JOIN note_shares ns ON ns.user = u.id
+            WHERE ns.note IN (
+                SELECT note FROM note_shares WHERE user = :currentUserId
+            )
+            AND u.id != :currentUserId",
+            ["currentUserId" => $currentUserId]
+        );
+        return $query->fetchAll(PDO::FETCH_ASSOC);
     }
 }

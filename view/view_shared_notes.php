@@ -9,49 +9,66 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 </head>
-<style>
-    .bi-arrow-left {
-        font-size: 30px;
-        position: fixed;
-        top: 20px;
-        left: 40px;
-        /* Déplacer légèrement vers la droite */
-        z-index: 1000;
-        color: white;
-
-    }
-</style>
 
 <body>
-    <div>
-        <a href="javascript:history.back()" class="bi bi-arrow-left"></a>
-    </div>
 
+    <!-- Ici, ajoutez votre navigation bar et autres composants si nécessaire -->
+    <?php include "navbar.php"; ?>
     <div class="container mt-5">
-        <h2 class="mb-4">Notes Shared as Editor</h2>
-        <div class="list-group">
-            <!-- Iterate through notes shared as editor -->
+        <h2 class="mb-4">Notes Shared to you as Editor</h2>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             <?php foreach ($sharedAsEditor as $note) : ?>
-                <a href="#" class="list-group-item list-group-item-action">
-                    <?= htmlspecialchars($note->title) ?>
-                </a>
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-header"><?= htmlspecialchars($note->title) ?></div>
+                        <div class="card-body">
+                            <?php if ($note instanceof TextNote) : ?>
+                                <p class="card-text"><?= nl2br(htmlspecialchars($note->content)) ?></p>
+                            <?php elseif ($note instanceof CheckListNote) : ?>
+                                <ul class="list-group list-group-flush">
+                                    <?php foreach ($note->getItems() as $item) : ?>
+                                        <li class="list-group-item <?= $item->checked ? 'list-group-item-success' : '' ?>">
+                                            <?= htmlspecialchars($item->content) ?>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+                        </div>
+                        <div class="card-footer">
+                            <a href="<?php echo $web_root; ?>/Notes/show_note/<?= $note->id ?>" class="stretched-link"></a>
+                        </div>
+                    </div>
+                </div>
             <?php endforeach; ?>
         </div>
 
-        <h2 class="mb-4 mt-5">Notes Shared as Reader</h2>
-        <div class="list-group">
-            <!-- Iterate through notes shared as reader -->
+        <h2 class="mb-4 mt-5">Notes Shared to you as Reader</h2>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             <?php foreach ($sharedAsReader as $note) : ?>
-                <a href="#" class="list-group-item list-group-item-action">
-                    <?= htmlspecialchars($note->title) ?>
-                </a>
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-header"><?= htmlspecialchars($note->title) ?></div>
+                        <div class="card-body">
+                            <?php if ($note instanceof TextNote) : ?>
+                                <p class="card-text"><?= nl2br(htmlspecialchars($note->content)) ?></p>
+                            <?php elseif ($note instanceof CheckListNote) : ?>
+                                <ul class="list-group list-group-flush">
+                                    <?php foreach ($note->getItems() as $item) : ?>
+                                        <li class="list-group-item <?= $item->checked ? 'list-group-item-success' : '' ?>">
+                                            <?= htmlspecialchars($item->content) ?>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+                        </div>
+                        <div class="card-footer">
+                            <a href="<?php echo $web_root; ?>/Notes/show_note/<?= $note->id ?>" class="stretched-link"></a>
+                        </div>
+                    </div>
+                </div>
             <?php endforeach; ?>
         </div>
     </div>
-    <!-- Bootstrap JS, Popper.js, and jQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
 
-</html>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.9.3/dist/umd/popper
