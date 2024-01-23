@@ -106,4 +106,23 @@ class ControllerMain extends Controller
             (new View("settings"))->show(array("user" => $user));
         }
     }
+    public function edit_profile(): void {
+        $user = $this->get_user_or_redirect();
+        $errors = [];
+    
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $newFullName = $_POST['fullName'] ?? '';
+            $errors = $user->setFullName($newFullName);
+    
+            if (empty($errors)) {
+                $this->redirect('Main', 'settings');
+            } else {
+                // Si des erreurs sont présentes, afficher à nouveau le formulaire avec des erreurs
+                (new View("edit_profile"))->show(["user" => $user, "errors" => $errors]);
+            }
+        } else {
+            (new View("edit_profile"))->show(["user" => $user]);
+        }
+    }
+    
 }

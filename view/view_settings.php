@@ -27,7 +27,13 @@
 </head>
 
 <body>
-
+<nav class="navbar navbar-expand navbar-custom">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="<?php echo $web_root; ?>Notes/">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+    </div>
+</nav>
     <div class="container mt-5">
         <div class="header text-center">
             <h1 class="text-white mb-3">Welcome, <?= $user->getFullName() ?></h1>
@@ -35,7 +41,7 @@
         </div>
 
         <div class="list-group">
-            <a href="" class="list-group-item list-group-item-action">
+            <a href="<?php echo $web_root; ?>Main/edit_profile" class="list-group-item list-group-item-action">
                 <i class="bi bi-pencil-square"></i> Edit Profile
             </a>
             <a href="" class="list-group-item list-group-item-action">
