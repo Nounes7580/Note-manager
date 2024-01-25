@@ -168,6 +168,30 @@ class User extends Model
 
 
 
+    public function setFullName(string $newFullName){
+        $errors = [];
+
+
+       if (empty($newFullName)) {
+            $errors[] = "Le nom complet est requis.";
+        } elseif (strlen($newFullName) < 3 || strlen($newFullName) > 16) {
+            $errors[] = "Le nom complet doit être entre 3 et 16 caractères.";
+        } elseif (!preg_match("/^[a-zA-Z][a-zA-Z0-9]*$/", $newFullName)) {
+            $errors[] = "Le nom complet doit commencer par une lettre et ne contenir que des lettres et des chiffres.";
+        }
+        
+        if (empty($errors)) {
+            // Mettre à jour le nom complet dans l'objet et dans la base de données
+            $this->full_name = $newFullName;
+            self::execute("UPDATE users SET full_name = :full_name WHERE id = :id", ["full_name" => $this->full_name, "id" => $this->id]);
+        }
+        return $errors;
+    }
+   
+
+
+
+
     public static function get_user_by_id(int $id): User|false
     {
         $query = self::execute("SELECT * FROM users WHERE id = :id", ["id" => $id]);
