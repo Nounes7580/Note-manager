@@ -38,7 +38,7 @@
             <a href="" class="list-group-item list-group-item-action">
                 <i class="bi bi-pencil-square"></i> Edit Profile
             </a>
-            <a href="" class="list-group-item list-group-item-action">
+            <a href="<?php echo $web_root; ?>Main/change_password" class="list-group-item list-group-item-action">
                 <i class="bi bi-key-fill"></i> Change Password
             </a>
             <a href="" class="list-group-item list-group-item-action">

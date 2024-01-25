@@ -24,6 +24,9 @@
                         <a class="nav-link" href="<?php echo $web_root; ?>Main/logout">Logout</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="<?php echo $web_root; ?>Main/settings">Setting</a>
+                    </li>
+                    <li class="nav-item">
                         <?php foreach ($sharedNotes as $usershared) : ?>
                             <a class="nav-link" href="<?php echo $web_root; ?>Notes/shared/<?= $usershared->get_id(); ?>">
                                 Shared By <?= $usershared->get_fullName(); ?>
