@@ -23,43 +23,37 @@
 </style>
 
 <body>
-    <div>
-        <a href="javascript:history.back()" class="bi bi-arrow-left"></a>
-    </div>
-
-
-
     <div class="container mt-5">
-
-        <?php if (!empty($usersToShareWith)) : ?>
-            <h2>Shares:</h2>
-            <div class="row align-items-center">
-                <!-- Sélecteur d'utilisateur -->
-                <div class="col">
-                    <select class="form-select" id="userSelect" name="user_id">
-                        <option value="">-User-</option>
-                        <?php foreach ($usersToShareWith as $user) : ?>
-                            <option value="<?= htmlspecialchars($user->id) ?>"><?= htmlspecialchars($user->full_name) ?></option>
-                        <?php endforeach; ?>
-                    </select>
+        <h2>Shares:</h2>
+        <?php if (!empty($shares)) : ?>
+            <?php foreach ($shares as $share) : ?>
+                <div class="mb-2">
+                    <span><?= htmlspecialchars($share['full_name']) ?></span>
+                    <span class="badge bg-secondary"><?= htmlspecialchars($share['permission']) ?></span>
                 </div>
-
-                <!-- Sélecteur de permission -->
-                <div class="col">
-                    <select class="form-select" id="permissionSelect" name="permission">
-                        <option value="editor">Editor</option>
-                        <option value="reader">Reader</option>
-                    </select>
-                </div>
-
-                <!-- Bouton de partage -->
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-primary">+</button>
-                </div>
-            </div>
+            <?php endforeach; ?>
         <?php else : ?>
-            <p class="text-muted">This is not shared yet</p>
+            <p class="text-muted">This note is not shared yet.</p>
         <?php endif; ?>
+        <!-- Sélecteur d'utilisateur et de permission avec bouton d'ajout -->
+        <div class="d-flex justify-content-start align-items-center mt-4">
+            <select class="form-select" id="userSelect" name="user_id" style="margin-right: -1px;">
+                <option value="">-User-</option>
+                <?php foreach ($usersToShareWith as $user) : ?>
+                    <option value="<?= htmlspecialchars($user->id) ?>"><?= htmlspecialchars($user->full_name) ?></option>
+                <?php endforeach; ?>
+            </select>
+
+            <!-- Sélecteur de permission -->
+            <select class="form-select" id="permissionSelect" name="permission" style="margin-right: -1px; margin-left: -1px;">
+                <option value="editor">Editor</option>
+                <option value="reader">Reader</option>
+            </select>
+
+            <!-- Bouton de partage -->
+            <button type="submit" class="btn btn-primary" style="margin-left: -1px;">+</button>
+        </div>
+
     </div>
 
 

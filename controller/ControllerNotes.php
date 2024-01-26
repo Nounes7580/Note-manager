@@ -245,4 +245,13 @@ class ControllerNotes extends Controller
         $usersToShareWith = User::getAllUsersExceptCurrent($user->id);
         (new View("shares"))->show(["user" => $user, "usersToShareWith" => $usersToShareWith]);
     }
+    public function share_note()
+    {
+        $noteId = $_GET['param1'] ?? null;
+        $user = $this->get_user_or_redirect();
+        $shares = Note::getNoteShares($noteId) ?: []; // Utilisez l'opérateur ternaire pour définir $shares à un tableau vide si getNoteShares retourne false
+
+        // Afficher la vue avec ou sans partages
+        (new View("share_note"))->show(["user" => $user, "shares" => $shares]);
+    }
 }
