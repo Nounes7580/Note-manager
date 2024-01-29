@@ -417,33 +417,27 @@ abstract class Note extends Model
         }
         return $notes;
     }
-    public static function getNoteShares(int $noteId)
+    public function getUsersWhoSharedWith(): array
     {
-        try {
-            // Prepare and execute the query to get the sharing information
-            $sql = "SELECT users.full_name, note_shares.editor 
-                    FROM note_shares 
-                    JOIN users ON note_shares.user_id = users.id 
-                    WHERE note_shares.note_id = :noteId";
-            $stmt = self::execute($sql, ['noteId' => $noteId]);
-            $shares = $stmt->fetchAll();
+        // Requête SQL pour récupérer les informations des utilisateurs qui ont partagé la note
+        $sql = "SELECT u.* FROM users u JOIN note_shares ns ON u.id = ns.user WHERE ns.note = :noteId";
 
-            // Check if shares exist
-            if ($shares) {
-                // Map the shares to a more friendly format
-                return array_map(function ($share) {
-                    return [
-                        'full_name' => $share['full_name'],
-                        'permission' => $share['editor'] ? 'editor' : 'reader' // Check if the editor field is true or false
-                    ];
-                }, $shares);
-            } else {
-                // Return false if the note isn't shared
-                return false;
-            }
-        } catch (PDOException $e) {
-            error_log('PDOException in getNoteShares: ' . $e->getMessage());
-            return false;
+        // Exécution de la requête avec l'ID de la note
+        $query = self::execute($sql, ["noteId" => $this->id]);
+        $data = $query->fetchAll();
+
+        $users = [];
+        foreach ($data as $row) {
+            // Création d'un objet User pour chaque ligne et ajout dans le tableau
+            $users[] = new User($row["mail"], $row["hashed_password"], $row["full_name"], $row["role"], intval($row["id"]));
         }
+
+        return $users;
+    }
+    public function isSharedWithPermission(int $userId): bool
+    {
+        $query = self::execute("SELECT editor FROM note_shares WHERE note = :noteId AND user = :userId", ["noteId" => $this->id, "userId" => $userId]);
+        $data = $query->fetch();
+        return $data[0];
     }
 }

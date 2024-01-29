@@ -242,16 +242,17 @@ class ControllerNotes extends Controller
     public function share()
     {
         $user = $this->get_user_or_redirect();
-        $usersToShareWith = User::getAllUsersExceptCurrent($user->id);
-        (new View("shares"))->show(["user" => $user, "usersToShareWith" => $usersToShareWith]);
-    }
-    public function share_note()
-    {
         $noteId = $_GET['param1'] ?? null;
-        $user = $this->get_user_or_redirect();
-        $shares = Note::getNoteShares($noteId) ?: []; // Utilisez l'opérateur ternaire pour définir $shares à un tableau vide si getNoteShares retourne false
+        if ($noteId) {
+            $note = Note::get_note_by_id((int)$noteId);
+            $resultsOfSharedUsers = $note->getUsersWhoSharedWith();
+            $permission = [];
+            foreach ($resultsOfSharedUsers as $data) {
+                $permission[] = $note->isSharedWithPermission($data->get_id());
+            }
+        }
 
-        // Afficher la vue avec ou sans partages
-        (new View("share_note"))->show(["user" => $user, "shares" => $shares]);
+        $usersToShareWith = User::getAllUsersExceptCurrent($user->id);
+        (new View("shares"))->show(["user" => $user, "usersToShareWith" => $usersToShareWith, "resultsOfSharedUsers" => $resultsOfSharedUsers, "permission" => $permission, "note" => $note]);
     }
 }

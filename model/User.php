@@ -62,6 +62,17 @@ class User extends Model
             return new User($data["mail"], $data["hashed_password"], $data["full_name"], $data["role"], intval($data["id"]));
         }
     }
+    public static function get_user_by_id(int $id): User|false
+    {
+        $query = self::execute("SELECT * FROM users where id = :id", ["id" => $id]);
+        $data = $query->fetch();
+        if ($query->rowCount() == 0) {
+            return false;
+        } else {
+            // Ensure that $data["id"] is cast to an integer
+            return new User($data["mail"], $data["hashed_password"], $data["full_name"], $data["role"], intval($data["id"]));
+        }
+    }
 
 
 
@@ -172,4 +183,5 @@ class User extends Model
         }
         return $users;
     }
+    
 }

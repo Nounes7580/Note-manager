@@ -24,14 +24,15 @@
 
 <body>
     <div class="container mt-5">
+        <a href="javascript:history.back()" class="bi bi-arrow-left"></a>
         <h2>Shares:</h2>
-        <?php if (!empty($shares)) : ?>
-            <?php foreach ($shares as $share) : ?>
+        <?php if (!empty($resultsOfSharedUsers) && !empty($permission)) : ?>
+            <?php for ($i = 0; $i < count($resultsOfSharedUsers); $i++) : ?>
                 <div class="mb-2">
-                    <span><?= htmlspecialchars($share['full_name']) ?></span>
-                    <span class="badge bg-secondary"><?= htmlspecialchars($share['permission']) ?></span>
+                    <span><?= htmlspecialchars($resultsOfSharedUsers[$i]->getFullName()) ?></span>
+                    <span><?= htmlspecialchars($permission[$i] ?  "editor" : "reader") ?></span>
                 </div>
-            <?php endforeach; ?>
+            <?php endfor; ?>
         <?php else : ?>
             <p class="text-muted">This note is not shared yet.</p>
         <?php endif; ?>
