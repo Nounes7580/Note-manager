@@ -154,61 +154,7 @@ class ControllerNotes extends Controller
         }
     }
 
-    /* public function add_checklistnote(): void
-    {
-=======
-    public function add_checklistnote(): void
-    {
->>>>>>> feat_view_share
-        $user = $this->get_user_or_redirect();
-        $title = $_POST['title'] ?? null;
-        $items = $_POST['items'] ?? null;
-        $items = explode("\n", $items);
-        $items = array_filter($items, function ($item) {
-            return !empty($item);
-        });
-        $items = array_map(function ($item) {
-            return trim($item);
-        }, $items);
-        $note = new CheckListNote();
-        $note->set_title($title);
-        $note->set_owner_id($user->get_id());
-        $note->save();
-        foreach ($items as $item) {
-            $noteItem = new CheckListNoteItem();
-            $noteItem->set_text($item);
-            $noteItem->set_note_id($note->get_id());
-            $noteItem->save();
-        }
-
-        $validFields = [
-            'title' => !empty($title) && empty($errors['title']),
-            // Répétez pour chaque champ d'élément
-            'item1' => !empty($items[0]) && empty($errors['item1']),
-            'item2' => !empty($items[1]) && empty($errors['item2']),
-            'item3' => !empty($items[2]) && empty($errors['item3']),
-            'item4' => !empty($items[3]) && empty($errors['item4']),
-            'item5' => !empty($items[4]) && empty($errors['item5']),
-
-        ];
-
-        // Préparer les données pour la vue
-        $data = [
-            "user" => $user,
-            "errors" => $errors,
-            "validFields" => $validFields,
-            "title" => $title,
-            "items" => $items
-
-        ];
-
-
-        // Afficher la vue avec les données et les erreurs
-        (new View("addchecklistnote"))->show($data);
-    }
-
-    */
-
+ 
 
 
     public function show_addchecklistnote(): void
@@ -286,12 +232,7 @@ class ControllerNotes extends Controller
     }
 
 
-    /* public function show_note(): void
-    {
-        $user = $this->get_user_or_redirect();
-        $noteId = $_GET['param1'] ?? null;
-        unset($_SESSION['checklist_items']);
-    }*/
+   
 
     public function show_addtextnote(): void
     {
@@ -302,7 +243,7 @@ class ControllerNotes extends Controller
     {
         $user = $this->get_user_or_redirect();
         $noteId = $_GET['param1'] ?? null;
-
+ unset($_SESSION['checklist_items']);
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note) {
