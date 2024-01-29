@@ -15,7 +15,6 @@ require_once 'framework/View.php';
 require_once 'framework/Controller.php';
 require_once 'model/NoteShare.php';
 
-
 class ControllerNotes extends Controller
 {
     public function index(): void
@@ -66,6 +65,7 @@ class ControllerNotes extends Controller
         }
         $this->redirect("notes");
     }
+
 
 
     public function add_checklistnote(): void
@@ -156,6 +156,10 @@ class ControllerNotes extends Controller
 
     /* public function add_checklistnote(): void
     {
+=======
+    public function add_checklistnote(): void
+    {
+>>>>>>> feat_view_share
         $user = $this->get_user_or_redirect();
         $title = $_POST['title'] ?? null;
         $items = $_POST['items'] ?? null;
@@ -202,6 +206,7 @@ class ControllerNotes extends Controller
         // Afficher la vue avec les données et les erreurs
         (new View("addchecklistnote"))->show($data);
     }
+
     */
 
 
@@ -213,10 +218,11 @@ class ControllerNotes extends Controller
     }
 
 
+
     public function add_textnote(): void
     {
-
         $user = $this->get_user_or_redirect();
+
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -240,6 +246,7 @@ class ControllerNotes extends Controller
             );
 
 
+            // Persiste la note dans la base de données.
 
             $note->persistAdd();
 
@@ -279,12 +286,13 @@ class ControllerNotes extends Controller
     }
 
 
-   /* public function show_note(): void
+    /* public function show_note(): void
     {
         $user = $this->get_user_or_redirect();
         $noteId = $_GET['param1'] ?? null;
         unset($_SESSION['checklist_items']);
     }*/
+
     public function show_addtextnote(): void
     {
         $user = $this->get_user_or_redirect();
@@ -489,7 +497,6 @@ class ControllerNotes extends Controller
 
 
 
-
     public function check_or_uncheck_item()
     {
         $itemId = $_POST['item_id'] ?? null; // Correct the variable name here
@@ -540,6 +547,7 @@ class ControllerNotes extends Controller
     }
 
 
+
     public function delete_note(): void
     {
         $user = $this->get_user_or_redirect();
@@ -576,5 +584,22 @@ class ControllerNotes extends Controller
         $sharedAsEditor = NoteShare::getSharedNotesByRolesEdit($userShare, $user);
         $sharedAsReader = NoteShare::getSharedNotesByRolesRead($userShare, $user);
         (new View("shared_notes"))->show(["sharedAsEditor" => $sharedAsEditor, "sharedAsReader" => $sharedAsReader, "sharedNotes" => $verif, "userShare" => $shareOne]);
+    }
+
+    public function share()
+    {
+        $user = $this->get_user_or_redirect();
+        $noteId = $_GET['param1'] ?? null;
+        if ($noteId) {
+            $note = Note::get_note_by_id((int)$noteId);
+            $resultsOfSharedUsers = $note->getUsersWhoSharedWith();
+            $permission = [];
+            foreach ($resultsOfSharedUsers as $data) {
+                $permission[] = $note->isSharedWithPermission($data->get_id());
+            }
+        }
+
+        $usersToShareWith = User::getAllUsersExceptCurrent($user->id);
+        (new View("shares"))->show(["user" => $user, "usersToShareWith" => $usersToShareWith, "resultsOfSharedUsers" => $resultsOfSharedUsers, "permission" => $permission, "note" => $note]);
     }
 }

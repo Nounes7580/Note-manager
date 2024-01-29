@@ -25,6 +25,9 @@ class User extends Model
     {
         return $this->full_name;
     }
+
+
+
     public function get_notes(): array
     {
         $query = self::execute("SELECT * FROM notes WHERE owner = :owner", ["owner" => $this->id]);
@@ -57,6 +60,19 @@ class User extends Model
     public static function get_user_by_mail(string $mail): User|false
     {
         $query = self::execute("SELECT * FROM users where mail = :mail", ["mail" => $mail]);
+
+        $data = $query->fetch();
+        if ($query->rowCount() == 0) {
+            return false;
+        } else {
+            // Ensure that $data["id"] is cast to an integer
+            return new User($data["mail"], $data["hashed_password"], $data["full_name"], $data["role"], intval($data["id"]));
+        }
+    }
+    public static function get_user_by_id(int $id): User|false
+    {
+        $query = self::execute("SELECT * FROM users where id = :id", ["id" => $id]);
+
         $data = $query->fetch();
         if ($query->rowCount() == 0) {
             return false;
@@ -168,6 +184,7 @@ class User extends Model
 
 
 
+
     public function setFullName(string $newFullName){
         $errors = [];
 
@@ -191,16 +208,15 @@ class User extends Model
 
 
 
-
-    public static function get_user_by_id(int $id): User|false
+    public static function getAllUsersExceptCurrent($currentUserId)
     {
-        $query = self::execute("SELECT * FROM users WHERE id = :id", ["id" => $id]);
-        $data = $query->fetch();
-        if ($query->rowCount() == 0) {
-            return false;
-        } else {
-            // Assurez-vous que les valeurs numériques sont correctement converties en entiers
-            return new User($data["mail"], $data["hashed_password"], $data["full_name"], $data["role"], intval($data["id"]));
+        $sql = "SELECT * FROM users WHERE id != :currentUserId";
+        $query = self::execute($sql, ['currentUserId' => $currentUserId]);
+        $data = $query->fetchAll();
+        $users = [];
+        foreach ($data as $row) {
+            $users[] = new User($row['mail'], $row['hashed_password'], $row['full_name'], $row["role"], $row['id']);
         }
+        return $users;
     }
 }
