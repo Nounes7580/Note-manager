@@ -31,6 +31,9 @@
 
                         <?php endforeach; ?>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="<?php echo $web_root; ?>Main/settings">Settings</a>
+                    </li>
                     <!-- Add more menu items here as needed -->
                 </ul>
                 <!-- Optional: Add a search form or other elements here -->
