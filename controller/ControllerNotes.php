@@ -68,53 +68,50 @@ class ControllerNotes extends Controller
 
 
 
-    public function add_checklistnote(): void
-    {
+    public function add_checklistnote(): void {
         // Obtenir l'utilisateur actuel ou rediriger si non connecté
         $user = $this->get_user_or_redirect();
-
+    
         // Calculer le poids le plus élevé pour les notes de cet utilisateur
         $highestWeight = Note::get_highest_weight_by_owner($user->get_id()) + 1;
-
-
+    
+       
         $errors = [];
-        $items = [];
-        $validFields = [];
+     $items = [];
+    $validFields = [];
         $title = '';
-
-
+       
+    
         // Vérifier si le formulaire a été soumis
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Récupérer le titre du formulaire, ou lui attribuer une valeur par défaut
-            $title = $_POST['title'] ?? 'Titre par défaut';
+        $title = $_POST['title'] ?? 'Titre par défaut';
             if (empty($title)) {
                 $errors['title'] = "Le titre est requis.";
-            } elseif (strlen($title) < 5 || strlen($title) > 25) {
-                $errors['title'] = "Le titre doit contenir entre 5 et 25 caractères.";
             }
-
+          
             for ($i = 1; $i <= 5; $i++) {
-
+               
                 if (!empty($_POST["item$i"])) {
                     $items[] = trim($_POST["item$i"]);
                 }
                 $unique_items = array_unique($items);
                 if (count($items) !== count($unique_items)) {
                     foreach ($items as $index => $item) {
-                        if (count(array_filter($items, fn ($i) => $i === $item)) > 1) {
+                        if (count(array_filter($items, fn($i) => $i === $item)) > 1) {
                             // Ajouter une erreur spécifique à l'élément dupliqué
                             $errors["item" . ($index + 1)] = "Item" . ($index + 1) . " must be unique.";
                         }
                     }
                 }
             }
-
+    
             // Vérifier s'il y a des doublons dans les éléments
             if (count($items) !== count(array_unique($items))) {
                 // Ajouter une erreur si des doublons sont trouvés
                 $errors[] = "Les éléments doivent être uniques.";
             }
-
+    
             // Si aucune erreur n'est détectée
             if (empty($errors)) {
                 // Créer une nouvelle note de checklist
@@ -125,11 +122,11 @@ class ControllerNotes extends Controller
                     archived: false,
                     weight: $highestWeight
                 );
-
+    
                 // Sauvegarder la note et récupérer son identifiant
                 $checklistNote->persist();
                 $checklistNoteId = $checklistNote->getId();
-
+    
                 // Si l'ID de la note est récupéré avec succès
                 if ($checklistNoteId !== null) {
                     // Sauvegarder chaque élément de la checklist
@@ -141,17 +138,42 @@ class ControllerNotes extends Controller
                         );
                         $item->persistAdd();
                     }
-
-
+    
+                  
                     $this->redirect("notes/show_note/" . $checklistNoteId);
                     return;
                 } else {
-
+                    
                     error_log("Erreur : L'ID de CheckListNote est null.");
                     $errors[] = "Une erreur est survenue lors de l'enregistrement de la note.";
                 }
             }
         }
+
+     $validFields = [
+            'title' => !empty($title) && empty($errors['title']),
+            // Répétez pour chaque champ d'élément
+            'item1' => !empty($items[0]) && empty($errors['item1']),
+            'item2' => !empty($items[1]) && empty($errors['item2']),
+            'item3' => !empty($items[2]) && empty($errors['item3']),
+            'item4' => !empty($items[3]) && empty($errors['item4']),
+            'item5' => !empty($items[4]) && empty($errors['item5']),
+           
+        ];
+
+        // Préparer les données pour la vue
+        $data = [
+            "user" => $user,
+            "errors" => $errors,
+            "validFields" => $validFields,
+            "title" => $title,
+            "items" => $items
+            
+        ];
+       
+    
+        // Afficher la vue avec les données et les erreurs
+        (new View("addchecklistnote"))->show($data);
     }
 
  
