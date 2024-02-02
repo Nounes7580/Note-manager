@@ -33,8 +33,8 @@
 
     <!-- Right aligned icon buttons -->
     <div class="navbar-nav">
-      <a class="nav-link" href="<?php echo $web_root; ?>Notes/delete_note/<?php echo $note->id; ?>">
-        <i style = "color:red;" class="bi bi-file-earmark-x"></i> <!-- Rajouter lien vers controller pour delete -->
+      <a class="nav-link" href="<?php echo $web_root; ?>Notes/confirm_delete/<?php echo $note->id; ?>">
+        <i style = "color:red;" class="bi bi-file-earmark-x"></i> 
       </a>
 
       <a class="nav-link" href="<?php echo $web_root; ?>Notes/archive_note/<?php echo $note->id; ?>">

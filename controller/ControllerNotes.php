@@ -509,7 +509,14 @@ class ControllerNotes extends Controller
         (new View("archives"))->show(["user" => $user, "notes" => $notes]);
     }
 
-
+    public function confirm_delete()
+    {
+        $user = $this->get_user_or_redirect();
+        $noteId = $_POST['note_id'] ?? $_GET['param1'] ?? null;
+     
+        $note = Note::get_note_by_id($noteId);
+        require('view/confirmation_delete.php');
+    }
 
     public function delete_note(): void
     {
