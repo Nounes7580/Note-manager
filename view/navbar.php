@@ -25,7 +25,7 @@
                     </li>
                     <li class="nav-item">
                         <?php foreach ($sharedNotes as $usershared) : ?>
-                            <a class="nav-link" href="<?php echo $web_root; ?>Notes/shared/<?= $usershared->get_id(); ?>">
+                            <a class="nav-link" href="<?php echo $web_root; ?>Notes/shared/<?= $usershared->getId(); ?>">
                                 Shared By <?= $usershared->get_fullName(); ?>
                             </a>
 

@@ -128,7 +128,7 @@ class ControllerNotes extends Controller
 
                 // Sauvegarder la note et récupérer son identifiant
                 $checklistNote->persist();
-                $checklistNoteId = $checklistNote->getId();
+                $checklistNoteId = $checklistNote->get_id();
 
                 // Si l'ID de la note est récupéré avec succès
                 if ($checklistNoteId !== null) {
@@ -592,6 +592,7 @@ class ControllerNotes extends Controller
         $noteId = $_GET['param1'] ?? null;
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
+            echo "<script>console.log('$noteId');</script>";
             $resultsOfSharedUsers = $note->getUsersWhoSharedWith();
             $permission = [];
             foreach ($resultsOfSharedUsers as $data) {
@@ -601,5 +602,23 @@ class ControllerNotes extends Controller
 
         $usersToShareWith = User::getAllUsersExceptCurrent($user->id);
         (new View("shares"))->show(["user" => $user, "usersToShareWith" => $usersToShareWith, "resultsOfSharedUsers" => $resultsOfSharedUsers, "permission" => $permission, "note" => $note]);
+    }
+
+
+    public function addShare(): void
+    {
+        $noteId = isset($_POST['note_id']) ? (int)$_POST['note_id'] : null;
+        $userId = isset($_POST['user_id']) ? (int)$_POST['user_id'] : null;
+        $permission = isset($_POST['permission']) ? $_POST['permission'] : null;
+
+        $isUserDefault = ($userId === -1);
+        $isPermissionDefault = ($permission === 'option1');
+
+        if ($noteId != null && $userId != null && $permission != null && !$isUserDefault && !$isPermissionDefault) {
+            $editor = $permission == "editor";
+            $noteShare = new NoteShare($noteId, $userId, $editor);
+            $noteShare->addShare();
+        }
+        $this->redirect("notes", "share", $noteId);
     }
 }

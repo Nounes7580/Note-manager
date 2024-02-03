@@ -1,7 +1,8 @@
 <?php
 require_once "Note.php";
 
-class TextNote extends Note {
+class TextNote extends Note
+{
     public string $content;
     public static $db;
 
@@ -31,24 +32,28 @@ class TextNote extends Note {
     }
 
     // function isPinned and not archived pour ne pas montrer  les notes archivés meme si pinned
-    public function isPinned() : bool {
+    public function isPinned(): bool
+    {
         return $this->pinned && !$this->archived;
     }
 
 
-    public function isArchived() : bool {
+    public function isArchived(): bool
+    {
         return $this->archived;
     }
 
-    public function get_id(): ?int {
+    public function get_id(): ?int
+    {
         return $this->id;
     }
 
-    public function save(): void {
+    public function save(): void
+    {
         parent::save(); // Appel de la méthode save() de la classe parente
-    
+
         error_log("Saving TextNote"); // Pour le débogage
-    
+
         try {
             $sql = 'INSERT INTO text_notes (note, content) VALUES (:note, :content)';
             $stmt = self::execute($sql, ['note' => $this->id, 'content' => $this->content]);
@@ -59,7 +64,8 @@ class TextNote extends Note {
     }
 
 
-    public function persist(): TextNote {
+    public function persist(): TextNote
+    {
         parent::persist(); // First, call parent's persist method
         // Now handle the saving of TextNote specific fields
         try {
@@ -72,28 +78,28 @@ class TextNote extends Note {
         return $this;
     }
 
-//persist method as required by the abstract parent class. in order to save the content of the note
-public function persistAdd(): TextNote {
-    parent::persist(); // First, call parent's persist method
+    //persist method as required by the abstract parent class. in order to save the content of the note
+    public function persistAdd(): TextNote
+    {
+        parent::persist(); // First, call parent's persist method
         if ($this->id === null) {
-        throw new Exception("L'ID de la note n'a pas été défini.");
+            throw new Exception("L'ID de la note n'a pas été défini.");
+        }
+        // Après l'appel à parent::persist(), $this->id devrait être défini.
+        // Insérez ou mettez à jour la partie text_note.
+        $this->persistTextNote();
+
+        return $this;
     }
-    // Après l'appel à parent::persist(), $this->id devrait être défini.
-    // Insérez ou mettez à jour la partie text_note.
-    $this->persistTextNote();
-
-    return $this;
-}
 
 
-public function persistTextNote() {
-    // Vérifiez si l'ID de la note est défini
-    if ($this->id !== null) {
-        // Insérez ou mettez à jour dans la table `text_notes`
-        $sql = "INSERT INTO text_notes (id, content) VALUES (:id, :content) ON DUPLICATE KEY UPDATE content = :content";
-        self::execute($sql, ['id' => $this->id, 'content' => $this->content]);
+    public function persistTextNote()
+    {
+        // Vérifiez si l'ID de la note est défini
+        if ($this->id !== null) {
+            // Insérez ou mettez à jour dans la table `text_notes`
+            $sql = "INSERT INTO text_notes (id, content) VALUES (:id, :content) ON DUPLICATE KEY UPDATE content = :content";
+            self::execute($sql, ['id' => $this->id, 'content' => $this->content]);
+        }
     }
-}
-
-
 }
