@@ -112,7 +112,7 @@ class ControllerMain extends Controller
         var_dump($user); // Pour vérifier l'objet
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Récupération des données soumises
-            $currentPassword = $_POST['currentPassword'] ?? '';
+            $currentPassword = $_POST['password'] ?? '';
             $newPassword = $_POST['newPassword'] ?? '';
             $confirmNewPassword = $_POST['confirmNewPassword'] ?? '';
 
@@ -133,7 +133,7 @@ class ControllerMain extends Controller
                 }
             }
             // Vérifier si le mot de passe actuel est correct
-            if (!User::verifyPassword($currentPassword, $user->hashed_password)) {
+            if (password_verify($currentPassword, $user->hashed_password)) {
                 $errors[] = "Le mot de passe actuel est incorrect.";
             }
             // Vérifier si le nouveau mot de passe et la confirmation correspondent
@@ -148,7 +148,7 @@ class ControllerMain extends Controller
             if (empty($errors)) {
                 $hashedNewPassword = password_hash($newPassword, PASSWORD_DEFAULT); // Hacher le nouveau mot de passe
                 $user->hashed_password = $hashedNewPassword;
-                User::persist(); // Mettre à jour le mot de passe dans la base de données
+                $user->persist(); // Mettre à jour le mot de passe dans la base de données
     
                 // Redirection vers une page de confirmation ou de paramètres
                 $this->redirect("main", "settings");

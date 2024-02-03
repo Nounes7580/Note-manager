@@ -123,7 +123,7 @@ class User extends Model
     }
 
     public static function verifyPassword(string $clear_password, string $hashed_password): bool {
-        return self::check_password($clear_password, $hashed_password);
+        return password_verify($clear_password, $hashed_password);
     }
 
     public function validate(): array
