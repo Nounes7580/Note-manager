@@ -307,8 +307,10 @@ public function save_edited_note(): void
 
         if ($noteId) {
             $note = CheckListNote::get_note_by_id((int)$noteId);
+            $isEditor = NoteShare::isUserEditor($user->id, $noteId); // Méthode hypothétique
 
-            if ($note && $note instanceof CheckListNote && $note->owner == $user->get_id()) {
+
+            if ($note && $note instanceof CheckListNote && ($note->owner == $user->get_id() || $isEditor)) {
                 $editedItems = isset($_SESSION['checklist_items'][$noteId]) ? $_SESSION['checklist_items'][$noteId] : [];
                 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $title = $_POST['title'] ?? '';
@@ -350,8 +352,10 @@ public function save_edited_note(): void
         $newItemContent = $_POST['new_item'] ?? '';
 
         $note = CheckListNote::get_note_by_id($noteId);
+        $isEditor = NoteShare::isUserEditor($user->id, $noteId);
 
-        if (!$note || !$note instanceof CheckListNote || $note->owner != $user->get_id()) {
+        if (!$note || !$note instanceof CheckListNote || ($note->owner != $user->get_id() && !$isEditor)) {
+    
             $_SESSION['errors']['note'] = "Vous n'êtes pas autorisé à modifier cette note ou elle n'existe pas.";
             $this->redirect("error_page");
             return;
@@ -377,8 +381,10 @@ public function save_edited_note(): void
 
         // Vérification de la validité de la note et des permissions de l'utilisateur
         $note = CheckListNote::get_note_by_id($noteId);
-        if (!$note || !$note instanceof CheckListNote || $note->owner != $user->get_id()) {
-            $_SESSION['errors']['note'] = "Vous n'êtes pas autorisé à modifier cette note ou elle n'existe pas.";
+        $isEditor = NoteShare::isUserEditor($user->id, $noteId);
+
+        if (!$note || !$note instanceof CheckListNote || ($note->owner != $user->get_id() && !$isEditor)) {
+                $_SESSION['errors']['note'] = "Vous n'êtes pas autorisé à modifier cette note ou elle n'existe pas.";
             $this->redirect("error_page");
             return;
         }
@@ -420,9 +426,10 @@ public function save_edited_note(): void
             }
             if ($noteId) {
                 $note = CheckListNote::get_note_by_id($noteId);
+                $isEditor = NoteShare::isUserEditor($user->id, $noteId);
 
-                if ($note && $note->owner == $user->get_id()) {
-                    $note->title = $title;
+                if ($note && $note->owner == $user->get_id() || $isEditor) {
+                        $note->title = $title;
                     $note->edited_at = new DateTime();
                     $note->persist();
 

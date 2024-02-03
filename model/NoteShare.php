@@ -71,6 +71,14 @@ class NoteShare extends Model
         return $result;
     }
 
+    public static function isUserEditor(int $userId, int $noteId): bool {
+        $query = self::execute("SELECT COUNT(*) FROM note_shares WHERE note = :noteId AND user = :userId AND editor = 1", [
+            'noteId' => $noteId,
+            'userId' => $userId
+        ]);
+        return $query->fetchColumn() > 0;
+    }
+
     public static function getSharedNotesByRolesEdit(int $idOwner, int $idUser): array
     {
         $query = self::execute("SELECT DISTINCT note_shares.note
