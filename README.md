@@ -16,7 +16,11 @@
 
   * afficher "..." en dessous des cartes de checklist notes
   * deplacement des notes avec la nouvelle methode persist -> Solution temporaire : 2 méthodes persist, une pour swap et une pour add des notes
-  * ...
+  * edit d'une checklist note : le content ne s'edit pas 
+  * edited xx  min ago : lorsqu'on edit (content et titre)/coche ou decoche un item ne s'update pas 
+* checklist notes (edit) : le nom de l'item ne s'edit pas 
+*   " "                  : la supp de l'item se fait seuelement sur le dernier item de la listeS
+*  affichage de edit note : n'utilise pas bootstrap
 
 ### Liste des fonctionnalités supplémentaires
 
