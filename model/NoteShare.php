@@ -4,31 +4,30 @@ require_once "framework/Model.php";
 
 class NoteShare extends Model
 {
-    public int $user;
-    public int $note;
+    public ?int $userId;
+    public ?int $noteId;
     public bool $editor;
-    public ?int $id;
+
+
 
     public function __construct(
-        int $user,
-        int $note,
-        bool $editor = false,
-        ?int $id = null
+        ?int $noteId,
+        ?int $user = null,
+        bool $editor = false
     ) {
-        $this->user = $user;
-        $this->note = $note;
+        $this->noteId = $noteId;
+        $this->userId = $user;
         $this->editor = $editor;
-        $this->id = $id;
     }
     // Getters
     public function getUser(): int
     {
-        return $this->user;
+        return $this->userId;
     }
 
     public function getNote(): int
     {
-        return $this->note;
+        return $this->noteId;
     }
 
     public function getEditor(): bool
@@ -36,30 +35,22 @@ class NoteShare extends Model
         return $this->editor;
     }
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+
 
     // Setters
     public function setUser(int $user): void
     {
-        $this->user = $user;
+        $this->userId = $user;
     }
 
     public function setNote(int $note): void
     {
-        $this->note = $note;
+        $this->noteId = $note;
     }
 
     public function setEditor(bool $editor): void
     {
         $this->editor = $editor;
-    }
-
-    public function setId(?int $id): void
-    {
-        $this->id = $id;
     }
 
     public static function getSharedNotesByRolesRead(int $idOwner, int $idUser): array
@@ -110,5 +101,12 @@ class NoteShare extends Model
             ["currentUserId" => $currentUserId]
         );
         return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+    public function addShare()
+    {
+        self::execute(
+            "INSERT INTO note_shares(note, user , editor) VALUES(:noteId, :userId, :editor)",
+            ["noteId" => $this->noteId, "userId" => $this->userId, "editor" => $this->editor]
+        );
     }
 }

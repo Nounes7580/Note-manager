@@ -38,21 +38,24 @@
         <?php endif; ?>
         <!-- Sélecteur d'utilisateur et de permission avec bouton d'ajout -->
         <div class="d-flex justify-content-start align-items-center mt-4">
-            <select class="form-select" id="userSelect" name="user_id" style="margin-right: -1px;">
-                <option value="">-User-</option>
-                <?php foreach ($usersToShareWith as $user) : ?>
-                    <option value="<?= htmlspecialchars($user->id) ?>"><?= htmlspecialchars($user->full_name) ?></option>
-                <?php endforeach; ?>
-            </select>
+            <form action="<?=$web_root?>Notes/addShare" method="post" class="d-flex justify-content-start align-items-center mt-4">
+                <select class="form-select" id="userSelect" name="user_id" style="margin-right: -1px;">
+                    <option value="">-User-</option>
+                    <?php foreach ($usersToShareWith as $user) : ?>
+                        <option value="<?= htmlspecialchars($user->id) ?>"><?= htmlspecialchars($user->full_name) ?></option>
+                    <?php endforeach; ?>
+                </select>
 
-            <!-- Sélecteur de permission -->
-            <select class="form-select" id="permissionSelect" name="permission" style="margin-right: -1px; margin-left: -1px;">
-                <option value="editor">Editor</option>
-                <option value="reader">Reader</option>
-            </select>
+                <!-- Sélecteur de permission -->
+                <select class="form-select" id="permissionSelect" name="permission" style="margin-right: -1px; margin-left: -1px;">
+                    <option value="editor">Editor</option>
+                    <option value="reader">Reader</option>
+                </select>
+                <input type="hidden" name="note_id" value="<?= htmlspecialchars($note->getId() ?? ''); ?>">
 
-            <!-- Bouton de partage -->
-            <button type="submit" class="btn btn-primary" style="margin-left: -1px;">+</button>
+                <!-- Bouton de partage -->
+                <button type="submit" class="btn btn-primary" style="margin-left: -1px;">+</button>
+            </form>
         </div>
 
     </div>
