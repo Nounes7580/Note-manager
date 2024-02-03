@@ -230,32 +230,28 @@ class ControllerNotes extends Controller
 
 
 
-    public function save_edited_note(): void
-    {
-        $user = $this->get_user_or_redirect();
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $noteId = $_POST['id'] ?? null;
-            $title = $_POST['title'] ?? '';
+public function save_edited_note(): void
+{
+    $user = $this->get_user_or_redirect();
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $noteId = $_POST['id'] ?? null;
+        $title = $_POST['title'] ?? '';
+        $content = $_POST['text'] ?? '';
 
-            $content = $_POST['text'] ?? '';  // Assurez-vous que cela correspond au nom du champ dans votre formulaire
+        $note = TextNote::get_note_by_id((int)$noteId); // Assurez-vous que cette méthode renvoie bien une TextNote
+        if ($note && $note instanceof TextNote && $note->owner == $user->get_id()) {
+            $note->title = $title;
+            $note->content = $content; // Assurez-vous que content est bien géré dans TextNote
 
-            $note = Note::get_note_by_id((int)$noteId);
-            if ($note && $note->owner == $user->get_id()) {
+            $note->edited_at = new DateTime();
+            $note->persistAdd();
 
-                $note->title = $title;
-                $note->content = $content;
-
-                $note->edited_at = new DateTime();
-
-                $note->persist();
-
-                $this->redirect("notes/show_note/" . $note->id);
-            } else {
-                // Gestion des erreurs
-
-            }
+            $this->redirect("notes/show_note/" . $note->id);
+        } else {
+            // Gérer l'erreur
         }
     }
+}
 
 
 
