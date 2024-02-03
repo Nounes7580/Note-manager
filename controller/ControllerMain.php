@@ -106,6 +106,7 @@ class ControllerMain extends Controller
             (new View("settings"))->show(array("user" => $user));
         }
     }
+
     public function edit_profile(): void {
         $user = $this->get_user_or_redirect();
         $errors = [];
@@ -123,6 +124,59 @@ class ControllerMain extends Controller
         } else {
             (new View("edit_profile"))->show(["user" => $user]);
         }
+    }
+
+    public function change_password(): void {
+        $user = $this->get_user_or_redirect(); // Assurez-vous que l'utilisateur est connecté
+        $errors = [];
+        var_dump($user); // Pour vérifier l'objet
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupération des données soumises
+            $currentPassword = $_POST['password'] ?? '';
+            $newPassword = $_POST['newPassword'] ?? '';
+            $confirmNewPassword = $_POST['confirmNewPassword'] ?? '';
+
+            if (empty($newPassword)) {
+                $errors[] = "Le nouveau mot de passe est requis.";
+            } else {
+                if (strlen($newPassword) < 8) {
+                    $errors[] = "Le mot de passe doit contenir au moins 8 caractères.";
+                }
+                if (!preg_match('/[A-Z]/', $newPassword)) {
+                    $errors[] = "Le mot de passe doit contenir au moins une majuscule.";
+                }
+                if (!preg_match('/\d/', $newPassword)) {
+                    $errors[] = "Le mot de passe doit contenir au moins un chiffre.";
+                }
+                if (!preg_match('/[^\da-zA-Z]/', $newPassword)) {
+                    $errors[] = "Le mot de passe doit contenir au moins un caractère spécial.";
+                }
+            }
+            // Vérifier si le mot de passe actuel est correct
+            if (password_verify($currentPassword, $user->hashed_password)) {
+                $errors[] = "Le mot de passe actuel est incorrect.";
+            }
+            // Vérifier si le nouveau mot de passe et la confirmation correspondent
+            if ($newPassword !== $confirmNewPassword) {
+                $errors[] = "Le nouveau mot de passe et la confirmation ne correspondent pas.";
+            }
+
+    
+            // Vous pouvez également ajouter des validations supplémentaires pour le nouveau mot de passe ici
+    
+            // Si aucune erreur, mettre à jour le mot de passe
+            if (empty($errors)) {
+                $hashedNewPassword = password_hash($newPassword, PASSWORD_DEFAULT); // Hacher le nouveau mot de passe
+                $user->hashed_password = $hashedNewPassword;
+                $user->persist(); // Mettre à jour le mot de passe dans la base de données
+    
+                // Redirection vers une page de confirmation ou de paramètres
+                $this->redirect("main", "settings");
+            }
+        }
+    
+        (new View("change_password"))->show(["user" => $user, "errors" => $errors]);
+
     }
     
 }

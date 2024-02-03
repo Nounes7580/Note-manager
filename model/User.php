@@ -133,9 +133,13 @@ class User extends Model
 
 
 
-    private static function check_password(string $clear_password, string $hash): bool
+    public static function check_password(string $clear_password, string $hash): bool
     {
         return $hash === Tools::my_hash($clear_password);
+    }
+
+    public static function verifyPassword(string $clear_password, string $hashed_password): bool {
+        return password_verify($clear_password, $hashed_password);
     }
 
     public function validate(): array
