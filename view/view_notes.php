@@ -33,6 +33,20 @@
             display: block;
         }
 
+
+        /* Cache tous les éléments après le troisième */
+        .checkbox-item:nth-child(n+4) {
+            display: none;
+        }
+
+        /* Ajoute les points de suspension après le troisième élément */
+        .checkbox-item:nth-child(3)::after {
+            content: '...';
+            display: block;
+            position: relative;
+            right: 0;
+            bottom: 0;
+        }
         .stretched-link {
 
             display: block;
