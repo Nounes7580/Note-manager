@@ -9,14 +9,34 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 </head>
 <body>
-
 <?php
-    if($note->isArchived()) { // Assuming $note is your note object and isArchived is a method that returns true if the note is archived
-        include('view/archived_note_nav.php');
+    // Vérifier si l'utilisateur est le propriétaire de la note
+    if($note->owner === $user->id) {
+        // L'utilisateur est l'auteur de la note
+        if($note->isArchived()) {
+            include('view/archived_note_nav.php');
+        } else {
+            include('view/standard_note_nav.php');
+        }
     } else {
-        include('view/standard_note_nav.php');
+        // Vérifier si l'utilisateur est un éditeur de la note
+        $sharedNotesAsEditor = NoteShare::getSharedNotesByRolesEdit($note->owner, $user->id);
+        $isEditorOfNote = false;
+        foreach($sharedNotesAsEditor as $sharedNote) {
+            if($sharedNote->id === $note->id) {
+                $isEditorOfNote = true;
+                break;
+            }
+        }
+
+        if($isEditorOfNote) {
+            include('view/view_as_editor_nav.php');
+        } else {
+            include('view/view_as_reader_nav.php');
+        }
     }
 ?>
+
  
             <form>
 

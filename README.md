@@ -14,9 +14,9 @@
 
 ### Liste des bugs connus
 
-  * afficher "..." en dessous des cartes de checklist notes
   * deplacement des notes avec la nouvelle methode persist -> Solution temporaire : 2 méthodes persist, une pour swap et une pour add des notes
   * checklist notes (edit) : la supp de l'item se fait seuelement sur le dernier item de la listeS
+  * securité : ne pas permettre la suppression de notes si elle n'appartient pas à l'user 
 
 ### Liste des fonctionnalités supplémentaires
 
