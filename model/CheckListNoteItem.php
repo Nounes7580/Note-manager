@@ -32,6 +32,9 @@ class CheckListNoteItem extends Model {
     }
     public function toggleChecked() {
         $this->checked = !$this->checked;
+        Note::updateEditedAt($this->checklist_note_id);
+
+
     }
    
 

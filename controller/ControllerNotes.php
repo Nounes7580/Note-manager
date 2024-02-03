@@ -245,6 +245,7 @@ class ControllerNotes extends Controller
                 $note->title = $title;
                 $note->content = $content;
 
+                $note->edited_at = new DateTime();
 
                 $note->persist();
 
@@ -391,6 +392,8 @@ class ControllerNotes extends Controller
             $item = CheckListNoteItem::get_item_by_id($itemId);
             if ($item && $item->checklist_note_id == $noteId) {
                 $item->delete(); // Cette méthode doit être implémentée dans CheckListNoteItem pour supprimer l'élément de la DB
+                $note->edited_at = new DateTime();
+                $note->persist();
             } else {
                 $_SESSION['errors']['item'] = "L'élément spécifié n'existe pas ou ne peut pas être supprimé.";
             }
@@ -424,6 +427,7 @@ class ControllerNotes extends Controller
 
                 if ($note && $note->owner == $user->get_id()) {
                     $note->title = $title;
+                    $note->edited_at = new DateTime();
                     $note->persist();
 
                     foreach ($items as $itemData) {
