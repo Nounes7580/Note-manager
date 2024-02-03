@@ -96,6 +96,10 @@ abstract class Note extends Model
             );
         }
     }
+    public function get__id(): int
+    {
+        return $this->id;
+    }
 
     public function save(): void
     {
@@ -109,7 +113,7 @@ abstract class Note extends Model
     public function updateNoteWeight(Note $note)
     {
         $sql = 'UPDATE notes SET weight = :weight WHERE id = :id';
-        $stmt = self::execute($sql, ['weight' => $note->getWeight(), 'id' => $note->getId()]);
+        $stmt = self::execute($sql, ['weight' => $note->getWeight(), 'id' => $note->get__id()]);
         error_log("Updated rows: " . $stmt->rowCount());  // Log the number of updated rows
     }
     public function moveNotesRight(): bool

@@ -1,7 +1,8 @@
 <?php
 require_once "Note.php";
 
-class CheckListNote extends Note {
+class CheckListNote extends Note
+{
     // Assuming no additional properties beyond those in Note
 
     public function __construct(
@@ -26,11 +27,13 @@ class CheckListNote extends Note {
             edited_at: $edited_at
         );
     }
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
-    public function getItems(): array {
+    public function getItems(): array
+    {
         $items = [];
         try {
             $sql = 'SELECT * FROM checklist_note_items WHERE checklist_note = :id';
@@ -52,7 +55,8 @@ class CheckListNote extends Note {
 
     // Implement the save method as required by the abstract parent class.
 
-    public function persist(): CheckListNote {
+    public function persist(): CheckListNote
+    {
         parent::persist(); // Persist the common note attributes
 
         if ($this->id) {
@@ -70,9 +74,10 @@ class CheckListNote extends Note {
         return $this;
     }
 
-    
+
     // Cette méthode doit être définie dans votre classe CheckListNote pour vérifier l'existence d'une note
-    public static function exists($id) {
+    public static function exists($id)
+    {
         $sql = 'SELECT COUNT(*) FROM checklist_notes WHERE id = :id';
         $stmt = self::execute($sql, ['id' => $id]);
         return $stmt->fetchColumn() > 0;

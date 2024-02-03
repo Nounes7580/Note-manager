@@ -68,50 +68,51 @@ class ControllerNotes extends Controller
 
 
 
-    public function add_checklistnote(): void {
+    public function add_checklistnote(): void
+    {
         // Obtenir l'utilisateur actuel ou rediriger si non connecté
         $user = $this->get_user_or_redirect();
-    
+
         // Calculer le poids le plus élevé pour les notes de cet utilisateur
         $highestWeight = Note::get_highest_weight_by_owner($user->get_id()) + 1;
-    
-       
+
+
         $errors = [];
-     $items = [];
-    $validFields = [];
+        $items = [];
+        $validFields = [];
         $title = '';
-       
-    
+
+
         // Vérifier si le formulaire a été soumis
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Récupérer le titre du formulaire, ou lui attribuer une valeur par défaut
-        $title = $_POST['title'] ?? 'Titre par défaut';
+            $title = $_POST['title'] ?? 'Titre par défaut';
             if (empty($title)) {
                 $errors['title'] = "Le titre est requis.";
             }
-          
+
             for ($i = 1; $i <= 5; $i++) {
-               
+
                 if (!empty($_POST["item$i"])) {
                     $items[] = trim($_POST["item$i"]);
                 }
                 $unique_items = array_unique($items);
                 if (count($items) !== count($unique_items)) {
                     foreach ($items as $index => $item) {
-                        if (count(array_filter($items, fn($i) => $i === $item)) > 1) {
+                        if (count(array_filter($items, fn ($i) => $i === $item)) > 1) {
                             // Ajouter une erreur spécifique à l'élément dupliqué
                             $errors["item" . ($index + 1)] = "Item" . ($index + 1) . " must be unique.";
                         }
                     }
                 }
             }
-    
+
             // Vérifier s'il y a des doublons dans les éléments
             if (count($items) !== count(array_unique($items))) {
                 // Ajouter une erreur si des doublons sont trouvés
                 $errors[] = "Les éléments doivent être uniques.";
             }
-    
+
             // Si aucune erreur n'est détectée
             if (empty($errors)) {
                 // Créer une nouvelle note de checklist
@@ -122,11 +123,13 @@ class ControllerNotes extends Controller
                     archived: false,
                     weight: $highestWeight
                 );
-    
+
                 // Sauvegarder la note et récupérer son identifiant
                 $checklistNote->persist();
-                $checklistNoteId = $checklistNote->getId();
-    
+
+                $checklistNoteId = $checklistNote->get__id();
+
+
                 // Si l'ID de la note est récupéré avec succès
                 if ($checklistNoteId !== null) {
                     // Sauvegarder chaque élément de la checklist
@@ -138,19 +141,19 @@ class ControllerNotes extends Controller
                         );
                         $item->persistAdd();
                     }
-    
-                  
+
+
                     $this->redirect("notes/show_note/" . $checklistNoteId);
                     return;
                 } else {
-                    
+
                     error_log("Erreur : L'ID de CheckListNote est null.");
                     $errors[] = "Une erreur est survenue lors de l'enregistrement de la note.";
                 }
             }
         }
 
-     $validFields = [
+        $validFields = [
             'title' => !empty($title) && empty($errors['title']),
             // Répétez pour chaque champ d'élément
             'item1' => !empty($items[0]) && empty($errors['item1']),
@@ -158,7 +161,7 @@ class ControllerNotes extends Controller
             'item3' => !empty($items[2]) && empty($errors['item3']),
             'item4' => !empty($items[3]) && empty($errors['item4']),
             'item5' => !empty($items[4]) && empty($errors['item5']),
-           
+
         ];
 
         // Préparer les données pour la vue
@@ -168,15 +171,15 @@ class ControllerNotes extends Controller
             "validFields" => $validFields,
             "title" => $title,
             "items" => $items
-            
+
         ];
-       
-    
+
+
         // Afficher la vue avec les données et les erreurs
         (new View("addchecklistnote"))->show($data);
     }
 
- 
+
 
 
     public function show_addchecklistnote(): void
@@ -219,8 +222,8 @@ class ControllerNotes extends Controller
             $note->persistAdd();
 
             // Rediriger vers la page de la note si la note a été créée avec succès.
-            if ($note->get_id() !== null) {
-                $this->redirect("notes/show_note/" . $note->get_id());
+            if ($note->get__id() !== null) {
+                $this->redirect("notes/show_note/" . $note->get__id());
             }
         }
     }
@@ -254,7 +257,7 @@ class ControllerNotes extends Controller
     }
 
 
-   
+
 
     public function show_addtextnote(): void
     {
@@ -265,7 +268,7 @@ class ControllerNotes extends Controller
     {
         $user = $this->get_user_or_redirect();
         $noteId = $_GET['param1'] ?? null;
- unset($_SESSION['checklist_items']);
+        unset($_SESSION['checklist_items']);
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note) {
@@ -506,14 +509,15 @@ class ControllerNotes extends Controller
     {
         $user = $this->get_user_or_redirect();
         $notes = Note::get_notes_by_owner($user->get_id());
-        (new View("archives"))->show(["user" => $user, "notes" => $notes]);
+        $verif = Note::getSharedNotesByUser($user->get_id());
+        (new View("archives"))->show(["user" => $user, "notes" => $notes, "sharedNotes" => $verif]);
     }
 
     public function confirm_delete()
     {
         $user = $this->get_user_or_redirect();
         $noteId = $_POST['note_id'] ?? $_GET['param1'] ?? null;
-     
+
         $note = Note::get_note_by_id($noteId);
         require('view/confirmation_delete.php');
     }
@@ -556,20 +560,53 @@ class ControllerNotes extends Controller
         (new View("shared_notes"))->show(["sharedAsEditor" => $sharedAsEditor, "sharedAsReader" => $sharedAsReader, "sharedNotes" => $verif, "userShare" => $shareOne]);
     }
 
+
     public function share()
     {
         $user = $this->get_user_or_redirect();
         $noteId = $_GET['param1'] ?? null;
+        $resultsOfSharedUsers = [];
+        $permission = [];
+
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             $resultsOfSharedUsers = $note->getUsersWhoSharedWith();
-            $permission = [];
             foreach ($resultsOfSharedUsers as $data) {
                 $permission[] = $note->isSharedWithPermission($data->get_id());
             }
         }
 
-        $usersToShareWith = User::getAllUsersExceptCurrent($user->id);
+        $allUsers = User::getAllUsersExceptCurrent($user->id);
+
+        // Filtrer les utilisateurs déjà partagés
+        $usersToShareWith = array_filter($allUsers, function ($user) use ($resultsOfSharedUsers) {
+            foreach ($resultsOfSharedUsers as $sharedUser) {
+                if ($sharedUser->get_id() == $user->id) {
+                    return false;
+                }
+            }
+            return true;
+        });
+
         (new View("shares"))->show(["user" => $user, "usersToShareWith" => $usersToShareWith, "resultsOfSharedUsers" => $resultsOfSharedUsers, "permission" => $permission, "note" => $note]);
+    }
+
+
+
+    public function addShare(): void
+    {
+        $noteId = isset($_POST['note_id']) ? (int)$_POST['note_id'] : null;
+        $userId = isset($_POST['user_id']) ? (int)$_POST['user_id'] : null;
+        $permission = isset($_POST['permission']) ? $_POST['permission'] : null;
+
+        $isUserDefault = ($userId === -1);
+        $isPermissionDefault = ($permission === 'option1');
+
+        if ($noteId != null && $userId != null && $permission != null && !$isUserDefault && !$isPermissionDefault) {
+            $editor = $permission == "editor";
+            $noteShare = new NoteShare($noteId, $userId, $editor);
+            $noteShare->addShare();
+        }
+        $this->redirect("notes", "share", $noteId);
     }
 }
