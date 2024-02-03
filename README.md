@@ -16,8 +16,7 @@
 
   * afficher "..." en dessous des cartes de checklist notes
   * deplacement des notes avec la nouvelle methode persist -> Solution temporaire : 2 méthodes persist, une pour swap et une pour add des notes
-  * edit d'une checklist note : le content ne s'edit pas 
-* checklist notes (edit) : la supp de l'item se fait seuelement sur le dernier item de la listeS
+  * checklist notes (edit) : la supp de l'item se fait seuelement sur le dernier item de la listeS
 
 ### Liste des fonctionnalités supplémentaires
 
@@ -37,15 +36,15 @@ open_note           ok
 pin_unpin           ok
 archive             ok
 unarchive           ok
-delete
+delete              ok
 open_text_note      ok
-edit_text_note
-add_text_note
-add_checklist_note
+edit_text_note      ok
+add_text_note       ok
+add_checklist_note  ok
 open_checklist_note ok
 check_uncheck       ok
-edit_checklist_note
-add_item
+edit_checklist_note ok
+add_item            ok
 delete_item
 view_shares
 add_share
