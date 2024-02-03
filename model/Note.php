@@ -219,7 +219,15 @@ abstract class Note extends Model
         return $this->archived;
     }
 
-
+    public static function updateEditedAt(int $noteId) {
+        $editedAt = new DateTime();
+        $sql = 'UPDATE notes SET edited_at = :edited_at WHERE id = :id';
+        self::execute($sql, [
+            'id' => $noteId,
+            'edited_at' => $editedAt->format('Y-m-d H:i:s'),
+        ]);
+    }
+    
 
     public static function get_note_by_id(int $id): ?Note
     {
