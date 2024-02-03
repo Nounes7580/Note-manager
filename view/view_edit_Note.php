@@ -6,7 +6,7 @@ if (!isset($note)) {
 ?>
 
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <title>Éditer la Note</title>
@@ -14,18 +14,6 @@ if (!isset($note)) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 </head>
 <style>
-      body {
-        background-color: #121212; /* Fond sombre */
-        color: #e4e4e4; /* Texte clair */
-    }
-    .form-control {
-        background-color: #222; /* Fond des champs de formulaire */
-        color: white; /* Texte des champs de formulaire */
-        border-color: #444; /* Bordure des champs de formulaire */
-    }
-    .form-label {
-        color: #aaa; /* Couleur des étiquettes de formulaire */
-    }
    
     .btn-create-note {
         position: fixed; /* Fixed position */
