@@ -278,46 +278,50 @@ class ControllerNotes extends Controller
             $this->redirect("notes/show_note/" . $note->id);
         }
     }
-
+ 
+            
 
     public function edit_note()
     {
         $user = $this->get_user_or_redirect();
         $noteId = $_GET['param1'] ?? null;
+        
         $errors = []; // Initialisation d'un tableau d'erreurs
 
+ $note = Note::get_note_by_id((int)$noteId);
+ if (!$note) {
+    // La note n'existe pas
+    $errors['note'] = "La note spécifiée n'existe pas.";
+    (new View("error"))->show(["errors" => $errors]);
+    return; // Arrête l'exécution de la méthode ici
+} elseif ($note->owner != $user->get_id()) {
+    // L'utilisateur n'est pas autorisé à éditer cette note
+    $errors['note'] = "Vous n'avez pas les droits pour modifier cette note.";
+    (new View("error"))->show(["errors" => $errors]);
+    return; // Arrête l'exécution de la méthode ici
+}
 
-        if ($noteId) {
-            $note = Note::get_note_by_id((int)$noteId);
+// Traiter la soumission du formulaire
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $title = $_POST['title'] ?? ''; 
+    $content = $_POST['text'] ?? ''; 
 
-            if (!$note) {
-                // La note n'existe pas
-                $errors['note'] = "La note spécifiée n'existe pas.";
-            } elseif ($note->owner != $user->get_id()) {
-                // L'utilisateur n'est pas autorisé à éditer cette note
-                $errors['note'] = "Vous n'avez pas les droits pour modifier cette note.";
-            }
-
-            if (empty($title)) {
-                $errors['title'] = "Le titre est requis.";
-            } elseif (strlen($title) < 3 || strlen($title) > 25) {
-                $errors['title'] = "Le titre doit contenir entre 3 et 25 caractères.";
-            }
-            if (empty($errors)) {
-                // Si aucune erreur, affichez la vue d'édition avec la note
-                (new View("edit_Note"))->show(["note" => $note]);
-            } else {
-                // S'il y a des erreurs, affichez une vue d'erreur ou redirigez vers une page d'erreur
-                // Assurez-vous d'avoir une vue d'erreur ou de gérer le rendu d'erreur ici
-                (new View("edit_note"))->show(['user' => $user, 'note' => $note, 'errors' => $errors]);
-            }
-        } else {
-            // Aucun ID de note fourni, affichez une erreur ou redirigez
-            $errors['note'] = "Aucune note spécifiée pour l'édition.";
-            (new View("error"))->show(["errors" => $errors]);
-        }
+    if (empty($title)) {
+        $errors['title'] = "Le titre est requis.";
+    } elseif (strlen($title) < 3 || strlen($title) > 25) {
+        $errors['title'] = "Le titre doit contenir entre 3 et 25 caractères.";
     }
 
+    if (empty($errors)) {
+      (new View("edit_Note"))->show(["note" => $note]);
+      return;
+    }
+}
+
+// Affichez la vue d'édition avec la note et les erreurs (qui seront vides si la requête n'est pas POST ou si aucune erreur n'a été détectée)
+(new View("edit_note"))->show(['user' => $user, 'note' => $note, 'errors' => $errors]);
+return;
+}
 
     public function show_addtextnote(): void
     {

@@ -63,7 +63,7 @@ if (!isset($note)) {
 <div class="mb-3">
     <label for="title" class="form-label">Titre</label>
     <input type="text" class="form-control <?= !empty($errors['title']) ? 'is-invalid' : '' ?>" id="title" name="title" value="<?= htmlspecialchars($note->title) ?>" required>
-    <?php if (!empty($errors['title'])): ?>
+    <?php if (empty($errors['title'])): ?>
         <div class="invalid-feedback"><?= htmlspecialchars($errors['title']) ?></div>
     <?php endif; ?>
 </div>

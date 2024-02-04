@@ -24,7 +24,7 @@
 
 <body>
     <div class="container mt-5">
-        <a href="javascript:history.back()" class="bi bi-arrow-left"></a>
+        <a href="<?php echo $web_root; ?>notes/show_note/<?php echo $note->id; ?>" class="bi bi-arrow-left"></a>
         <h2>Shares:</h2>
         <?php if (!empty($resultsOfSharedUsers) && !empty($permission)) : ?>
             <?php foreach ($resultsOfSharedUsers as $index => $sharedUser) : ?>
