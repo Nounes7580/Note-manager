@@ -523,10 +523,17 @@ class ControllerNotes extends Controller
 
     public function check_or_uncheck_item()
     {
-        $itemId = $_POST['item_id'] ?? null; // Correct the variable name here
+        $user = $this->get_user_or_redirect();
+        $itemId = $_POST['item_id'] ?? null;
         $noteId = $_POST['note_id'] ?? null;
-
-        if ($itemId) {
+    
+        $note = CheckListNote::get_note_by_id((int)$noteId);
+    
+        // Vérifiez si l'utilisateur actuel est le propriétaire ou un éditeur de la note.
+        $isOwner = $note->owner == $user->id;
+        $isEditor = NoteShare::isUserEditor($user->id, $noteId);
+    
+        if ($itemId && ($isOwner || $isEditor)) {
             $item = CheckListNoteItem::get_item_by_id((int)$itemId);
             if ($item) {
                 $item->toggleChecked();

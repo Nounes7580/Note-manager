@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-
+<?php $pageTitle = "My Notes"; ?>  <!--  une variable pour le titre dans la navbar -->
 <html lang="en" data-bs-theme="dark">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Notes</title>
+    <title>My Notes</title>
+
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
@@ -156,7 +157,7 @@
                                     <form action="./moveNoteLeft" method="post" class="float-start">
                                         <input type="hidden" name="noteId" value="<?= $note->id ?>">
                                         <button type="submit" class="btn btn-link text-light-blue">
-                                            <i class="bi bi-arrow-left-circle"></i>
+                                            <i class="bi bi-caret-left-fill"></i>
                                         </button>
                                     </form>
                                 <?php endif; ?>
@@ -168,7 +169,7 @@
                                     <form action="./moveNoteRight" method="post" class="float-end">
                                         <input type="hidden" name="noteId" value="<?= $note->id ?>">
                                         <button type="submit" class="btn btn-link text-light-blue">
-                                            <i class="bi bi-arrow-right-circle"></i>
+                                            <i class="bi bi-caret-right-fill"></i>
                                         </button>
                                     </form>
                                 <?php endif; ?>
@@ -213,7 +214,7 @@
                                         <form action="./moveNoteLeft" method="post" class="float-start">
                                             <input type="hidden" name="noteId" value="<?= $note->id ?>">
                                             <button type="submit" class="btn btn-link text-light-blue">
-                                                <i class="bi bi-arrow-left-circle"></i>
+                                                <i class="bi bi-caret-left-fill"></i>
                                             </button>
                                         </form>
                                     <?php endif; ?>
@@ -225,7 +226,7 @@
                                         <form action="./moveNoteRight" method="post" class="float-end">
                                             <input type="hidden" name="noteId" value="<?= $note->id ?>">
                                             <button type="submit" class="btn btn-link text-light-blue">
-                                                <i class="bi bi-arrow-right-circle"></i>
+                                                <i class="bi bi-caret-right-fill"></i>
                                             </button>
                                         </form>
                                     <?php endif; ?>

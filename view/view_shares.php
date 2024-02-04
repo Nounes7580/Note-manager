@@ -33,7 +33,7 @@
                     value="<?= htmlspecialchars($sharedUser->getFullName()) ?> (<?= $permission[$index] ? "editor" : "reader" ?>)"
                     readonly>
                 <button class="btn btn-primary" type="button">
-                    <i class="bi bi-pencil"></i>
+                    <i class="bi bi-box"></i>
                 </button>
                 <button class="btn btn-danger" type="button">
                     <i class="bi bi-trash"></i>
