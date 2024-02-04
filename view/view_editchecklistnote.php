@@ -86,17 +86,17 @@ $validFields = $validFields ?? [];
         </div>
         </form> 
         <?php foreach ($note->getItems() as $index => $item): ?>
-    <form action="./../delete_checklist_item" method="post">
-        <div class="input-group mb-3">
-            <div class="input-group-text bg-secondary">
-                <i class="bi <?php echo $item->checked ? 'bi-check-circle-fill' : 'bi-circle'; ?>"></i>
-            </div>
-            <input type="text" class="form-control" value="<?php echo htmlspecialchars($item->content); ?>" readonly>
-            <input type="hidden" name="note_id" value="<?php echo $note->id; ?>">
-            <input type="hidden" name="item_id" value="<?php echo $item->id; ?>">
-            <button class="btn btn-delete" type="submit"><i class="bi bi-dash-lg"></i></button>
+<form action="./../delete_checklist_item" method="post" class="mb-3">
+    <div class="input-group">
+        <div class="input-group-text bg-secondary">
+            <i class="bi <?php echo $item->checked ? 'bi-check-circle-fill' : 'bi-circle'; ?>"></i>
         </div>
-    </form>
+        <input type="text" class="form-control" value="<?php echo htmlspecialchars($item->content); ?>" readonly>
+        <input type="hidden" name="note_id" value="<?php echo $note->id; ?>">
+        <input type="hidden" name="item_id" value="<?php echo $item->id; ?>">
+        <button class="btn btn-delete" type="submit"><i class="bi bi-dash-lg"></i></button>
+    </div>
+</form>
 <?php endforeach; ?>
 <?php endif; ?>
 <!-- Nouveaux éléments -->
