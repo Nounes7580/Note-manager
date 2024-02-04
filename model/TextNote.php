@@ -42,7 +42,10 @@ class TextNote extends Note
     {
         return $this->archived;
     }
-
+    public function getId()
+    {
+        return $this->id;
+    }
     public function get_id(): ?int
     {
         return $this->id;
