@@ -119,12 +119,25 @@ class NoteShare extends Model
         );
     }
 
-    public function deleteShare() {
+    public function deleteShare()
+    {
         self::execute("DELETE FROM note_shares WHERE note = :noteId AND user = :userId AND editor = :editor", [
-            "noteId" => $this->noteId, 
-            "userId" => $this->userId, 
+            "noteId" => $this->noteId,
+            "userId" => $this->userId,
             "editor" => $this->editor ? '1' : '0' // Assurez-vous que cela correspond au type de colonne dans votre base de données
         ]);
     }
-
+    public function changePermission()
+    {
+        $this->editor = !$this->editor;
+        // Met à jour la base de données
+        self::execute(
+            "UPDATE note_shares SET editor = :editor WHERE note = :noteId AND user = :userId",
+            [
+                "noteId" => $this->noteId,
+                "userId" => $this->userId,
+                "editor" => $this->editor ? '1' : '0'
+            ]
+        );
+    }
 }
