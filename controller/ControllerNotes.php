@@ -195,29 +195,29 @@ class ControllerNotes extends Controller
     public function add_textnote(): void
     {
         $user = $this->get_user_or_redirect();
-    
+
         $errors = []; // Initialisation d'un tableau d'erreurs
-    
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
+
             $highestWeight = Note::get_highest_weight_by_owner($user->get_id());
-    
+
             $title = $_POST['title'] ?? 'Nouveau Titre';
             $text = $_POST['text'] ?? 'Nouveau Texte';
             $owner = $user->get_id();
             $pinned = false;
             $archived = false;
             $weight = $highestWeight + 1; // Augmenter le poids le plus élevé de 1.
-    
+
             // Validation du titre
             if (empty($title)) {
                 $errors['title'] = "Le titre est requis.";
             } elseif (strlen($title) < 3 || strlen($title) > 25) {
                 $errors['title'] = "Le titre doit contenir entre 3 et 25 caractères.";
             }
-    
-        
-    
+
+
+
             // Vérifier s'il y a des erreurs avant de créer la note
             if (empty($errors)) {
                 // Création de la nouvelle note.
@@ -229,10 +229,10 @@ class ControllerNotes extends Controller
                     weight: $weight,
                     content: $text
                 );
-    
+
                 // Persiste la note dans la base de données.
                 $note->persistAdd();
-    
+
                 // Rediriger vers la page de la note si la note a été créée avec succès.
                 if ($note->get__id() !== null) {
                     $this->redirect("notes/show_note/" . $note->get__id());
@@ -250,13 +250,13 @@ class ControllerNotes extends Controller
         $user = $this->get_user_or_redirect();
         $errors = []; // Initialisation d'un tableau d'erreurs
         $note = null; // Initialisation de la variable note
-    
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $noteId = $_POST['id'] ?? null;
             if ($noteId) {
                 $note = TextNote::get_note_by_id((int)$noteId);
             }
-    
+
             if (!$note || !$note instanceof TextNote || $note->owner != $user->get_id()) {
                 // La note n'existe pas ou l'utilisateur n'est pas autorisé à la modifier
                 $errors['note'] = "La note spécifiée n'existe pas ou vous n'avez pas les droits pour la modifier.";
@@ -264,32 +264,32 @@ class ControllerNotes extends Controller
                 (new View("edit_note"))->show(['user' => $user, 'note' => $note, 'errors' => $errors]);
                 return;
             }
-    
+
             $title = $_POST['title'] ?? '';
             $content = $_POST['text'] ?? '';
-    
-    
+
+
             // Mise à jour de la note
             $note->title = $title;
             $note->content = $content;
             $note->edited_at = new DateTime();
             $note->persistAdd(); // Assurez-vous que cette méthode effectue bien une mise à jour
-    
+
             $this->redirect("notes/show_note/" . $note->id);
         }
     }
-    
-    
+
+
     public function edit_note()
     {
         $user = $this->get_user_or_redirect();
         $noteId = $_GET['param1'] ?? null;
         $errors = []; // Initialisation d'un tableau d'erreurs
 
-       
+
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
-          
+
             if (!$note) {
                 // La note n'existe pas
                 $errors['note'] = "La note spécifiée n'existe pas.";
@@ -297,12 +297,12 @@ class ControllerNotes extends Controller
                 // L'utilisateur n'est pas autorisé à éditer cette note
                 $errors['note'] = "Vous n'avez pas les droits pour modifier cette note.";
             }
-      
-             if (empty($title)) {
-            $errors['title'] = "Le titre est requis.";
-        } elseif (strlen($title) < 3 || strlen($title) > 25) {
-            $errors['title'] = "Le titre doit contenir entre 3 et 25 caractères.";
-        }
+
+            if (empty($title)) {
+                $errors['title'] = "Le titre est requis.";
+            } elseif (strlen($title) < 3 || strlen($title) > 25) {
+                $errors['title'] = "Le titre doit contenir entre 3 et 25 caractères.";
+            }
             if (empty($errors)) {
                 // Si aucune erreur, affichez la vue d'édition avec la note
                 (new View("edit_Note"))->show(["note" => $note]);
@@ -346,7 +346,7 @@ class ControllerNotes extends Controller
         $this->redirect("notes");
     }
 
-    
+
 
     public function editchecklistnote()
     {
@@ -406,7 +406,7 @@ class ControllerNotes extends Controller
         $isEditor = NoteShare::isUserEditor($user->id, $noteId);
 
         if (!$note || !$note instanceof CheckListNote || ($note->owner != $user->get_id() && !$isEditor)) {
-    
+
             $_SESSION['errors']['note'] = "Vous n'êtes pas autorisé à modifier cette note ou elle n'existe pas.";
             $this->redirect("error_page");
             return;
@@ -435,7 +435,7 @@ class ControllerNotes extends Controller
         $isEditor = NoteShare::isUserEditor($user->id, $noteId);
 
         if (!$note || !$note instanceof CheckListNote || ($note->owner != $user->get_id() && !$isEditor)) {
-                $_SESSION['errors']['note'] = "Vous n'êtes pas autorisé à modifier cette note ou elle n'existe pas.";
+            $_SESSION['errors']['note'] = "Vous n'êtes pas autorisé à modifier cette note ou elle n'existe pas.";
             $this->redirect("error_page");
             return;
         }
@@ -480,7 +480,7 @@ class ControllerNotes extends Controller
                 $isEditor = NoteShare::isUserEditor($user->id, $noteId);
 
                 if ($note && $note->owner == $user->get_id() || $isEditor) {
-                        $note->title = $title;
+                    $note->title = $title;
                     $note->edited_at = new DateTime();
                     $note->persist();
 
@@ -625,12 +625,16 @@ class ControllerNotes extends Controller
         $noteId = $_GET['param1'] ?? null;
         $resultsOfSharedUsers = [];
         $permission = [];
+        $listOfNoteShare = [];
 
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             $resultsOfSharedUsers = $note->getUsersWhoSharedWith();
             foreach ($resultsOfSharedUsers as $data) {
                 $permission[] = $note->isSharedWithPermission($data->get_id());
+            }
+            for ($i = 0; $i < count($resultsOfSharedUsers); $i++) {
+                // $listOfNoteShare = new NoteShare($noteId, $resultsOfSharedUsers[$i], $permission[$i]);
             }
         }
 
@@ -667,4 +671,26 @@ class ControllerNotes extends Controller
         }
         $this->redirect("notes", "share", $noteId);
     }
+    public function deleteShare()
+    {
+        $user = $this->get_user_or_redirect(); // Assurez-vous que l'utilisateur est connecté
+        $noteId = $_POST['note_id'] ?? null; // Récupérez l'ID de la note depuis le POST
+        $userId = $_POST['user_id'] ?? null; // Récupérez l'ID de l'utilisateur avec qui la note est partagée
+        $editor = $_POST['editor'] ?? null; // Récupérez si l'utilisateur est éditeur ou non
+
+        // Vérifiez que toutes les données nécessaires sont présentes
+        if ($noteId && $userId && $editor !== null) {
+            $noteShare = new NoteShare($noteId, $userId, $editor); // Créez une instance de NoteShare
+            $noteShare->deleteShare(); // Appelez la méthode deleteShare
+            // Définir un message de succès dans la session
+            $_SESSION['success'] = "Le partage a été supprimé.";
+            // Rediriger vers la page de partage
+            $this->redirect("notes", "share", $noteId);
+        } else {
+            $_SESSION['error'] = "Les informations nécessaires pour la suppression n'ont pas été fournies";
+            // Redirigez vers la page de partage avec un message d'erreur
+            $this->redirect("notes", "share", $noteId);
+        }
+    }
+    
 }

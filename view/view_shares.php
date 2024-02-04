@@ -28,24 +28,28 @@
         <h2>Shares:</h2>
         <?php if (!empty($resultsOfSharedUsers) && !empty($permission)) : ?>
             <?php foreach ($resultsOfSharedUsers as $index => $sharedUser) : ?>
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" 
-                    value="<?= htmlspecialchars($sharedUser->getFullName()) ?> (<?= $permission[$index] ? "editor" : "reader" ?>)"
-                    readonly>
-                <button class="btn btn-primary" type="button">
-                    <i class="bi bi-pencil"></i>
-                </button>
-                <button class="btn btn-danger" type="button">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </div>
-        <?php endforeach; ?>
-                <?php else : ?>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" value="<?= htmlspecialchars($sharedUser->getFullName()) ?> (<?= $permission[$index] ? "editor" : "reader" ?>)" readonly>
+                    <button class="btn btn-primary" type="button">
+                        <i class="bi bi-yin-yang"></i>
+                    </button>
+                    <form action="<?= $web_root ?>Notes/deleteShare" method="post">
+                        <input type="hidden" name="note_id" value="<?= $note->getId(); ?>">
+                        <input type="hidden" name="user_id" value="<?= $sharedUser->get_id(); ?>">
+                        <input type="hidden" name="editor" value="<?= $permission[$index] ? '1' : '0'; ?>">
+                        <button class="btn btn-danger" type="submit">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+
+                </div>
+            <?php endforeach; ?>
+        <?php else : ?>
             <p class="text-muted">This note is not shared yet.</p>
         <?php endif; ?>
         <!-- Sélecteur d'utilisateur et de permission avec bouton d'ajout -->
         <div class="input-group mb-3">
-            <form action="<?=$web_root?>Notes/addShare" method="post" class="input-group">
+            <form action="<?= $web_root ?>Notes/addShare" method="post" class="input-group">
                 <select class="form-select" id="userSelect" name="user_id" style="margin-right: -1px;">
                     <option value="">-User-</option>
                     <?php foreach ($usersToShareWith as $user) : ?>

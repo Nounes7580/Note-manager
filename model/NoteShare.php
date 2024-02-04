@@ -71,7 +71,8 @@ class NoteShare extends Model
         return $result;
     }
 
-    public static function isUserEditor(int $userId, int $noteId): bool {
+    public static function isUserEditor(int $userId, int $noteId): bool
+    {
         $query = self::execute("SELECT COUNT(*) FROM note_shares WHERE note = :noteId AND user = :userId AND editor = 1", [
             'noteId' => $noteId,
             'userId' => $userId
@@ -117,4 +118,13 @@ class NoteShare extends Model
             ["noteId" => $this->noteId, "userId" => $this->userId, "editor" => $this->editor]
         );
     }
+
+    public function deleteShare() {
+        self::execute("DELETE FROM note_shares WHERE note = :noteId AND user = :userId AND editor = :editor", [
+            "noteId" => $this->noteId, 
+            "userId" => $this->userId, 
+            "editor" => $this->editor ? '1' : '0' // Assurez-vous que cela correspond au type de colonne dans votre base de données
+        ]);
+    }
+
 }
