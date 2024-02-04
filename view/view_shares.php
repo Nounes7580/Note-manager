@@ -31,9 +31,14 @@
 
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" value="<?= htmlspecialchars($sharedUser->getFullName()) ?> (<?= $permission[$index] ? "editor" : "reader" ?>)" readonly>
-                    <button class="btn btn-primary" type="button">
-                        <i class="bi bi-yin-yang"></i>
-                    </button>
+                    <form action="<?= $web_root ?>Notes/togglePermission" method="post">
+                        <input type="hidden" name="note_id" value="<?= $note->getId(); ?>">
+                        <input type="hidden" name="user_id" value="<?= $sharedUser->get_id(); ?>">
+                        <input type="hidden" name="editor" value="<?= $permission[$index] ? '1' : '0'; ?>">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-yin-yang"></i>
+                        </button>
+                    </form>
                     <form action="<?= $web_root ?>Notes/deleteShare" method="post">
                         <input type="hidden" name="note_id" value="<?= $note->getId(); ?>">
                         <input type="hidden" name="user_id" value="<?= $sharedUser->get_id(); ?>">

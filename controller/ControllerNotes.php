@@ -713,5 +713,27 @@ class ControllerNotes extends Controller
             $this->redirect("notes", "share", $noteId);
         }
     }
+    public function togglePermission()
+    {
+        $user = $this->get_user_or_redirect(); // Assurez-vous que l'utilisateur est connecté
+        $noteId = $_POST['note_id'] ?? null; // Récupérez l'ID de la note depuis le POST
+        $userId = $_POST['user_id'] ?? null; // Récupérez l'ID de l'utilisateur avec qui la note est partagée
+        $editor = $_POST['editor'] ?? null; // Récupérez si l'utilisateur est éditeur ou non
+
+        // Vérifiez que toutes les données nécessaires sont présentes
+        if ($noteId && $userId && $editor !== null) {
+            $noteShare = new NoteShare($noteId, $userId, $editor); // Créez une instance de NoteShare
+            $noteShare->changePermission(); // Appelez la méthode deleteShare
+            // Définir un message de succès dans la session
+            $_SESSION['success'] = "La permission a été modifiée.";
+            // Rediriger vers la page de partage
+            $this->redirect("notes", "share", $noteId);
+        } else {
+            $_SESSION['error'] = "Les informations nécessaires pour changer la permission n'ont pas été fournies.";;
+            // Redirigez vers la page de partage avec un message d'erreur
+            $this->redirect("notes", "share", $noteId);
+        }
+    }
+    
     
 }
