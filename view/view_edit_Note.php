@@ -58,17 +58,22 @@ if (!isset($note)) {
     <div class="container container-form"> 
         
         <form action="./../save_edited_note" method="post">
-            <input type="hidden" name="id" value="<?= htmlspecialchars($note->id) ?>">
+        <input type="hidden" name="id" value="<?= htmlspecialchars($note->id) ?>">
 
-            <div class="mb-3">
-                <label for="title" class="form-label">Titre</label>
-                <input type="text" class="form-control" id="title" name="title" value="<?= htmlspecialchars($note->title) ?>" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="text" class="form-label">Contenu</label>
-                <textarea class="form-control" id="text" name="text" rows="5"><?= htmlspecialchars($note->content) ?></textarea>
-            </div>
+<div class="mb-3">
+    <label for="title" class="form-label">Titre</label>
+    <input type="text" class="form-control <?= !empty($errors['title']) ? 'is-invalid' : '' ?>" id="title" name="title" value="<?= htmlspecialchars($note->title) ?>" required>
+    <?php if (!empty($errors['title'])): ?>
+        <div class="invalid-feedback"><?= htmlspecialchars($errors['title']) ?></div>
+    <?php endif; ?>
+</div>
+<div class="mb-3">
+            <label for="text" class="form-label">Contenu</label>
+            <textarea class="form-control <?= !empty($errors['text']) ? 'is-invalid' : '' ?>" id="text" name="text" rows="5"><?= htmlspecialchars($note->content) ?></textarea>
+            <?php if (!empty($errors['text'])): ?>
+                <div class="invalid-feedback"><?= htmlspecialchars($errors['text']) ?></div>
+            <?php endif; ?>
+        </div>
 
             <button type="submit" class="btn-create-note">
             <img src="../css/save-icon-14.png" />

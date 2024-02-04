@@ -60,14 +60,24 @@ $text = ''; // Valeur par défaut pour le texte
 </div>
     <div class="container container-form">
         <form action="./add_textnote" method="post">
-            <div class="mb-3">
-                <label for="title" class="form-label">Title</label>
-                <input type="text" class="form-control" id="title" name="title" placeholder="Entrez le titre de la note" required>
-            </div>
-            <div class="mb-3">
-                <label for="text" class="form-label">Text</label>
-                <textarea class="form-control" id="text" name="text" rows="3" placeholder="Entrez le contenu de la note" required></textarea>
-            </div>
+        <div class="mb-3">
+    <label for="title" class="form-label">Titre</label>
+    <input type="text" class="form-control <?= !empty($errors['title']) ? 'is-invalid' : '' ?>" id="title" name="title" placeholder="Entrez le titre de la note"  value="<?= htmlspecialchars($title) ?>">
+    <?php if (!empty($errors['title'])): ?>
+        <div class="invalid-feedback">
+            <?= htmlspecialchars($errors['title']) ?>
+        </div>
+    <?php endif; ?>
+</div>
+<div class="mb-3">
+    <label for="text" class="form-label">Texte</label>
+    <textarea class="form-control <?= !empty($errors['text']) ? 'is-invalid' : '' ?>" id="text" name="text" rows="3" placeholder="Entrez le contenu de la note" ><?= htmlspecialchars($text) ?></textarea>
+    <?php if (!empty($errors['text'])): ?>
+        <div class="invalid-feedback">
+            <?= htmlspecialchars($errors['text']) ?>
+        </div>
+    <?php endif; ?>
+</div>
             <button type="submit" class="btn-create-note">
                 <img src="../css/save-icon-14.png" alt="Créer la note" />
             </button>

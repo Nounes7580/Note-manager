@@ -89,6 +89,8 @@ class ControllerNotes extends Controller
             $title = $_POST['title'] ?? 'Titre par défaut';
             if (empty($title)) {
                 $errors['title'] = "Le titre est requis.";
+            } else if (strlen($title) < 3 || strlen($title) > 25) {
+                $errors['title'] = "Le titre doit contenir entre 3 et 25 caractères.";
             }
 
             for ($i = 1; $i <= 5; $i++) {
@@ -193,73 +195,128 @@ class ControllerNotes extends Controller
     public function add_textnote(): void
     {
         $user = $this->get_user_or_redirect();
-
-
+    
+        $errors = []; // Initialisation d'un tableau d'erreurs
+    
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
+    
             $highestWeight = Note::get_highest_weight_by_owner($user->get_id());
-
+    
             $title = $_POST['title'] ?? 'Nouveau Titre';
             $text = $_POST['text'] ?? 'Nouveau Texte';
             $owner = $user->get_id();
             $pinned = false;
             $archived = false;
             $weight = $highestWeight + 1; // Augmenter le poids le plus élevé de 1.
-
-            // Création de la nouvelle note.
-            $note = new TextNote(
-                title: $title,
-                owner: $owner,
-                pinned: $pinned,
-                archived: $archived,
-                weight: $weight,
-                content: $text
-            );
-
-
-            // Persiste la note dans la base de données.
-
-            $note->persistAdd();
-
-            // Rediriger vers la page de la note si la note a été créée avec succès.
-            if ($note->get__id() !== null) {
-                $this->redirect("notes/show_note/" . $note->get__id());
+    
+            // Validation du titre
+            if (empty($title)) {
+                $errors['title'] = "Le titre est requis.";
+            } elseif (strlen($title) < 3 || strlen($title) > 25) {
+                $errors['title'] = "Le titre doit contenir entre 3 et 25 caractères.";
+            }
+    
+        
+    
+            // Vérifier s'il y a des erreurs avant de créer la note
+            if (empty($errors)) {
+                // Création de la nouvelle note.
+                $note = new TextNote(
+                    title: $title,
+                    owner: $owner,
+                    pinned: $pinned,
+                    archived: $archived,
+                    weight: $weight,
+                    content: $text
+                );
+    
+                // Persiste la note dans la base de données.
+                $note->persistAdd();
+    
+                // Rediriger vers la page de la note si la note a été créée avec succès.
+                if ($note->get__id() !== null) {
+                    $this->redirect("notes/show_note/" . $note->get__id());
+                }
+            } else {
+                (new View("addtextnote"))->show(['user' => $user, 'errors' => $errors]);
             }
         }
     }
 
 
 
-
-public function save_edited_note(): void
-
-{
-    $user = $this->get_user_or_redirect();
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $noteId = $_POST['id'] ?? null;
-        $title = $_POST['title'] ?? '';
-        $content = $_POST['text'] ?? '';
-
-
-
-        $note = TextNote::get_note_by_id((int)$noteId); // Assurez-vous que cette méthode renvoie bien une TextNote
-        if ($note && $note instanceof TextNote && $note->owner == $user->get_id()) {
+    public function save_edited_note(): void
+    {
+        $user = $this->get_user_or_redirect();
+        $errors = []; // Initialisation d'un tableau d'erreurs
+        $note = null; // Initialisation de la variable note
+    
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $noteId = $_POST['id'] ?? null;
+            if ($noteId) {
+                $note = TextNote::get_note_by_id((int)$noteId);
+            }
+    
+            if (!$note || !$note instanceof TextNote || $note->owner != $user->get_id()) {
+                // La note n'existe pas ou l'utilisateur n'est pas autorisé à la modifier
+                $errors['note'] = "La note spécifiée n'existe pas ou vous n'avez pas les droits pour la modifier.";
+                // Assurez-vous de passer aussi $note à la vue, même si elle est null, pour éviter des erreurs inattendues
+                (new View("edit_note"))->show(['user' => $user, 'note' => $note, 'errors' => $errors]);
+                return;
+            }
+    
+            $title = $_POST['title'] ?? '';
+            $content = $_POST['text'] ?? '';
+    
+    
+            // Mise à jour de la note
             $note->title = $title;
-            $note->content = $content; // Assurez-vous que content est bien géré dans TextNote
-
-
+            $note->content = $content;
             $note->edited_at = new DateTime();
-            $note->persistAdd();
-
-
+            $note->persistAdd(); // Assurez-vous que cette méthode effectue bien une mise à jour
+    
             $this->redirect("notes/show_note/" . $note->id);
-        } else {
-            // Gérer l'erreur
         }
     }
-}
+    
+    
+    public function edit_note()
+    {
+        $user = $this->get_user_or_redirect();
+        $noteId = $_GET['param1'] ?? null;
+        $errors = []; // Initialisation d'un tableau d'erreurs
 
-
+       
+        if ($noteId) {
+            $note = Note::get_note_by_id((int)$noteId);
+          
+            if (!$note) {
+                // La note n'existe pas
+                $errors['note'] = "La note spécifiée n'existe pas.";
+            } elseif ($note->owner != $user->get_id()) {
+                // L'utilisateur n'est pas autorisé à éditer cette note
+                $errors['note'] = "Vous n'avez pas les droits pour modifier cette note.";
+            }
+      
+             if (empty($title)) {
+            $errors['title'] = "Le titre est requis.";
+        } elseif (strlen($title) < 3 || strlen($title) > 25) {
+            $errors['title'] = "Le titre doit contenir entre 3 et 25 caractères.";
+        }
+            if (empty($errors)) {
+                // Si aucune erreur, affichez la vue d'édition avec la note
+                (new View("edit_Note"))->show(["note" => $note]);
+            } else {
+                // S'il y a des erreurs, affichez une vue d'erreur ou redirigez vers une page d'erreur
+                // Assurez-vous d'avoir une vue d'erreur ou de gérer le rendu d'erreur ici
+                (new View("edit_note"))->show(['user' => $user, 'note' => $note, 'errors' => $errors]);
+            }
+        } else {
+            // Aucun ID de note fourni, affichez une erreur ou redirigez
+            $errors['note'] = "Aucune note spécifiée pour l'édition.";
+            (new View("error"))->show(["errors" => $errors]);
+        }
+    }
 
 
     public function show_addtextnote(): void
@@ -289,19 +346,7 @@ public function save_edited_note(): void
         $this->redirect("notes");
     }
 
-    public function edit_note()
-    {
-        $user = $this->get_user_or_redirect();
-        $noteId = $_GET['param1'] ?? null;
-
-        if ($noteId) {
-            $note = Note::get_note_by_id((int)$noteId);
-            if ($note && $note->owner == $user->get_id()) {
-                (new View("edit_Note"))->show(["note" => $note]);
-            } else {
-            }
-        }
-    }
+    
 
     public function editchecklistnote()
     {
