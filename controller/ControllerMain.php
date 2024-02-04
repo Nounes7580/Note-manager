@@ -129,7 +129,6 @@ class ControllerMain extends Controller
     public function change_password(): void {
         $user = $this->get_user_or_redirect(); // Assurez-vous que l'utilisateur est connecté
         $errors = [];
-        var_dump($user); // Pour vérifier l'objet
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Récupération des données soumises
             $currentPassword = $_POST['password'] ?? '';

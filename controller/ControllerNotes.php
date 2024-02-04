@@ -420,6 +420,7 @@ class ControllerNotes extends Controller
             $_SESSION['checklist_items'][$noteId][] = $newItemContent;
         }
 
+        
         // Redirection vers la page d'édition de la checklist
         $this->redirect("notes", "editchecklistnote", $noteId);
     }
@@ -451,10 +452,23 @@ class ControllerNotes extends Controller
                 $_SESSION['errors']['item'] = "L'élément spécifié n'existe pas ou ne peut pas être supprimé.";
             }
         }
-
+        
 
         $this->redirect("notes", "editchecklistnote", $noteId);
     }
+
+    public function delete_temporary_item(): void
+{
+    $noteId = $_POST['note_id'];
+    $tempItemId = $_POST['temp_item_id'];
+
+    // Supprime l'élément de la session
+    if (isset($_SESSION['checklist_items'][$noteId][$tempItemId])) {
+        unset($_SESSION['checklist_items'][$noteId][$tempItemId]);
+    }
+
+    $this->redirect("notes", "editchecklistnote", $noteId);
+}
     public function save_edited_checklistnote(): void
     {
         $user = $this->get_user_or_redirect();

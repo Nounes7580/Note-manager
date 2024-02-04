@@ -101,16 +101,20 @@ $validFields = $validFields ?? [];
 <?php endif; ?>
 <!-- Nouveaux éléments -->
 <?php if (isset($_SESSION['checklist_items'][$note->id])): ?>
-    <?php foreach ($_SESSION['checklist_items'][$note->id] as $item): ?>
-        <div class="input-group mb-3">
-            <div class="input-group-text bg-secondary">
-                <i class="bi bi-circle unchecked-icon"></i> <!-- Icône non cochée par défaut -->
-            </div>
-            <input type="text" class="form-control" name="new_items[]" value="<?php echo htmlspecialchars($item); ?>" readonly>
-            <button class="btn btn-delete" type="button" onclick="this.parentElement.classList.toggle('deleted-item');"><i class="bi bi-dash-lg"></i></button>
-        </div>
-    <?php endforeach; ?>
-<?php endif; ?>
+        <?php foreach ($_SESSION['checklist_items'][$note->id] as $tempItemId => $item): ?>
+            <form action="./../delete_temporary_item" method="post" class="mb-3">
+                <div class="input-group">
+                    <div class="input-group-text bg-secondary">
+                        <i class="bi bi-circle"></i>
+                    </div>
+                    <input type="text" class="form-control" value="<?php echo htmlspecialchars($item); ?>" readonly>
+                    <input type="hidden" name="note_id" value="<?php echo $note->id; ?>">
+                    <input type="hidden" name="temp_item_id" value="<?php echo $tempItemId; ?>">
+                    <button class="btn btn-delete" type="submit"><i class="bi bi-dash-lg"></i></button>
+                </div>
+            </form>
+        <?php endforeach; ?>
+    <?php endif; ?>
 </form> 
    
      <label for="newItem">New Item</label> 
