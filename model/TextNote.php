@@ -47,10 +47,6 @@ class TextNote extends Note
     {
         return $this->id;
     }
-    public function getId()
-    {
-        return $this->id;
-    }
 
     public function save(): void
     {
