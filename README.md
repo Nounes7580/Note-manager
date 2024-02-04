@@ -2,6 +2,7 @@
 
 ## Notes de version itération 1 
 
+  
 
 
 ### Liste des utilisateurs et mots de passes
@@ -16,7 +17,9 @@
 
   * deplacement des notes avec la nouvelle methode persist -> Solution temporaire : 2 méthodes persist, une pour swap et une pour add des notes
   * checklist notes (edit) : la supp de l'item se fait seuelement sur le dernier item de la listeS
-  * securité : ne pas permettre la suppression de notes si elle n'appartient pas à l'user 
+  * securité : mettre les attributs en private 
+  * validation de edit_textnote
+  * pas encore possible de modif le contenu des item 
 
 ### Liste des fonctionnalités supplémentaires
 
@@ -25,12 +28,12 @@
 login               ok                
 logout              ok                  
 signup              ok
-settings            
-edit_profile
-change_password     
+settings            ok
+edit_profile        ok
+change_password     ok
 view_notes          ok
 view_archives       ok
-view_shared_notes
+view_shared_notes   ok
 move_note           ok
 open_note           ok
 pin_unpin           ok
@@ -45,11 +48,11 @@ open_checklist_note ok
 check_uncheck       ok
 edit_checklist_note ok
 add_item            ok
-delete_item
-view_shares
-add_share
-delete_share
-toggle_permission
+delete_item         ok
+view_shares         ok 
+add_share           ok
+delete_share        ok
+toggle_permission   ok
 
 ## Notes de version itération 2
 
