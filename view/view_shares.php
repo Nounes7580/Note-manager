@@ -27,18 +27,25 @@
         <a href="javascript:history.back()" class="bi bi-arrow-left"></a>
         <h2>Shares:</h2>
         <?php if (!empty($resultsOfSharedUsers) && !empty($permission)) : ?>
-            <?php for ($i = 0; $i < count($resultsOfSharedUsers); $i++) : ?>
-                <div class="mb-2">
-                    <span><?= htmlspecialchars($resultsOfSharedUsers[$i]->getFullName()) ?></span>
-                    <span><?= htmlspecialchars($permission[$i] ?  "editor" : "reader") ?></span>
-                </div>
-            <?php endfor; ?>
-        <?php else : ?>
+            <?php foreach ($resultsOfSharedUsers as $index => $sharedUser) : ?>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" 
+                    value="<?= htmlspecialchars($sharedUser->getFullName()) ?> (<?= $permission[$index] ? "editor" : "reader" ?>)"
+                    readonly>
+                <button class="btn btn-primary" type="button">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-danger" type="button">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        <?php endforeach; ?>
+                <?php else : ?>
             <p class="text-muted">This note is not shared yet.</p>
         <?php endif; ?>
         <!-- Sélecteur d'utilisateur et de permission avec bouton d'ajout -->
-        <div class="d-flex justify-content-start align-items-center mt-4">
-            <form action="<?=$web_root?>Notes/addShare" method="post" class="d-flex justify-content-start align-items-center mt-4">
+        <div class="input-group mb-3">
+            <form action="<?=$web_root?>Notes/addShare" method="post" class="input-group">
                 <select class="form-select" id="userSelect" name="user_id" style="margin-right: -1px;">
                     <option value="">-User-</option>
                     <?php foreach ($usersToShareWith as $user) : ?>
