@@ -6,7 +6,6 @@ require_once 'Tools.php';
 
 class Router
 {
-
     private function sanitize_all_array(array $array) : array {
         $copy = [];
         foreach ($array as $key => $value) {
@@ -63,6 +62,7 @@ class Router
 
     //analyse la requête et appelle la bonne méthode sur le bon controlleur.
     public function route() : void {
+        
         try {
             $this->sanitize_all_input();
             //si un parametre 1, 2 ou 3 est vide (et donc non passé), le supprimer.
@@ -80,5 +80,7 @@ class Router
                 Tools::abort($ex->getMessage());
         }
     }
+
+
 
 }
