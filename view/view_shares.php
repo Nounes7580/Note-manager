@@ -28,6 +28,7 @@
         <h2>Shares:</h2>
         <?php if (!empty($resultsOfSharedUsers) && !empty($permission)) : ?>
             <?php foreach ($resultsOfSharedUsers as $index => $sharedUser) : ?>
+
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" value="<?= htmlspecialchars($sharedUser->getFullName()) ?> (<?= $permission[$index] ? "editor" : "reader" ?>)" readonly>
                     <button class="btn btn-primary" type="button">

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
+<?php $pageTitle = "My Archives"; ?>  <!--  une variable pour le titre dans la navbar -->
 
 <head>
     <meta charset="UTF-8">

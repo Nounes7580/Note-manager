@@ -4,8 +4,9 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <a class="navbar-brand" href="#">
-            <img src="../css/logo.png" alt="Logo" style="height: 50px; margin-right: 10px;"> <!-- Adjust the height as needed -->
-            NoteSpark
+            <img src="<?php echo $web_root; ?>/css/logo.png" alt="Logo" style="height: 50px; margin-right: 10px;"> <!-- Adjust the height as needed -->
+            <?php echo htmlspecialchars($pageTitle); ?>
+
         </a>
         <div class="offcanvas offcanvas-start custom-offcanvas" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
             <div class="offcanvas-header">
@@ -20,12 +21,8 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="<?php echo $web_root; ?>Notes/archives">My archives</a>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?php echo $web_root; ?>Main/logout">Logout</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?php echo $web_root; ?>Main/settings">Setting</a>
-                    </li>
+
+
                     <li class="nav-item">
                         <?php foreach ($sharedNotes as $usershared) : ?>
                             <a class="nav-link" href="<?php echo $web_root; ?>Notes/shared/<?= $usershared->get_id(); ?>">
@@ -36,6 +33,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="<?php echo $web_root; ?>Main/settings">Settings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="<?php echo $web_root; ?>Main/logout">Logout</a>
                     </li>
                     <!-- Add more menu items here as needed -->
                 </ul>
