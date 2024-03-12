@@ -502,6 +502,9 @@ abstract class Note extends Model
         foreach ($data as $row) {
             $result[] = User::get_user_by_id($row["user"]);
         }
+        usort($result, function ($a, $b) {
+            return strcmp($a->full_name, $b->full_name);
+        });
         return $result;
     }
     public function isSharedWithPermission(int $userId): bool
