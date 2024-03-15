@@ -563,7 +563,7 @@ return;
 
     public function pin_or_unpin_note()
     {
-        $noteId = $_GET['param1'] ?? null;
+        $noteId = $_POST['noteId'] ?? null; // correction du get à $_POST
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note) {
@@ -587,7 +587,7 @@ return;
         $this->redirect("notes/show_note/" . $noteId);
     }
 
-    // Controller for archived notes, same as index but with archived notes
+    //  for archived notes, same as index but with archived notes
     public function archives(): void
     {
         $user = $this->get_user_or_redirect();

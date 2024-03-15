@@ -10,55 +10,73 @@
   <!-- Link to Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
   <style>
-    .navbar-custom {
-      padding: 1px;
-    }
+  .navbar-custom {
+    padding: 1px;
+  }
 
-    .navbar-custom .bi {
-      color: white;
-      /* White icons */
-      font-size: 1.2rem;
-      /* Icon size */
-    }
+  .navbar-custom .bi {
+    color: white; /* White icons */
+    font-size: 1.2rem; /* Icon size */
+  }
 
-    /* Add custom spacing if needed */
-    .nav-link:not(:last-child) {
-      margin-right: 1rem;
-      /* Spacing between buttons */
-    }
-  </style>
+  .nav-link:not(:last-child) {
+    margin-right: 1rem; /* Spacing between buttons */
+  }
+
+  /* New styles for form inside navbar */
+  .nav-form {
+    display: inline-flex; /* Allows for alignment and spacing similar to nav-link */
+    align-items: center; /* Align items vertically */
+    margin-right: 1rem; /* Consistent spacing with other nav items */
+  }
+
+  .nav-form button {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    display: flex; /* Ensures the button content aligns properly */
+    align-items: center; /* Centers the icon vertically */
+    padding: .5rem; /* Adjust this value based on your alignment needs */
+  }
+</style>
 </head>
 
 <body>
 
-  <nav class="navbar navbar-expand navbar-custom">
-    <div class="container-fluid">
-      <!-- Left aligned return button -->
-      <a class="navbar-brand" href="<?php echo $web_root; ?>notes/">
-        <i class="bi bi-arrow-left"></i> <!-- Left-pointing arrow -->
+<nav class="navbar navbar-expand navbar-custom">
+  <div class="container-fluid">
+    <!-- Left aligned return button -->
+    <a class="navbar-brand" href="<?php echo $web_root; ?>notes/">
+      <i class="bi bi-arrow-left"></i> <!-- Left-pointing arrow -->
+    </a>
+
+    <!-- Right aligned icon buttons -->
+    <div class="navbar-nav">
+      <a class="nav-link" href="<?php echo $web_root; ?>Notes/share/<?php echo $note->id; ?>">
+        <i class="bi bi-share"></i> <!-- Share/connect icon -->
       </a>
 
-      <!-- Right aligned icon buttons -->
-      <div class="navbar-nav">
-        <a class="nav-link" href="<?php echo $web_root; ?>Notes/share/<?php echo $note->id; ?>">
-          <i class="bi bi-share"></i> <!-- Share/connect icon -->
-        </a>
-        <a class="nav-link" href="<?php echo $web_root; ?>Notes/pin_or_unpin_note/<?php echo $note->id; ?>">
+      <!-- Pin/Unpin Form -->
+      <form class="nav-form" action="<?php echo $web_root; ?>Notes/pin_or_unpin_note" method="post">
+        <input type="hidden" name="noteId" value="<?php echo $note->id; ?>">
+        <button type="submit" style="background:none;border:none;color:inherit;padding:0;margin:0;">
           <?php if ($note->pinned) { ?>
             <i class="bi bi-pin-fill"></i> <!-- Filled pin icon -->
           <?php } else { ?>
             <i class="bi bi-pin"></i> <!-- Pin or thumbtack -->
           <?php } ?>
-        </a>
-        <a class="nav-link" href="<?php echo $web_root; ?>Notes/archive_note/<?php echo $note->id; ?>">
-          <i class="bi bi-download"></i> <!-- Download icon -->
-        </a>
-        <a class="nav-link" href="<?php echo $web_root; ?>Notes/<?php echo ($note instanceof TextNote) ? 'edit_note/' : 'editchecklistnote/'; ?><?php echo $note->id; ?>">
-          <i class="bi bi-pencil"></i> <!-- Icône de crayon pour l'édition -->
-        </a>
+        </button>
+      </form>
 
-      </div>
-  </nav>
+      <a class="nav-link" href="<?php echo $web_root; ?>Notes/archive_note/<?php echo $note->id; ?>">
+        <i class="bi bi-download"></i> <!-- Download icon -->
+      </a>
+      <a class="nav-link" href="<?php echo $web_root; ?>Notes/<?php echo ($note instanceof TextNote) ? 'edit_note/' : 'editchecklistnote/'; ?><?php echo $note->id; ?>">
+        <i class="bi bi-pencil"></i> <!-- Pencil icon for editing -->
+      </a>
+    </div>
+</nav>
 
 
 </body>
