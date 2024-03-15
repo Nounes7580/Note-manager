@@ -576,7 +576,7 @@ return;
 
     public function archive_note()
     {
-        $noteId = $_GET['param1'] ?? null;
+        $noteId = $_POST['noteId'] ?? null;
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note) {

@@ -37,9 +37,12 @@
         <i style = "color:red;" class="bi bi-file-earmark-x"></i> 
       </a>
 
-      <a class="nav-link" href="<?php echo $web_root; ?>Notes/archive_note/<?php echo $note->id; ?>">
-        <i class="bi bi-upload"></i> 
-      </a>
+      <form class="nav-form" action="<?php echo $web_root; ?>Notes/archive_note" method="post">
+        <input type="hidden" name="noteId" value="<?php echo $note->id; ?>">
+        <button type="submit" class="btn btn-link">
+          <i class="bi bi-download"></i>
+        </button>
+      </form>
     </div>
   </div>
 </nav>

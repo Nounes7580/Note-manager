@@ -69,9 +69,12 @@
         </button>
       </form>
 
-      <a class="nav-link" href="<?php echo $web_root; ?>Notes/archive_note/<?php echo $note->id; ?>">
-        <i class="bi bi-download"></i> <!-- Download icon -->
-      </a>
+      <form class="nav-form" action="<?php echo $web_root; ?>Notes/archive_note" method="post">
+        <input type="hidden" name="noteId" value="<?php echo $note->id; ?>">
+        <button type="submit" class="btn btn-link">
+          <i class="bi bi-download"></i>
+        </button>
+      </form>
       <a class="nav-link" href="<?php echo $web_root; ?>Notes/<?php echo ($note instanceof TextNote) ? 'edit_note/' : 'editchecklistnote/'; ?><?php echo $note->id; ?>">
         <i class="bi bi-pencil"></i> <!-- Pencil icon for editing -->
       </a>
