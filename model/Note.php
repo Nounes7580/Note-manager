@@ -219,7 +219,8 @@ abstract class Note extends Model
         return $this->archived;
     }
 
-    public static function updateEditedAt(int $noteId) {
+    public static function updateEditedAt(int $noteId)
+    {
         $editedAt = new DateTime();
         $sql = 'UPDATE notes SET edited_at = :edited_at WHERE id = :id';
         self::execute($sql, [
@@ -227,7 +228,7 @@ abstract class Note extends Model
             'edited_at' => $editedAt->format('Y-m-d H:i:s'),
         ]);
     }
-    
+
 
     public static function get_note_by_id(int $id): ?Note
     {
@@ -494,17 +495,17 @@ abstract class Note extends Model
         return $users;
     }
 
-    public  function getUsersWhoSharedWith(): array
+    public function getUsersWhoSharedWith(): array
     {
-        $query = self::execute("SELECT user FROM note_shares WHERE note = :id", ["id" => $this->id]);
+        $query = self::execute("SELECT users.* FROM note_shares 
+                                JOIN users ON note_shares.user = users.id 
+                                WHERE note_shares.note = :id 
+                                ORDER BY users.full_name", ["id" => $this->id]);
         $data = $query->fetchAll();
         $result = [];
         foreach ($data as $row) {
-            $result[] = User::get_user_by_id($row["user"]);
+            $result[] = User::get_user_by_id($row["id"]);
         }
-        usort($result, function ($a, $b) {
-            return strcmp($a->full_name, $b->full_name);
-        });
         return $result;
     }
     public function isSharedWithPermission(int $userId): bool

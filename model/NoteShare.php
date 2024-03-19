@@ -106,11 +106,13 @@ class NoteShare extends Model
             WHERE ns.note IN (
                 SELECT note FROM note_shares WHERE user = :currentUserId
             )
-            AND u.id != :currentUserId",
+            AND u.id != :currentUserId
+            ORDER BY u.full_name ASC", 
             ["currentUserId" => $currentUserId]
         );
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
+
     public function addShare()
     {
         self::execute(

@@ -278,50 +278,50 @@ class ControllerNotes extends Controller
             $this->redirect("notes/show_note/" . $note->id);
         }
     }
- 
-            
+
+
 
     public function edit_note()
     {
         $user = $this->get_user_or_redirect();
         $noteId = $_GET['param1'] ?? null;
-        
+
         $errors = []; // Initialisation d'un tableau d'erreurs
 
- $note = Note::get_note_by_id((int)$noteId);
- if (!$note) {
-    // La note n'existe pas
-    $errors['note'] = "La note spécifiée n'existe pas.";
-    (new View("error"))->show(["errors" => $errors]);
-    return; // Arrête l'exécution de la méthode ici
-} elseif ($note->owner != $user->get_id()) {
-    // L'utilisateur n'est pas autorisé à éditer cette note
-    $errors['note'] = "Vous n'avez pas les droits pour modifier cette note.";
-    (new View("error"))->show(["errors" => $errors]);
-    return; // Arrête l'exécution de la méthode ici
-}
+        $note = Note::get_note_by_id((int)$noteId);
+        if (!$note) {
+            // La note n'existe pas
+            $errors['note'] = "La note spécifiée n'existe pas.";
+            (new View("error"))->show(["errors" => $errors]);
+            return; // Arrête l'exécution de la méthode ici
+        } elseif ($note->owner != $user->get_id()) {
+            // L'utilisateur n'est pas autorisé à éditer cette note
+            $errors['note'] = "Vous n'avez pas les droits pour modifier cette note.";
+            (new View("error"))->show(["errors" => $errors]);
+            return; // Arrête l'exécution de la méthode ici
+        }
 
-// Traiter la soumission du formulaire
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $title = $_POST['title'] ?? ''; 
-    $content = $_POST['text'] ?? ''; 
+        // Traiter la soumission du formulaire
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $title = $_POST['title'] ?? '';
+            $content = $_POST['text'] ?? '';
 
-    if (empty($title)) {
-        $errors['title'] = "Le titre est requis.";
-    } elseif (strlen($title) < 3 || strlen($title) > 25) {
-        $errors['title'] = "Le titre doit contenir entre 3 et 25 caractères.";
+            if (empty($title)) {
+                $errors['title'] = "Le titre est requis.";
+            } elseif (strlen($title) < 3 || strlen($title) > 25) {
+                $errors['title'] = "Le titre doit contenir entre 3 et 25 caractères.";
+            }
+
+            if (empty($errors)) {
+                (new View("edit_Note"))->show(["note" => $note]);
+                return;
+            }
+        }
+
+        // Affichez la vue d'édition avec la note et les erreurs (qui seront vides si la requête n'est pas POST ou si aucune erreur n'a été détectée)
+        (new View("edit_note"))->show(['user' => $user, 'note' => $note, 'errors' => $errors]);
+        return;
     }
-
-    if (empty($errors)) {
-      (new View("edit_Note"))->show(["note" => $note]);
-      return;
-    }
-}
-
-// Affichez la vue d'édition avec la note et les erreurs (qui seront vides si la requête n'est pas POST ou si aucune erreur n'a été détectée)
-(new View("edit_note"))->show(['user' => $user, 'note' => $note, 'errors' => $errors]);
-return;
-}
 
     public function show_addtextnote(): void
     {
@@ -424,7 +424,7 @@ return;
             $_SESSION['checklist_items'][$noteId][] = $newItemContent;
         }
 
-        
+
         // Redirection vers la page d'édition de la checklist
         $this->redirect("notes", "editchecklistnote", $noteId);
     }
@@ -456,23 +456,23 @@ return;
                 $_SESSION['errors']['item'] = "L'élément spécifié n'existe pas ou ne peut pas être supprimé.";
             }
         }
-        
+
 
         $this->redirect("notes", "editchecklistnote", $noteId);
     }
 
     public function delete_temporary_item(): void
-{
-    $noteId = $_POST['note_id'];
-    $tempItemId = $_POST['temp_item_id'];
+    {
+        $noteId = $_POST['note_id'];
+        $tempItemId = $_POST['temp_item_id'];
 
-    // Supprime l'élément de la session
-    if (isset($_SESSION['checklist_items'][$noteId][$tempItemId])) {
-        unset($_SESSION['checklist_items'][$noteId][$tempItemId]);
+        // Supprime l'élément de la session
+        if (isset($_SESSION['checklist_items'][$noteId][$tempItemId])) {
+            unset($_SESSION['checklist_items'][$noteId][$tempItemId]);
+        }
+
+        $this->redirect("notes", "editchecklistnote", $noteId);
     }
-
-    $this->redirect("notes", "editchecklistnote", $noteId);
-}
     public function save_edited_checklistnote(): void
     {
         $user = $this->get_user_or_redirect();
@@ -544,13 +544,13 @@ return;
         $user = $this->get_user_or_redirect();
         $itemId = $_POST['item_id'] ?? null;
         $noteId = $_POST['note_id'] ?? null;
-    
+
         $note = CheckListNote::get_note_by_id((int)$noteId);
-    
+
         // Vérifiez si l'utilisateur actuel est le propriétaire ou un éditeur de la note.
         $isOwner = $note->owner == $user->id;
         $isEditor = NoteShare::isUserEditor($user->id, $noteId);
-    
+
         if ($itemId && ($isOwner || $isEditor)) {
             $item = CheckListNoteItem::get_item_by_id((int)$itemId);
             if ($item) {
@@ -563,7 +563,7 @@ return;
 
     public function pin_or_unpin_note()
     {
-        $noteId = $_POST['noteId'] ?? null; // correction du get à $_POST
+        $noteId = $_GET['param1'] ?? null;
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note) {
@@ -576,7 +576,7 @@ return;
 
     public function archive_note()
     {
-        $noteId = $_POST['noteId'] ?? null;
+        $noteId = $_GET['param1'] ?? null;
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note) {
@@ -587,7 +587,7 @@ return;
         $this->redirect("notes/show_note/" . $noteId);
     }
 
-    //  for archived notes, same as index but with archived notes
+    // Controller for archived notes, same as index but with archived notes
     public function archives(): void
     {
         $user = $this->get_user_or_redirect();
@@ -658,9 +658,6 @@ return;
             foreach ($resultsOfSharedUsers as $data) {
                 $permission[] = $note->isSharedWithPermission($data->get_id());
             }
-            for ($i = 0; $i < count($resultsOfSharedUsers); $i++) {
-                // $listOfNoteShare = new NoteShare($noteId, $resultsOfSharedUsers[$i], $permission[$i]);
-            }
         }
 
         $allUsers = User::getAllUsersExceptCurrent($user->id);
@@ -675,8 +672,14 @@ return;
             return true;
         });
 
+        
+        usort($usersToShareWith, function ($a, $b) {
+            return strcmp($a->full_name, $b->full_name);
+        });
+
         (new View("shares"))->show(["user" => $user, "usersToShareWith" => $usersToShareWith, "resultsOfSharedUsers" => $resultsOfSharedUsers, "permission" => $permission, "note" => $note]);
     }
+
 
 
 
@@ -738,6 +741,4 @@ return;
             $this->redirect("notes", "share", $noteId);
         }
     }
-    
-    
 }
