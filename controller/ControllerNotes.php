@@ -405,29 +405,41 @@ class ControllerNotes extends Controller
         $user = $this->get_user_or_redirect();
         $noteId = $_POST['note_id'] ?? null;
         $newItemContent = $_POST['new_item'] ?? '';
-
+    
+        // Vérification de l'accès à la note
         $note = CheckListNote::get_note_by_id($noteId);
         $isEditor = NoteShare::isUserEditor($user->id, $noteId);
-
+    
         if (!$note || !$note instanceof CheckListNote || ($note->owner != $user->get_id() && !$isEditor)) {
-
             $_SESSION['errors']['note'] = "Vous n'êtes pas autorisé à modifier cette note ou elle n'existe pas.";
             $this->redirect("error_page");
             return;
         }
-
+    
         // Ajouter le nouvel élément si le contenu n'est pas vide
         if (!empty($newItemContent)) {
-            if (!isset($_SESSION['checklist_items'][$noteId])) {
-                $_SESSION['checklist_items'][$noteId] = [];
+            try {
+                // Création et sauvegarde du nouvel élément de checklist
+                $newItem = new CheckListNoteItem(
+                    checklist_note_id: $noteId,
+                    content: $newItemContent,
+                    checked: false
+                );
+                $newItem->persistAdd();
+                $_SESSION['success'] = "Nouvel élément ajouté avec succès.";
+            } catch (Exception $e) {
+                // Gestion des erreurs, par exemple si l'insertion en base de données échoue
+                $_SESSION['errors']['db'] = "Erreur lors de l'ajout de l'élément : " . $e->getMessage();
             }
-            $_SESSION['checklist_items'][$noteId][] = $newItemContent;
+        } else {
+            // Gestion du cas où le contenu de l'élément est vide
+            $_SESSION['errors']['content'] = "Le contenu de l'élément ne peut pas être vide.";
         }
-
-
+    
         // Redirection vers la page d'édition de la checklist
         $this->redirect("notes", "editchecklistnote", $noteId);
     }
+    
 
     public function delete_checklist_item(): void
     {
@@ -449,7 +461,7 @@ class ControllerNotes extends Controller
         if ($itemId !== null) {
             $item = CheckListNoteItem::get_item_by_id($itemId);
             if ($item && $item->checklist_note_id == $noteId) {
-                $item->delete(); // Cette méthode doit être implémentée dans CheckListNoteItem pour supprimer l'élément de la DB
+                $item->delete(); 
                 $note->edited_at = new DateTime();
                 $note->persist();
             } else {
