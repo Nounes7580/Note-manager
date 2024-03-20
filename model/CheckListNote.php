@@ -36,7 +36,7 @@ class CheckListNote extends Note
     {
         $items = [];
         try {
-            $sql = 'SELECT * FROM checklist_note_items WHERE checklist_note = :id';
+            $sql = 'SELECT * FROM checklist_note_items WHERE checklist_note = :id ORDER BY id ASC';
             $stmt = self::execute($sql, ['id' => $this->id]);
             while ($row = $stmt->fetch()) {
                 $items[] = new CheckListNoteItem(

@@ -428,15 +428,15 @@ class ControllerNotes extends Controller
                 $newItem->persistAdd();
                 $_SESSION['success'] = "Nouvel élément ajouté avec succès.";
             } catch (Exception $e) {
-                // Gestion des erreurs, par exemple si l'insertion en base de données échoue
+        
                 $_SESSION['errors']['db'] = "Erreur lors de l'ajout de l'élément : " . $e->getMessage();
             }
         } else {
-            // Gestion du cas où le contenu de l'élément est vide
+            
             $_SESSION['errors']['content'] = "Le contenu de l'élément ne peut pas être vide.";
         }
     
-        // Redirection vers la page d'édition de la checklist
+        
         $this->redirect("notes", "editchecklistnote", $noteId);
     }
     
@@ -529,15 +529,6 @@ class ControllerNotes extends Controller
                         }
                     }
 
-                    // Traitement des nouveaux items
-                    if (isset($_SESSION['checklist_items'][$noteId])) {
-                        foreach ($_SESSION['checklist_items'][$noteId] as $itemContent) {
-                            if (!empty($itemContent)) {
-                                $newItem = new CheckListNoteItem($noteId, $itemContent, false);
-                                $newItem->persistAdd();
-                            }
-                        }
-                    }
 
                     $this->redirect("notes/show_note/" . $noteId);
                 } else {
