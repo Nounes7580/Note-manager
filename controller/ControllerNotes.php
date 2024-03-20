@@ -374,8 +374,8 @@ class ControllerNotes extends Controller
                     if (empty($title)) {
                         $errors['title'] = "Le titre est requis.";
                         $validFields['title'] = false;
-                    } elseif (strlen($title) < 5 || strlen($title) > 25) {
-                        $errors['title'] = "Le titre doit contenir entre 5 et 25 caractères.";
+                    } elseif (strlen($title) < 3 || strlen($title) > 25) {
+                        $errors['title'] = "Le titre doit contenir entre 3 et 25 caractères.";
                         $validFields['title'] = false;
                     }
 
@@ -483,8 +483,8 @@ class ControllerNotes extends Controller
             $errors = [];
             if (empty($title)) {
                 $errors['title'] = "Le titre est requis.";
-            } elseif (strlen($title) < 5 || strlen($title) > 25) {
-                $errors['title'] = "Le titre doit contenir entre 5 et 25 caractères.";
+            } elseif (strlen($title) < 3 || strlen($title) > 25) {
+                $errors['title'] = "Le titre doit contenir entre 3 et 25 caractères.";
             }
 
             if (!empty($errors)) {
