@@ -1,3 +1,10 @@
+<?php
+require_once 'model/Note.php'; 
+if(isset($_POST['order'])) {
+  $newOrder = explode(',', $_POST['order']);
+}
+?>
+
 <!DOCTYPE html>
 <?php $pageTitle = "My Notes"; ?>  <!--  une variable pour le titre dans la navbar -->
 <html lang="en" data-bs-theme="dark">
@@ -109,7 +116,7 @@
     </style>
 
 
-
+<div class="draggable-notes">
     <div class="container mt-5">
         <!-- Bouton pour créer une nouvelle note -->
         <div class="fixed-bottom d-flex justify-content-end p-3">
@@ -181,7 +188,9 @@
             </div>
         <?php endif; ?>
 
-        <!-- Other Notes -->
+       
+
+
         <?php if (!empty($otherNotes)) : ?>
             <h2 class="mb-4">Others</h2>
             <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3">
@@ -242,9 +251,35 @@
         <?php endif; ?>
     </div>
     <!-- Bootstrap JS, Popper.js, and jQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    </div>
+   
+
+    <script>
+$(function() {
+    $("#notes-container").sortable({
+    update: function(event, ui) {
+      var orderedIds = $(this).sortable("toArray");
+      console.log(orderedIds);
+      // Appel AJAX pour mettre à jour l'ordre dans la base de données
+      $.ajax({
+  url: 'chemin/vers/votre/script.php',
+  type: 'POST',
+  data: { order: orderedIds.join(',') },
+  success: function(response) {
+ 
+    console.log(response);
+  }
+});
+    }
+  });
+  $("#notes-container").disableSelection();
+});
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+
+
 </body>
 
 </html>

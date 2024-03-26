@@ -515,4 +515,6 @@ abstract class Note extends Model
 
         return $data[0];
     }
+  
+      
 }
