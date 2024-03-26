@@ -75,7 +75,7 @@
                                 <div class="card-body">
 
                                     <?php if ($note instanceof TextNote): ?>
-                                        <p class="card-text"><?= nl2br(htmlspecialchars($note->content)) ?></p>
+                                        <p class="card-text"><?= nl2br(htmlspecialchars($note->getTruncatedContent())) ?></p>
                                     <?php elseif ($note instanceof CheckListNote): ?>
                                         <ul class="list-group list-group-flush">
                                             <?php foreach ($note->getItems() as $item): ?>

@@ -95,6 +95,13 @@ class TextNote extends Note
         return $this;
     }
 
+    public function getTruncatedContent(): string {
+        $itemMaxLength = Configuration::get('item_max_length', 50);
+        if (mb_strlen($this->content) > $itemMaxLength) {
+            return mb_substr($this->content, 0, $itemMaxLength) . '...';
+        }
+        return $this->content;
+    }
 
     public function persistTextNote()
     {
