@@ -29,7 +29,7 @@
 <body>
 <nav class="navbar navbar-expand navbar-custom">
     <div class="container-fluid">
-        <a class="navbar-brand" href="<?php echo $web_root; ?>Notes/">
+        <a class="navbar-brand" href="Notes/">
             <i class="bi bi-arrow-left"></i>
         </a>
     </div>
@@ -41,10 +41,13 @@
         </div>
 
         <div class="list-group">
-            <a href="<?php echo $web_root; ?>Main/edit_profile" class="list-group-item list-group-item-action">
+            <a href="Main/edit_profile" class="list-group-item list-group-item-action">
                 <i class="bi bi-pencil-square"></i> Edit Profile
             </a>
-            <a href="<?php echo $web_root; ?>Main/change_password" class="list-group-item list-group-item-action">
+            <a href="Main/edit_email" class="list-group-item list-group-item-action">
+                <i class="bi bi-pencil-square"></i> Edit E-mail
+            </a>
+            <a href="Main/change_password" class="list-group-item list-group-item-action">
                 <i class="bi bi-key-fill"></i> Change Password
             </a>
             <a href="" class="list-group-item list-group-item-action">

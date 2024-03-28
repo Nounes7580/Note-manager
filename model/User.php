@@ -26,7 +26,10 @@ class User extends Model
         return $this->full_name;
     }
 
-
+    public function get_mail(): string
+    {
+        return $this->mail;
+    }
 
     public function get_notes(): array
     {

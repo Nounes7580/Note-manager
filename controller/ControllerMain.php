@@ -126,6 +126,37 @@ class ControllerMain extends Controller
         }
     }
 
+    public function edit_email(): void {
+        $user = $this->get_user_or_redirect(); 
+        $errors = [];
+    
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $newEmail = $_POST['newEmail'] ?? '';
+    
+            if (empty($newEmail)) {
+                $errors[] = "The new email address is required.";
+            } elseif (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
+                $errors[] = "The new email address is not valid.";
+            } else {
+                $existingUser = User::get_user_by_mail($newEmail);
+                if ($existingUser != null && $existingUser->id != $user->id) {
+                    $errors[] = "This email address is already in use.";
+                }
+            }
+    
+            if (empty($errors)) {
+                $user->mail = $newEmail;
+                $user->persist(); 
+    
+                $this->redirect("main", "settings");
+            }
+        }
+    
+        (new View("edit_email"))->show(["user" => $user, "errors" => $errors]);
+    }
+    
+
+
     public function change_password(): void {
         $user = $this->get_user_or_redirect(); // Assurez-vous que l'utilisateur est connecté
         $errors = [];
