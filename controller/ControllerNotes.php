@@ -44,11 +44,14 @@ class ControllerNotes extends Controller
 
     public function moveNoteRight()
     {
+        $user = $this->get_user_or_redirect(); 
         $noteId = $_POST['noteId'] ?? null;
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
-            if ($note) {
-                $note->moveNotesRight(); // No need to check the return value
+            if ($note && $note->owner == $user->get_id()) {
+                $note->moveNotesRight(); // Move the note right
+            } else {
+                $this->redirect("error_page");
             }
         }
         $this->redirect("notes");
@@ -56,16 +59,18 @@ class ControllerNotes extends Controller
 
     public function moveNoteLeft()
     {
+        $user = $this->get_user_or_redirect(); 
         $noteId = $_POST['noteId'] ?? null;
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
-            if ($note) {
-                $note->moveNotesLeft(); // No need to check the return value
+            if ($note && $note->owner == $user->get_id()) {
+                $note->moveNotesLeft(); 
+            } else {
+                $this->redirect("error_page");
             }
         }
         $this->redirect("notes");
     }
-
 
 
     public function add_checklistnote(): void
