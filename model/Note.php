@@ -518,10 +518,11 @@ abstract class Note extends Model
   
     public static function get_max_weight_pinned(): float {
         $sql = "SELECT MAX(weight) AS max_weight FROM notes WHERE pinned = 1 AND archived = 0";
-        $stmt = self::execute($sql);
+        $stmt = self::execute($sql, []);  // Pass an empty array if no parameters are used
         $result = $stmt->fetch();
         return $result ? (float)$result['max_weight'] : 0;
     }
+    
     public function pin(float $maxPinnedWeight): void {
         $this->weight = $maxPinnedWeight + 1;
         $this->pinned = true;

@@ -134,6 +134,7 @@ if(isset($_POST['order'])) {
 
         <!-- Pinned Notes -->
         <?php if (!empty($pinnedNotes)) : ?>
+            
             <h2 class="mb-4">Pinned</h2>
             <div id="pinned-notes" class="notes-container row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3">
           

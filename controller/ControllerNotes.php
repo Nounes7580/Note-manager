@@ -581,10 +581,8 @@ class ControllerNotes extends Controller
         $this->redirect("notes/show_note/" . $noteId);
     }
 
-    public function archive_note()
-    {
+    public function archive_note(){
 
-        
         $noteId = $_POST['noteId'] ?? null; // correction du get à $_POST
 
         if ($noteId) {
