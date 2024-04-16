@@ -581,18 +581,14 @@ class ControllerNotes extends Controller
         $this->redirect("notes/show_note/" . $noteId);
     }
 
-    public function archive_note(){
-
-        $noteId = $_POST['noteId'] ?? null; // correction du get à $_POST
-
+    public function archive_note()
+    {
+        $noteId = $_POST['noteId'] ?? null;// correction du get à $_POST
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note) {
-                if ($note->isArchived()) {
-                    $note->unarchive();
-                } else {
-                    $note->archive();
-                }
+                $note->toggleArchived();
+                $note->persist();
             }
         }
         $this->redirect("notes/show_note/" . $noteId);

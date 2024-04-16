@@ -523,10 +523,13 @@ abstract class Note extends Model
         return $result ? (float)$result['max_weight'] : 0;
     }
     
-    public function pin(float $maxPinnedWeight): void {
-        $this->weight = $maxPinnedWeight + 1;
-        $this->pinned = true;
-        $this->edited_at = new DateTime(); // Update edited_at timestamp
+  
+    public function pin() {
+        if (!$this->pinned) {
+            $this->pinned = true;
+            $this->weight = $this->getNextHighestPinnedWeight();
+            $this->save();
+        }
     }
 
     public function unpin() {
