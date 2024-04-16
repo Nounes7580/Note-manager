@@ -116,7 +116,6 @@ if(isset($_POST['order'])) {
     </style>
 
 
-<div class="draggable-notes">
     <div class="container mt-5">
         <!-- Bouton pour créer une nouvelle note -->
         <div class="fixed-bottom d-flex justify-content-end p-3">
@@ -136,8 +135,10 @@ if(isset($_POST['order'])) {
         <!-- Pinned Notes -->
         <?php if (!empty($pinnedNotes)) : ?>
             <h2 class="mb-4">Pinned</h2>
-            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3">
+            <div id="pinned-notes" class="notes-container row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3">
+          
                 <?php foreach ($pinnedNotes as $note) : ?>
+                    
                     <div class="col-6 col-md-4 mb-3">
                         <div class="card h-100" style="max-width: 18rem;">
                             <div class="card-header"><?= htmlspecialchars($note->title) ?></div>
@@ -186,6 +187,7 @@ if(isset($_POST['order'])) {
                     </div>
                 <?php endforeach; ?>
             </div>
+           
         <?php endif; ?>
 
        
@@ -193,8 +195,11 @@ if(isset($_POST['order'])) {
 
         <?php if (!empty($otherNotes)) : ?>
             <h2 class="mb-4">Others</h2>
-            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3">
+
+            <div id="other-notes" class="notes-container row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3">
+           
                 <?php foreach ($otherNotes as $note) : ?>
+                    
                     <?php if (!$note->isArchived()) : ?>
                         <div class="col-6 col-md-4 mb-3">
                             <div class="card h-100" style="max-width: 18rem;">
@@ -246,40 +251,21 @@ if(isset($_POST['order'])) {
                     <?php endif; ?>
                 <?php endforeach; ?>
             </div>
+            
         <?php elseif (empty($pinnedNotes)) : ?>
             <p>No notes found.</p>
         <?php endif; ?>
     </div>
     <!-- Bootstrap JS, Popper.js, and jQuery -->
-    </div>
-   
+    
+    
 
     <script>
-$(function() {
-    $("#notes-container").sortable({
-    update: function(event, ui) {
-      var orderedIds = $(this).sortable("toArray");
-      console.log(orderedIds);
-      // Appel AJAX pour mettre à jour l'ordre dans la base de données
-      $.ajax({
-  url: 'chemin/vers/votre/script.php',
-  type: 'POST',
-  data: { order: orderedIds.join(',') },
-  success: function(response) {
- 
-    console.log(response);
-  }
-});
-    }
-  });
-  $("#notes-container").disableSelection();
-});
 </script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
-
-
+<script src="../JS/note-management.js"></script>
 </body>
 
 </html>

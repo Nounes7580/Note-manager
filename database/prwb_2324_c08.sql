@@ -9,11 +9,11 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de données : `prwb_2324_c08`
+-- Base de données : `prwb_2324_xyy`
 --
-DROP DATABASE IF EXISTS `prwb_2324_c08`;
-CREATE DATABASE IF NOT EXISTS `prwb_2324_c08` DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
-USE `prwb_2324_c08`;
+DROP DATABASE IF EXISTS `prwb_2324_xyy`;
+CREATE DATABASE IF NOT EXISTS `prwb_2324_xyy` DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+USE `prwb_2324_xyy`;
 
 
 DROP TABLE IF EXISTS `users`;
@@ -42,6 +42,8 @@ CREATE TABLE IF NOT EXISTS `notes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 ALTER TABLE `notes` ADD CONSTRAINT `fk_notes_users` FOREIGN KEY (`owner`) REFERENCES `users`(`id`);
+ALTER TABLE `notes` ADD CONSTRAINT `unique_title_owner` UNIQUE (`title`, `owner`);
+ALTER TABLE `notes` ADD CONSTRAINT `unique_weigh_owner` UNIQUE (`weight`, `owner`);
 
 DROP TABLE IF EXISTS `note_shares`;
 CREATE TABLE IF NOT EXISTS `note_shares` (
@@ -83,6 +85,5 @@ CREATE TABLE IF NOT EXISTS `checklist_note_items` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 ALTER TABLE `checklist_note_items` ADD CONSTRAINT `fkchecklist_note_items_checklist_notes` FOREIGN KEY (`checklist_note`) REFERENCES `checklist_notes`(`id`);
-
 
 
