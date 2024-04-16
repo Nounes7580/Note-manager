@@ -1,5 +1,4 @@
 <?php
-
 // Activez l'affichage des erreurs PHP
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -566,12 +565,17 @@ class ControllerNotes extends Controller
 
     public function pin_or_unpin_note()
     {
-        $noteId = $_GET['param1'] ?? null;
+        $noteId = $_POST['noteId'] ?? null; // correction du get à $_POST
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note) {
                 $note->togglePinned();
                 $note->persist();
+                if ($note->isPinned()) {
+                    $note->unpin();
+                } else {
+                    $note->pin();
+                }
             }
         }
         $this->redirect("notes/show_note/" . $noteId);
@@ -579,12 +583,15 @@ class ControllerNotes extends Controller
 
     public function archive_note()
     {
-        $noteId = $_GET['param1'] ?? null;
+        $noteId = $_POST['noteId'] ?? null;
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note) {
-                $note->toggleArchived();
-                $note->persist();
+                if ($note->isArchived()) {
+                    $note->unarchive();
+                } else {
+                    $note->archive();
+                }
             }
         }
         $this->redirect("notes/show_note/" . $noteId);
@@ -744,4 +751,5 @@ class ControllerNotes extends Controller
             $this->redirect("notes", "share", $noteId);
         }
     }
+    
 }
