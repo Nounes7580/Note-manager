@@ -516,13 +516,16 @@ abstract class Note extends Model
         return $data[0];
     }
   
-
-    public function pin() {
-        if (!$this->pinned) {
-            $this->pinned = true;
-            $this->weight = $this->getNextHighestPinnedWeight();
-            $this->save();
-        }
+    public static function get_max_weight_pinned(): float {
+        $sql = "SELECT MAX(weight) AS max_weight FROM notes WHERE pinned = 1 AND archived = 0";
+        $stmt = self::execute($sql);
+        $result = $stmt->fetch();
+        return $result ? (float)$result['max_weight'] : 0;
+    }
+    public function pin(float $maxPinnedWeight): void {
+        $this->weight = $maxPinnedWeight + 1;
+        $this->pinned = true;
+        $this->edited_at = new DateTime(); // Update edited_at timestamp
     }
 
     public function unpin() {

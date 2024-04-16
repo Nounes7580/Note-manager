@@ -583,7 +583,10 @@ class ControllerNotes extends Controller
 
     public function archive_note()
     {
-        $noteId = $_POST['noteId'] ?? null;
+
+        
+        $noteId = $_POST['noteId'] ?? null; // correction du get à $_POST
+
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note) {
