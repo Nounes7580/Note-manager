@@ -17,7 +17,7 @@ if(isset($_POST['order'])) {
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-
+    
     <style>
         .card-text {
             overflow: hidden;
@@ -136,7 +136,7 @@ if(isset($_POST['order'])) {
         <?php if (!empty($pinnedNotes)) : ?>
             
             <h2 class="mb-4">Pinned</h2>
-            <div id="pinned-notes" class="notes-container row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3">
+            <div class="notes-container pinned-notes row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3">
           
                 <?php foreach ($pinnedNotes as $note) : ?>
                     
@@ -197,7 +197,7 @@ if(isset($_POST['order'])) {
         <?php if (!empty($otherNotes)) : ?>
             <h2 class="mb-4">Others</h2>
 
-            <div id="other-notes" class="notes-container row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3">
+            <div  class="notes-container other_notes row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3">
            
                 <?php foreach ($otherNotes as $note) : ?>
                     
@@ -263,8 +263,8 @@ if(isset($_POST['order'])) {
 
     <script>
 </script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js"></script> <!-- Only if not included in Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
