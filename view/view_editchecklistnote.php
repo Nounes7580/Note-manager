@@ -100,38 +100,37 @@ $validFields = $validFields ?? [];
                         <?php echo (!empty($errors) && isset($errors['title'])) ? htmlspecialchars($errors['title']) : ''; ?>
                     </div>
                 </div>
-            </form>
-            <?php foreach ($note->getItems() as $index => $item): ?>
-                <form action="./../delete_checklist_item" method="post" class="mb-3">
-                    <div class="input-group">
+                <?php foreach ($note->getItems() as $index => $item): ?>
+                    <div class="input-group mb-3">
                         <div class="input-group-text bg-secondary">
                             <i class="bi <?php echo $item->checked ? 'bi-check-circle-fill' : 'bi-circle'; ?>"></i>
                         </div>
-                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($item->content); ?>"
-                            readonly>
+                        <input type="text" class="form-control" name="items[<?php echo $item->id; ?>]"
+                            value="<?php echo htmlspecialchars($item->content); ?>">
                         <input type="hidden" name="note_id" value="<?php echo $note->id; ?>">
                         <input type="hidden" name="item_id" value="<?php echo $item->id; ?>">
-                        <button class="btn btn-delete" type="submit"><i class="bi bi-dash-lg"></i></button>
+                        <button class="btn btn-delete" type="button"
+                            onclick="deleteItem(<?php echo $item->id; ?>, <?php echo $note->id; ?>)"><i
+                                class="bi bi-dash-lg"></i></button>
                     </div>
-                </form>
-            <?php endforeach; ?>
-        <?php endif; ?>
-        <!-- Nouveaux éléments -->
-        <?php if (isset($_SESSION['checklist_items'][$note->id])): ?>
-            <?php foreach ($_SESSION['checklist_items'][$note->id] as $tempItemId => $item): ?>
-                <form action="./../delete_temporary_item" method="post" class="mb-3">
-                    <div class="input-group">
-                        <div class="input-group-text bg-secondary">
-                            <i class="bi bi-circle"></i>
+                <?php endforeach; ?>
+            <?php endif; ?>
+            <!-- Nouveaux éléments -->
+            <?php if (isset($_SESSION['checklist_items'][$note->id])): ?>
+                <?php foreach ($_SESSION['checklist_items'][$note->id] as $tempItemId => $item): ?>
+                    <form action="./../delete_temporary_item" method="post" class="mb-3">
+                        <div class="input-group">
+                            <div class="input-group-text bg-secondary">
+                                <i class="bi bi-circle"></i>
+                            </div>
+                            <input type="text" class="form-control" value="<?php echo htmlspecialchars($item); ?>">
+                            <input type="hidden" name="note_id" value="<?php echo $note->id; ?>">
+                            <input type="hidden" name="temp_item_id" value="<?php echo $tempItemId; ?>">
+                            <button class="btn btn-delete" type="submit"><i class="bi bi-dash-lg"></i></button>
                         </div>
-                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($item); ?>" readonly>
-                        <input type="hidden" name="note_id" value="<?php echo $note->id; ?>">
-                        <input type="hidden" name="temp_item_id" value="<?php echo $tempItemId; ?>">
-                        <button class="btn btn-delete" type="submit"><i class="bi bi-dash-lg"></i></button>
-                    </div>
-                </form>
-            <?php endforeach; ?>
-        <?php endif; ?>
+                    </form>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </form>
 
         <label for="newItem">New Item</label>
@@ -142,7 +141,28 @@ $validFields = $validFields ?? [];
                 <button class="btn btn-add" type="submit"><i class="bi bi-plus-lg"></i></button>
             </div>
         </form>
+        <script>
+            function deleteItem(itemId, noteId) {
+                var form = document.createElement('form');
+                form.method = 'post';
+                form.action = './../delete_checklist_item';
 
+                var inputItemId = document.createElement('input');
+                inputItemId.type = 'hidden';
+                inputItemId.name = 'item_id';
+                inputItemId.value = itemId;
+                form.appendChild(inputItemId);
+
+                var inputNoteId = document.createElement('input');
+                inputNoteId.type = 'hidden';
+                inputNoteId.name = 'note_id';
+                inputNoteId.value = noteId;
+                form.appendChild(inputNoteId);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        </script>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js"

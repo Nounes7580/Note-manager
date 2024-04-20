@@ -490,60 +490,48 @@ class ControllerNotes extends Controller
 
         $this->redirect("notes", "editchecklistnote", $noteId);
     }
+    
     public function save_edited_checklistnote(): void
-    {
-        $user = $this->get_user_or_redirect();
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $noteId = $_POST['id'] ?? null;
-            $title = $_POST['title'] ?? '';
-            $items = $_POST['items'] ?? [];
-            $errors = [];
-            if (empty($title)) {
-                $errors['title'] = "Le titre est requis.";
-            } elseif (strlen($title) < 3 || strlen($title) > 25) {
-                $errors['title'] = "Le titre doit contenir entre 3 et 25 caractères.";
-            }
+{
+    $user = $this->get_user_or_redirect();
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $noteId = $_POST['id'] ?? null;
+        $title = $_POST['title'] ?? '';
+        $items = $_POST['items'] ?? [];
+        $errors = [];
+        if (empty($title)) {
+            $errors['title'] = "Le titre est requis.";
+        } elseif (strlen($title) < 3 || strlen($title) > 25) {
+            $errors['title'] = "Le titre doit contenir entre 3 et 25 caractères.";
+        }
 
-            if (!empty($errors)) {
-                // S'il y a des erreurs, réutiliser la méthode editchecklistnote
-                $_SESSION['errors'] = $errors; // Stocker les erreurs dans la session
-                $this->redirect("notes", "editchecklistnote", $noteId);
-                return;
-            }
-            if ($noteId) {
-                $note = CheckListNote::get_note_by_id($noteId);
-                $isEditor = NoteShare::isUserEditor($user->id, $noteId);
+        if (!empty($errors)) {
+            $_SESSION['errors'] = $errors;
+            $this->redirect("notes", "editchecklistnote", $noteId);
+            return;
+        }
+        if ($noteId) {
+            $note = CheckListNote::get_note_by_id($noteId);
+            $isEditor = NoteShare::isUserEditor($user->id, $noteId);
 
-                if ($note && $note->owner == $user->get_id() || $isEditor) {
-                    $note->title = $title;
-                    $note->edited_at = new DateTime();
-                    $note->persist();
+            if ($note && $note->owner == $user->get_id() || $isEditor) {
+                $note->title = $title;
+                $note->edited_at = new DateTime();
+                $note->persist();
 
-                    foreach ($items as $itemData) {
-                        $itemId = $itemData['id'] ?? null;
-                        $itemContent = $itemData['content'] ?? '';
-                        $itemChecked = isset($itemData['checked']) && $itemData['checked'] == 'on';
-
-                        if ($itemId) {
-                            $item = CheckListNoteItem::get_item_by_id($itemId);
-                            if ($item && $item->checklist_note_id == $noteId) {
-                                $item->content = $itemContent;
-                                $item->checked = $itemChecked;
-                                $item->persist();
-                            }
-                        }
+                foreach ($items as $itemId => $itemContent) {
+                    $item = CheckListNoteItem::get_item_by_id($itemId);
+                    if ($item && $item->checklist_note_id == $noteId) {
+                        $item->content = $itemContent;
+                        $item->persist();
                     }
-
-
-                    $this->redirect("notes/show_note/" . $noteId);
-                } else {
                 }
-            } else {
-                // Redirection ou affichage d'un message d'erreur si noteId n'est pas défini
+
+                $this->redirect("notes/show_note/" . $noteId);
             }
         }
     }
-
+}
 
 
 
