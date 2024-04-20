@@ -12,55 +12,36 @@ $validFields = $validFields ?? [];
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 </head>
 <style>
-    .navbar-custom {
-        padding: 1px;
-    }
-
-    .navbar-custom .bi {
-        color: white; /* Icônes blanches */
-        font-size: 1.2rem; /* Taille de l'icône */
-    }
-
-    .container {
-        color: white; /* Couleur du texte */
-    }
-
-    .btn-delete {
-        background-color: #dc3545; /* Couleur de fond pour les boutons de suppression */
-        color: white;
-    }
-
-    .btn-add {
-        background-color: #0d6efd; /* Couleur de fond pour le bouton d'ajout */
-        color: white;
-    }
-
-    .input-group .form-control {
-        
-        color: white; /* Couleur du texte pour les champs de saisie */
-        border-color: #495057;
-    }
-
-    .input-group-text {
-        background-color: transparent;
-        border: none;
-    }
- 
-    .input-group + .input-group {
-        margin-top: 10px; /* Ajoute de l'espace entre les groupes d'input */
-    }
-    .deleted-item {
-        text-decoration: line-through;
-        color: #aaa;
-    }
-    .is-invalid {
-        border-color: #dc3545;
-    }
-    .is-invalid + .input-group-append .bi {
-        display: inline-block;
-    }
-</style>
+        .navbar-custom { padding: 1px; }
+        .navbar-custom .bi { color: white; font-size: 1.2rem; }
+        .container { color: white; }
+        .btn-delete, .btn-add { color: white; }
+        .btn-delete { background-color: #dc3545; }
+        .btn-add { background-color: #0d6efd; }
+        .input-group .form-control { color: white; border-color: #495057; }
+        .input-group-text { background-color: transparent; border: none; }
+        .input-group + .input-group { margin-top: 10px; }
+        .deleted-item { text-decoration: line-through; color: #aaa; }
+        .is-invalid { border-color: #dc3545; }
+        .is-invalid + .input-group-append .bi { display: inline-block; }
+    </style>
 <body>
+
+<script src="<?php echo $web_root; ?>/lib/jquery-3.7.1.min.js"></script>
+<script>
+    var minLengthTitle = <?php echo Configuration::get('title_min_length'); ?>;
+    var maxLengthTitle = <?php echo Configuration::get('title_max_length'); ?>;
+    var minLengthItem = <?php echo Configuration::get('item_min_length'); ?>;
+    var maxLengthItem = <?php echo Configuration::get('item_max_length'); ?>;
+</script>
+<script src="<?php echo $web_root; ?>/lib/validation.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#title').keyup(validateTitle); // Attach event using jQuery to be sure it's done right
+    });
+</script>
+
 <nav class="navbar navbar-expand navbar-custom">
     <div class="container-fluid">
         <a class="navbar-brand" href="<?php echo $web_root; ?>notes/show_note/<?php echo $note->id; ?>">
@@ -77,7 +58,12 @@ $validFields = $validFields ?? [];
         <?php if (isset($note)): ?>
         <div class="mb-3">
             <label for="title" class="form-label">Titre</label>
-            <input type="text" class="form-control <?php echo ((!$formSubmitted && !empty($errors['title'])) ? 'is-invalid' :'' ); ?>" id="title" name="title" value="<?php echo htmlspecialchars($note->title); ?>" require >
+            <div id="titleError"></div>
+            <input type="text" class="form-control <?php echo ((!$formSubmitted && !empty($errors['title'])) ? 'is-invalid' : ''); ?>" id="title" name="title" value="<?php echo htmlspecialchars($note->title); ?>" required onkeyup="validateTitle()">
+<div id="titleError" class="invalid-feedback">
+    <?php echo (!empty($errors) && isset($errors['title'])) ? htmlspecialchars($errors['title']) : ''; ?>
+</div>
+            <input type="text" class="form-control <?php echo ((!$formSubmitted && !empty($errors['title'])) ? 'is-invalid' : '' ); ?>" id="title" name="title" value="<?php echo htmlspecialchars($note->title); ?>" required onkeyup="validateTitle()">
             <?php if (!empty($errors) && isset($errors['title'])): ?>
                 <div class="invalid-feedback" >
                     <?php echo htmlspecialchars($errors['title']); ?>
@@ -128,5 +114,10 @@ $validFields = $validFields ?? [];
 
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script
+  src="https://code.jquery.com/jquery-3.7.1.js"
+  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+  crossorigin="anonymous"></script>
+
 </body>
 </html>
