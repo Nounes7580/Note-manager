@@ -357,53 +357,62 @@ class ControllerNotes extends Controller
 
 
 
-    public function editchecklistnote()
-    {
-        $user = $this->get_user_or_redirect();
-        $noteId = $_GET['param1'] ?? null;
-        $errors = $_SESSION['errors'] ?? []; // Récupérer les erreurs de la session
-        unset($_SESSION['errors']);
-        $validFields = [];
+  public function editchecklistnote()
+{
+    $user = $this->get_user_or_redirect();
+    $noteId = $_GET['param1'] ?? null;
+    $errors = $_SESSION['errors'] ?? []; // Récupérer les erreurs de la session
+    unset($_SESSION['errors']);
+    $validFields = [];
 
-        if ($noteId) {
-            $note = CheckListNote::get_note_by_id((int)$noteId);
-            $isEditor = NoteShare::isUserEditor($user->id, $noteId); // Méthode hypothétique
+    if ($noteId) {
+        $note = CheckListNote::get_note_by_id((int)$noteId);
+        $isEditor = NoteShare::isUserEditor($user->id, $noteId); // Méthode hypothétique
 
+        if ($note && $note instanceof CheckListNote && ($note->owner == $user->get_id() || $isEditor)) {
+            $editedItems = isset($_SESSION['checklist_items'][$noteId]) ? $_SESSION['checklist_items'][$noteId] : [];
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $title = $_POST['title'] ?? '';
+                $validFields['title'] = true;
 
-            if ($note && $note instanceof CheckListNote && ($note->owner == $user->get_id() || $isEditor)) {
-                $editedItems = isset($_SESSION['checklist_items'][$noteId]) ? $_SESSION['checklist_items'][$noteId] : [];
-                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                    $title = $_POST['title'] ?? '';
-                    $validFields['title'] = true;
-
-                    if (empty($title)) {
-                        $errors['title'] = "Le titre est requis.";
-                        $validFields['title'] = false;
-                    } elseif (strlen($title) < 3 || strlen($title) > 25) {
-                        $errors['title'] = "Le titre doit contenir entre 3 et 25 caractères.";
-                        $validFields['title'] = false;
-                    }
-
-                    $newEditedItems = [];
-                    $i = 1;
-                    while (isset($_POST["item$i"])) {
-                        $newEditedItems[] = trim($_POST["item$i"]);
-                        $i++;
-                    }
-                    $_SESSION['checklist_items'][$noteId] = $newEditedItems;
-                    $editedItems = $newEditedItems;
+                if (empty($title)) {
+                    $errors['title'] = "Le titre est requis.";
+                    $validFields['title'] = false;
+                } elseif (strlen($title) < 3 || strlen($title) > 25) {
+                    $errors['title'] = "Le titre doit contenir entre 3 et 25 caractères.";
+                    $validFields['title'] = false;
                 }
 
-                $data = [
-                    'note' => $note,
-                    'editedItems' => $editedItems,
-                    'errors' => $errors,
-                    'validFields' => $validFields
-                ];
-                (new View("editchecklistnote"))->show($data);
+                $newEditedItems = [];
+                $i = 1;
+                while (isset($_POST["item$i"])) {
+                    $item = trim($_POST["item$i"]);
+                    if (in_array($item, $newEditedItems)) {
+                        $errors["item$i"] = "L'élément doit être unique parmi les autres éléments de la note.";
+                        $validFields["item$i"] = false;
+                    } elseif (strlen($item) < 1 || strlen($item) > 60) {
+                        $errors["item$i"] = "La longueur de l'élément doit être comprise entre 1 et 60.";
+                        $validFields["item$i"] = false;
+                    } else {
+                        $newEditedItems[] = $item;
+                        $validFields["item$i"] = true;
+                    }
+                    $i++;
+                }
+                $_SESSION['checklist_items'][$noteId] = $newEditedItems;
+                $editedItems = $newEditedItems;
             }
+
+            $data = [
+                'note' => $note,
+                'editedItems' => $editedItems,
+                'errors' => $errors,
+                'validFields' => $validFields
+            ];
+            (new View("editchecklistnote"))->show($data);
         }
     }
+}
 
     public function add_checklist_item(): void
     {

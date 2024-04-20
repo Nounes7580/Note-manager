@@ -24,12 +24,13 @@ class CheckListNoteItem extends Model {
         $this->id = $id;
     }
 
-    private function validateContent(string $content): string {
+    function validateContent($content) {
         if (strlen($content) < 1 || strlen($content) > 60) {
-            throw new InvalidArgumentException('Content must be between 1 and 60 characters long.');
+            return "Content must be between 1 and 60 characters long.";
         }
         return $content;
     }
+  
     public function toggleChecked() {
         $this->checked = !$this->checked;
         Note::updateEditedAt($this->checklist_note_id);

@@ -13,18 +13,7 @@ $validFields = $validFields ?? [];
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 </head>
 <style>
-    .navbar-custom {
-        padding: 1px;
-    }
-
-    .navbar-custom .bi {
-        color: white;
-        font-size: 1.2rem;
-    }
-
-    .container {
-        color: white;
-    }
+  
 
     .btn-delete,
     .btn-add {
@@ -70,11 +59,7 @@ $validFields = $validFields ?? [];
     </script>
     <script src="<?php echo $web_root; ?>/lib/validation.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('#title').keyup(validateTitle); // Attach event using jQuery to be sure it's done right
-        });
-    </script>
+ 
 
     <nav class="navbar navbar-expand navbar-custom">
         <div class="container-fluid">
@@ -87,7 +72,7 @@ $validFields = $validFields ?? [];
         </div>
     </nav>
     <div class="container mt-4">
-        <form id="checklisteditForm" action="./../save_edited_checklistnote" method="post">
+        <form id="checklisteditForm" action="./../save_edited_checklistnote" method="post" novalidate>
             <input type="hidden" name="id" value="<?php echo $note->id; ?>">
             <?php if (isset($note)): ?>
                 <div class="mb-3">
@@ -105,8 +90,12 @@ $validFields = $validFields ?? [];
                         <div class="input-group-text bg-secondary">
                             <i class="bi <?php echo $item->checked ? 'bi-check-circle-fill' : 'bi-circle'; ?>"></i>
                         </div>
-                        <input type="text" class="form-control" name="items[<?php echo $item->id; ?>]"
-                            value="<?php echo htmlspecialchars($item->content); ?>">
+                        <input type="text"
+    class="form-control item-control <?php echo ((!$formSubmitted && !empty($errors['items'][$item->id])) ? 'is-invalid' : ''); ?>"
+    name="items[<?php echo $item->id; ?>]" value="<?php echo htmlspecialchars($item->content); ?>"
+    required onkeyup="validateItem(this)">                        <div class="invalid-feedback">
+                            <?php echo (!empty($errors) && isset($errors['items'][$item->id])) ? htmlspecialchars($errors['items'][$item->id]) : ''; ?>
+                        </div>
                         <input type="hidden" name="note_id" value="<?php echo $note->id; ?>">
                         <input type="hidden" name="item_id" value="<?php echo $item->id; ?>">
                         <button class="btn btn-delete" type="button"
@@ -118,7 +107,7 @@ $validFields = $validFields ?? [];
             <!-- Nouveaux éléments -->
             <?php if (isset($_SESSION['checklist_items'][$note->id])): ?>
                 <?php foreach ($_SESSION['checklist_items'][$note->id] as $tempItemId => $item): ?>
-                    <form action="./../delete_temporary_item" method="post" class="mb-3">
+                    <form action="./../delete_temporary_item" method="post" class="mb-3" novalidate>
                         <div class="input-group">
                             <div class="input-group-text bg-secondary">
                                 <i class="bi bi-circle"></i>
