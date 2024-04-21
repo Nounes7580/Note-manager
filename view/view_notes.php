@@ -108,12 +108,7 @@ if(isset($_POST['order'])) {
 
     <?php include "navbar.php"; ?>
 
-    <style>
-        .custom-offcanvas {
-            max-width: 50%;
-            /* Adjust the width to your desired value */
-        }
-    </style>
+  
 
 
     <div class="container mt-5">
@@ -125,6 +120,7 @@ if(isset($_POST['order'])) {
             <form action="./show_addtextnote" method="post">
                 <input type="hidden" name="title" value="Nouvelle Note">
                 <input type="hidden" name="text" value="Contenu de la note">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                 <button type="submit" class="btn" style="border-radius: 40px; padding: 10px 20px;">
                     <img src="../css/icons8-add-file-48.png" alt="Ajouter">
                 </button>
@@ -136,11 +132,11 @@ if(isset($_POST['order'])) {
         <?php if (!empty($pinnedNotes)) : ?>
             
             <h2 class="mb-4">Pinned</h2>
-            <div class="notes-container pinned-notes row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3">
+            <div class="notes-container data =pinned-notes row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3 " data-pinned="true">
           
                 <?php foreach ($pinnedNotes as $note) : ?>
                     
-                    <div class="col-6 col-md-4 mb-3">
+                    <div class="col-6 col-md-4 mb-3" data-id="<?= $note->id ?>">
                         <div class="card h-100" style="max-width: 18rem;">
                             <div class="card-header"><?= htmlspecialchars($note->title) ?></div>
                             <a href="./show_note/<?= $note->id ?>" class="stretched-link">
@@ -165,6 +161,7 @@ if(isset($_POST['order'])) {
                                 <?php if ($note->getPreviousNote() !== null) : ?>
                                     <form action="./moveNoteLeft" method="post" class="float-start">
                                         <input type="hidden" name="noteId" value="<?= $note->id ?>">
+                                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                         <button type="submit" class="btn btn-link text-light-blue">
                                             <i class="bi bi-caret-left-fill"></i>
                                         </button>
@@ -177,6 +174,7 @@ if(isset($_POST['order'])) {
                                 <?php if ($note->getNextNote() !== null) : ?>
                                     <form action="./moveNoteRight" method="post" class="float-end">
                                         <input type="hidden" name="noteId" value="<?= $note->id ?>">
+                                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                         <button type="submit" class="btn btn-link text-light-blue">
                                             <i class="bi bi-caret-right-fill"></i>
                                         </button>
@@ -197,12 +195,12 @@ if(isset($_POST['order'])) {
         <?php if (!empty($otherNotes)) : ?>
             <h2 class="mb-4">Others</h2>
 
-            <div  class="notes-container other_notes row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3">
+            <div  class="notes-container other_notes row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3"data-pinned="false">
            
                 <?php foreach ($otherNotes as $note) : ?>
                     
                     <?php if (!$note->isArchived()) : ?>
-                        <div class="col-6 col-md-4 mb-3">
+                        <div class="col-6 col-md-4 mb-3" data-id="<?= $note->id ?>">
                             <div class="card h-100" style="max-width: 18rem;">
                                 <div class="card-header"><?= htmlspecialchars($note->title) ?></div>
 
@@ -228,6 +226,7 @@ if(isset($_POST['order'])) {
                                     <?php if ($note->getPreviousNote() !== null) : ?>
                                         <form action="./moveNoteLeft" method="post" class="float-start">
                                             <input type="hidden" name="noteId" value="<?= $note->id ?>">
+                                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                             <button type="submit" class="btn btn-link text-light-blue">
                                                 <i class="bi bi-caret-left-fill"></i>
                                             </button>
@@ -240,6 +239,7 @@ if(isset($_POST['order'])) {
                                     <?php if ($note->getNextNote() !== null) : ?>
                                         <form action="./moveNoteRight" method="post" class="float-end">
                                             <input type="hidden" name="noteId" value="<?= $note->id ?>">
+                                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                             <button type="submit" class="btn btn-link text-light-blue">
                                                 <i class="bi bi-caret-right-fill"></i>
                                             </button>
@@ -263,11 +263,21 @@ if(isset($_POST['order'])) {
 
     <script>
 </script>
-<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+<!-- Dernière version de jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Dernière version de jQuery UI -->
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+<!-- Dernière version de jQuery UI Touch Punch -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js"></script> <!-- Only if not included in Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
+
+<!-- Dernière version de Popper.js (nécessaire pour Bootstrap 5.x) -->
+<script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js"></script>
+
+<!-- Dernière version de Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script> 
+
 
 <script src="../JS/note-management.js"></script>
 </body>

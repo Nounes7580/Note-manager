@@ -2,6 +2,9 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
 
 require_once 'model/User.php';
@@ -748,33 +751,50 @@ class ControllerNotes extends Controller
         }
     }
     public function updateNotesOrderAndPinStatus() {
-        if ($this->user_logged()) {
+      
+       
+        try {
             $user = $this->get_user_or_redirect();
             $userId = $user->get_id();
             $sortedNoteIds = array_reverse($_POST['orderedIds'] ?? []);
             $dropZone = $_POST['dropZone'];
-
-
-                $initialWeight = max(Note::get_max_weight_pinned($userId), Note::get_highest_weight_by_owner($userId)) + 1;
-                foreach ($sortedNoteIds as $noteId) {
-                    $note = Note::get_note_by_id($noteId);
-                    $note->weight = $initialWeight++;  // Mettre à jour le poids
-                    $note->persist();
-                    if ($note->owner == $userId) {
-                       if ($dropZone==="pinned-notes") {
-                         $note->pin();  // Utilise la méthode pin si la note doit être épinglée
-                        } else if ($dropZone==="other-notes"){
-                           $note->unPin();  // Utilise la méthode unPin si la note doit être désépinglée
-                         }
-                    }
-                }
-                echo json_encode(['status' => 'success', 'message' => 'Notes updated successfully.']);
-            } else {
-                echo json_encode(['status' => 'error', 'message' => 'Missing data for updating notes.']);
+            
+            // Validez le dropZone pour être sûr qu'il contient des valeurs attendues
+            if ($dropZone !== "pinned-notes" && $dropZone !== "other-notes") {
+                http_response_code(400); // Bad Request
+                echo json_encode(['status' => 'error', 'message' => 'Invalid drop zone.']);
+                exit;
             }
-            exit;
-             http_response_code(403);
-            echo json_encode(['status' => 'error', 'message' => 'User not logged in.']);
-            exit;
+    
+            if (empty($sortedNoteIds)) {
+                echo json_encode(['status' => 'error', 'message' => 'No notes to update.']);
+                exit;
+            }
+        
+            $initialWeight = max(Note::get_max_weight_pinned($userId), Note::get_highest_weight_by_owner($userId)) + 1;
+            foreach ($sortedNoteIds as $noteId) {
+                $note = Note::get_note_by_id($noteId);
+                if (!$note || $note->owner !== $userId) {
+                    continue; // Skip notes not owned by the user
+                }
+        
+                $note->weight = $initialWeight++;
+                $note->persist();
+        
+                if ($dropZone === "pinned-notes") {
+                    $note->pin();
+                } elseif ($dropZone === "other-notes") {
+                    $note->unpin();
+                }
+            }
+        
+            echo json_encode(['status' => 'success', 'message' => 'Notes updated successfully.']);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['status' => 'error', 'message' => 'Internal Server Error: ' . $e->getMessage()]);
         }
+    }
+    
+    /**test */
 }
+
