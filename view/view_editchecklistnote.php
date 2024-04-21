@@ -8,6 +8,8 @@ $validFields = $validFields ?? [];
 
 <head>
     <meta charset="UTF-8">
+    <base href="<?= $web_root ?>" />
+
     <title>Éditer Note Checklist</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
@@ -26,17 +28,62 @@ $validFields = $validFields ?? [];
         background-color: #0d6efd;
     }
 
+    .mb-3 {
+        /* Existing class for margin-bottom, consider increasing if needed */
+        margin-bottom: 1rem;
+        /* You can increase this value as needed */
+    }
 
 
-.invalid-feedback:empty {
-    display: none !important;
-}
+    .input-group .form-control {
+        flex: 1 0 auto;
+        /* Ensure that the input field flexes to fill available space */
+    }
 
-.invalid-feedback {
-    display: block !important;  /* Temporarily ensure it's always visible when not empty */
-}
+    .input-group .btn {
+        flex-shrink: 0;
+        /* Prevent the button from shrinking */
+    }
 
+    .input-group .invalid-feedback {
+        width: 100%;
+        /* Make sure the feedback takes the full width */
+        position: absolute;
+        /* Positioning it absolutely to avoid taking up space */
+        bottom: -10px;
+        /* Position below the input field */
+        left: 0;
+        font-size: 0.875em;
+        /* Smaller font size for error messages */
+    }
 
+    .input-group {
+        position: relative;
+        /* Relative positioning to position the feedback absolutely within */
+        margin-bottom: 40px;
+        /* Increase margin to accommodate the feedback message */
+        padding-bottom: 1rem;
+        /* Adds padding at the bottom for clearer separation */
+
+    }
+
+    .invalid-feedback:empty {
+        display: none !important;
+    }
+
+    .invalid-feedback {
+        display: block !important;
+        /* Temporarily ensure it's always visible when not empty */
+    }
+
+    .disabled {
+        pointer-events: none;
+        /* This prevents the button from receiving click events */
+        opacity: 0.5;
+        /* Dim the button to indicate it's disabled */
+        filter: blur(1px);
+        /* Optional: add a blur effect to make it look disabled */
+    }
 
     .deleted-item {
         text-decoration: line-through;
@@ -46,43 +93,50 @@ $validFields = $validFields ?? [];
 
 <body>
 
-    <script src="<?php echo $web_root; ?>/lib/jquery-3.7.1.min.js"></script>
+    <script src="lib/jquery-3.7.1.min.js"></script>
     <script>
         var minLengthTitle = <?php echo Configuration::get('title_min_length'); ?>;
         var maxLengthTitle = <?php echo Configuration::get('title_max_length'); ?>;
         var minLengthItem = <?php echo Configuration::get('item_min_length'); ?>;
         var maxLengthItem = <?php echo Configuration::get('item_max_length'); ?>;
     </script>
-    <script src="<?php echo $web_root; ?>/lib/validation.js"></script>
+    <script>
+        var baseURL = '<?php echo $web_root; ?>';
+    </script>
+    <script src="lib/validation.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 
     <nav class="navbar navbar-expand navbar-custom">
         <div class="container-fluid">
-            <a class="navbar-brand" href="<?php echo $web_root; ?>notes/show_note/<?php echo $note->id; ?>">
+            <a class="navbar-brand" href="notes/show_note/<?php echo $note->id; ?>">
                 <i class="bi bi-arrow-left"></i>
             </a>
-            <a onclick="document.getElementById('checklisteditForm').submit(); return false;" style="cursor: pointer;">
+            <a id="saveButton" onclick="trySubmitForm();" style="cursor: pointer;">
                 <i class="bi bi-floppy2-fill"></i>
             </a>
         </div>
     </nav>
     <div class="container mt-4">
-        <form id="checklisteditForm" action="./../save_edited_checklistnote" method="post">
+        <form id="checklisteditForm" action="notes/save_edited_checklistnote" method="post">
             <input type="hidden" name="id" value="<?php echo $note->id; ?>">
             <?php if (isset($note)): ?>
+                <label for="title">Title</label>
+
                 <div class="mb-3 <?php echo !empty($errors['title']) ? 'is-invalid' : ''; ?>">
                     <input type="text" class="form-control" id="title" name="title"
-                        value="<?php echo htmlspecialchars($note->title); ?>" required onchange="validateTitle()"
-                        onkeyup="validateTitle()" data-original="<?php echo htmlspecialchars($note->title); ?>">
-                        <div class="invalid-feedback"></div>
+                        value="<?php echo html_entity_decode($note->title); ?>" required onchange="validateTitle()"
+                        onkeyup="validateTitle()" data-original="<?php echo html_entity_decode($note->title); ?>">
+                    <div class="invalid-feedback"></div>
 
                     <?php if (!empty($errors['title'])): ?>
                         <div class="invalid-feedback">
-                            <?php echo htmlspecialchars($errors['title']); ?>
+                            <?php echo html_entity_decode($errors['title']); ?>
                         </div>
                     <?php endif; ?>
                 </div>
+                <label for="items">Items</label>
+
                 <?php foreach ($note->getItems() as $index => $item): ?>
                     <div class="input-group mb-3">
                         <div class="input-group-text bg-secondary">
@@ -91,15 +145,15 @@ $validFields = $validFields ?? [];
                         <!-- Add the is-invalid class conditionally based on the presence of an error for this item -->
                         <input type="text"
                             class="form-control item-control <?php echo !empty($errors['items'][$item->id]) ? 'is-invalid' : ''; ?>"
-                            name="items[<?php echo $item->id; ?>]" value="<?php echo htmlspecialchars($item->content); ?>"
+                            name="items[<?php echo $item->id; ?>]" value="<?php echo html_entity_decode($item->content); ?>"
                             required onkeyup="validateItem(this)"
-                            data-original="<?php echo htmlspecialchars($item->content); ?>">
-                            <div class="invalid-feedback"></div>
+                            data-original="<?php echo html_entity_decode($item->content); ?>">
+                        <div class="invalid-feedback"></div>
 
                         <!-- Conditionally display the error message -->
                         <?php if (!empty($errors['items'][$item->id])): ?>
                             <div class="invalid-feedback">
-                                <?php echo htmlspecialchars($errors['items'][$item->id]); ?>
+                                <?php echo html_entity_decode($errors['items'][$item->id]); ?>
                             </div>
                         <?php endif; ?>
                         <input type="hidden" name="note_id" value="<?php echo $note->id; ?>">
@@ -114,12 +168,12 @@ $validFields = $validFields ?? [];
             <!-- Nouveaux éléments -->
             <?php if (isset($_SESSION['checklist_items'][$note->id])): ?>
                 <?php foreach ($_SESSION['checklist_items'][$note->id] as $tempItemId => $item): ?>
-                    <form action="./../delete_temporary_item" method="post" class="mb-3" novalidate>
+                    <form action="notes/delete_temporary_item" method="post" class="mb-3" novalidate>
                         <div class="input-group">
                             <div class="input-group-text bg-secondary">
                                 <i class="bi bi-circle"></i>
                             </div>
-                            <input type="text" class="form-control" value="<?php echo htmlspecialchars($item); ?>">
+                            <input type="text" class="form-control" value="<?php echo html_entity_decode($item); ?>">
                             <input type="hidden" name="note_id" value="<?php echo $note->id; ?>">
                             <input type="hidden" name="temp_item_id" value="<?php echo $tempItemId; ?>">
                             <button class="btn btn-delete" type="submit"><i class="bi bi-dash-lg"></i></button>
@@ -130,19 +184,20 @@ $validFields = $validFields ?? [];
         </form>
 
         <label for="newItem">New Item</label>
-        <form action="./../add_checklist_item" method="post">
-    <input type="hidden" name="note_id" value="<?php echo $note->id; ?>">
-    <div class="input-group mb-3">
-        <input type="text" class="form-control item-control" name="new_item" required onkeyup="validateItem(this)">
-        <div class="invalid-feedback"></div>
-        <button class="btn btn-add" type="submit"><i class="bi bi-plus-lg"></i></button>
-    </div>
-</form>
+        <form action="notes/add_checklist_item" method="post">
+            <input type="hidden" name="note_id" value="<?php echo $note->id; ?>">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control item-control" name="new_item" required
+                    onkeyup="validateItem(this)">
+                <div class="invalid-feedback"></div>
+                <button class="btn btn-add" type="submit"><i class="bi bi-plus-lg"></i></button>
+            </div>
+        </form>
         <script>
             function deleteItem(itemId, noteId) {
                 var form = document.createElement('form');
                 form.method = 'post';
-                form.action = './../delete_checklist_item';
+                form.action = 'notes/delete_checklist_item';
 
                 var inputItemId = document.createElement('input');
                 inputItemId.type = 'hidden';

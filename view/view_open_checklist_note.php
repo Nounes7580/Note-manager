@@ -76,7 +76,7 @@
 
                     <!-- Readonly Textbox for the Item -->
                     <input type="text" class="form-control" 
-                       value="<?= htmlspecialchars($item->content) ?>" 
+                       value="<?= html_entity_decode($item->content) ?>" 
                        readonly 
                        style="<?= $item->checked ? 'text-decoration: line-through;' : '' ?>">
             </div>

@@ -367,9 +367,8 @@ class ControllerNotes extends Controller
 
     if ($noteId) {
         $note = CheckListNote::get_note_by_id((int)$noteId);
-        $isEditor = NoteShare::isUserEditor($user->id, $noteId); // Méthode hypothétique
 
-        if ($note && $note instanceof CheckListNote && ($note->owner == $user->get_id() || $isEditor)) {
+        if ($note && $note instanceof CheckListNote && ($note->owner == $user->get_id() )) {
             $editedItems = isset($_SESSION['checklist_items'][$noteId]) ? $_SESSION['checklist_items'][$noteId] : [];
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $title = $_POST['title'] ?? '';
@@ -413,6 +412,30 @@ class ControllerNotes extends Controller
         }
     }
 }
+
+public function check_title_uniqueness() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['title'])) {
+        header('Content-Type: application/json');  // Ensure the response is treated as JSON
+
+        $user = $this->get_user_or_redirect();
+        $title = $_POST['title'];
+        $noteId = $_POST['noteId'] ?? null;
+
+        error_log("Received title: $title");
+        error_log("Received noteId: " . ($noteId ?? "null"));
+
+        $isUnique = Note::isTitleUnique($title, $user->get_id(), $noteId);
+        error_log("Is title unique? " . ($isUnique ? "Yes" : "No"));
+
+        echo json_encode(['isUnique' => $isUnique]);
+    } else {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid request']);
+    }
+    exit;
+}
+
+
 
     public function add_checklist_item(): void
     {
