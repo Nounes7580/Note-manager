@@ -520,6 +520,13 @@ class ControllerNotes extends Controller
                 $errors['title'] = "Ce titre est déjà utilisé. Veuillez en choisir un autre.";
             }
     
+            // Check each item's content for uniqueness
+            foreach ($items as $itemId => $itemContent) {
+                if (!CheckListNoteItem::isContentUnique($noteId, $itemContent, $itemId)) {
+                    $errors['items'][$itemId] = "Le contenu de l'élément doit être unique dans la checklist.";
+                }
+            }
+    
             if (!empty($errors)) {
                 $_SESSION['errors'] = $errors;
                 $this->redirect("notes", "editchecklistnote", $noteId);
@@ -548,7 +555,7 @@ class ControllerNotes extends Controller
             }
         }
     }
-    
+        
 
 
 

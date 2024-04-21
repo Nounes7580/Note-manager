@@ -28,7 +28,13 @@ $validFields = $validFields ?? [];
 
 
 
+.invalid-feedback:empty {
+    display: none !important;
+}
 
+.invalid-feedback {
+    display: block !important;  /* Temporarily ensure it's always visible when not empty */
+}
 
 
 
@@ -62,33 +68,40 @@ $validFields = $validFields ?? [];
         </div>
     </nav>
     <div class="container mt-4">
-        <form id="checklisteditForm" action="./../save_edited_checklistnote" method="post" novalidate
-            onsubmit="return validateForm()">
+        <form id="checklisteditForm" action="./../save_edited_checklistnote" method="post">
             <input type="hidden" name="id" value="<?php echo $note->id; ?>">
             <?php if (isset($note)): ?>
-                <div class="mb-3">
-                    <label for="title" class="form-label">Titre</label>
+                <div class="mb-3 <?php echo !empty($errors['title']) ? 'is-invalid' : ''; ?>">
                     <input type="text" class="form-control" id="title" name="title"
                         value="<?php echo htmlspecialchars($note->title); ?>" required onchange="validateTitle()"
-                        data-original="<?php echo htmlspecialchars($note->title); ?>">
+                        onkeyup="validateTitle()" data-original="<?php echo htmlspecialchars($note->title); ?>">
+                        <div class="invalid-feedback"></div>
 
-                    <div class="invalid-feedback">
-                        <?php echo (!empty($errors) && isset($errors['title'])) ? htmlspecialchars($errors['title']) : ''; ?>
-                    </div>
+                    <?php if (!empty($errors['title'])): ?>
+                        <div class="invalid-feedback">
+                            <?php echo htmlspecialchars($errors['title']); ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
                 <?php foreach ($note->getItems() as $index => $item): ?>
                     <div class="input-group mb-3">
                         <div class="input-group-text bg-secondary">
                             <i class="bi <?php echo $item->checked ? 'bi-check-circle-fill' : 'bi-circle'; ?>"></i>
                         </div>
+                        <!-- Add the is-invalid class conditionally based on the presence of an error for this item -->
                         <input type="text"
-                            class="form-control item-control"
+                            class="form-control item-control <?php echo !empty($errors['items'][$item->id]) ? 'is-invalid' : ''; ?>"
                             name="items[<?php echo $item->id; ?>]" value="<?php echo htmlspecialchars($item->content); ?>"
                             required onkeyup="validateItem(this)"
                             data-original="<?php echo htmlspecialchars($item->content); ?>">
-                        <div class="invalid-feedback">
-                            <?php echo (!empty($errors) && isset($errors['items'][$item->id])) ? htmlspecialchars($errors['items'][$item->id]) : ''; ?>
-                        </div>
+                            <div class="invalid-feedback"></div>
+
+                        <!-- Conditionally display the error message -->
+                        <?php if (!empty($errors['items'][$item->id])): ?>
+                            <div class="invalid-feedback">
+                                <?php echo htmlspecialchars($errors['items'][$item->id]); ?>
+                            </div>
+                        <?php endif; ?>
                         <input type="hidden" name="note_id" value="<?php echo $note->id; ?>">
                         <input type="hidden" name="item_id" value="<?php echo $item->id; ?>">
                         <button class="btn btn-delete" type="button"
@@ -96,6 +109,7 @@ $validFields = $validFields ?? [];
                                 class="bi bi-dash-lg"></i></button>
                     </div>
                 <?php endforeach; ?>
+
             <?php endif; ?>
             <!-- Nouveaux éléments -->
             <?php if (isset($_SESSION['checklist_items'][$note->id])): ?>
