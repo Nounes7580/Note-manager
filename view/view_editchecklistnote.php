@@ -131,12 +131,13 @@ $validFields = $validFields ?? [];
 
         <label for="newItem">New Item</label>
         <form action="./../add_checklist_item" method="post">
-            <input type="hidden" name="note_id" value="<?php echo $note->id; ?>">
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" name="new_item">
-                <button class="btn btn-add" type="submit"><i class="bi bi-plus-lg"></i></button>
-            </div>
-        </form>
+    <input type="hidden" name="note_id" value="<?php echo $note->id; ?>">
+    <div class="input-group mb-3">
+        <input type="text" class="form-control item-control" name="new_item" required onkeyup="validateItem(this)">
+        <div class="invalid-feedback"></div>
+        <button class="btn btn-add" type="submit"><i class="bi bi-plus-lg"></i></button>
+    </div>
+</form>
         <script>
             function deleteItem(itemId, noteId) {
                 var form = document.createElement('form');
