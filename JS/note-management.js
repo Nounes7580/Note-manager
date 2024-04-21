@@ -41,12 +41,6 @@ function updateNotesOrderAndPinStatus(isPinned,orderedIds, isCurrentlyPinned, or
         },
         success: function(response) {
             console.log("Response:", response);
-            if (response.status === "success") {
-                // Optionnellement, ajustez l'interface utilisateur ici si nécessaire
-                alert("Notes reordered successfully.");
-            } else {
-                console.error("Failed to reorder notes:", response.message);
-            }
         },
         error: function(xhr, status, error) {
             console.error("Error in AJAX call:", status, error);

@@ -520,7 +520,13 @@ abstract class Note extends Model
   
     public static function get_max_weight_pinned(): float {
         $sql = "SELECT MAX(weight) AS max_weight FROM notes WHERE pinned = 1 AND archived = 0";
-        $stmt = self::execute($sql, []);  // Pass an empty array if no parameters are used
+        $stmt = self::execute($sql, []); 
+        $result = $stmt->fetch();
+        return $result ? (float)$result['max_weight'] : 0;
+    }
+    public static function get_max_weight_other_notes(): float {
+        $sql = "SELECT MAX(weight) AS max_weight FROM notes WHERE pinned = 0 AND archived = 0";
+        $stmt = self::execute($sql, []);  
         $result = $stmt->fetch();
         return $result ? (float)$result['max_weight'] : 0;
     }
@@ -536,7 +542,7 @@ abstract class Note extends Model
     public function unpin() {
        
             $this->pinned = false;
-            $this->weight = $this->getNextHighestWeight();
+            $this->weight = $this->get_max_weight_other_notes($this->owner)+1 ;
             $this->persist();
         
     }
@@ -544,7 +550,7 @@ abstract class Note extends Model
     public function archive() {
         if (!$this->archived) {
             $this->archived = true;
-            $this->unpin(); // Ensure the note is not pinned anymore
+            $this->unpin(); 
             $this->weight = $this->getNextHighestArchivedWeight();
             $this->save();
         }
@@ -561,13 +567,7 @@ abstract class Note extends Model
     private function getNextHighestWeight(): float {
         return self::get_highest_weight_by_owner($this->owner) + 1.0;
     }
-    private function getNextHighestPinnedWeight(): float {
-        $sql = "SELECT MAX(weight) AS max_weight FROM notes WHERE owner = :owner AND pinned = 1 AND archived = 0";
-        $params = [ 'owner' => $this->owner ];
-        $stmt = self::execute($sql, $params);
-        $result = $stmt->fetch();
-        return $result && $result['max_weight'] !== null ? $result['max_weight'] + 1.0 : 1.0;
-    }
+ 
 
     private function getNextHighestArchivedWeight(): float {
         $sql = "SELECT MAX(weight) AS max_weight FROM notes WHERE owner = :owner AND archived = 1";

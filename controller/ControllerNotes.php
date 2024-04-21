@@ -753,7 +753,7 @@ class ControllerNotes extends Controller
         try {
             $user = $this->get_user_or_redirect();
             $userId = $user->get_id();
-            $sortedNoteIds = array_reverse($_POST['orderedIds'] ?? []);
+            $sortedNoteIds = $_POST['orderedIds'] ?? [];
             $dropZone = $_POST['dropZone'];
             
             // Validez le dropZone pour être sûr qu'il contient des valeurs attendues
@@ -768,7 +768,7 @@ class ControllerNotes extends Controller
                 exit;
             }
         
-            $initialWeight = max(Note::get_max_weight_pinned($userId), Note::get_highest_weight_by_owner($userId))+10;
+            $initialWeight = max(Note::get_max_weight_pinned($userId), Note::get_highest_weight_by_owner($userId))+1;
             foreach ($sortedNoteIds as $noteId) {
                 $note = Note::get_note_by_id($noteId);
                 if (!$note || $note->owner !== $userId) {
@@ -780,9 +780,9 @@ class ControllerNotes extends Controller
                 $note->persist();
         
                 if ($dropZone === "pinned-notes" && !$note->isPinned()) {
-                    $note->pin(); // Ceci devrait non seulement mettre à jour la propriété mais aussi persister le changement dans la base de données.
+                    $note->pin(); 
                 } elseif ($dropZone === "other-notes" && $note->isPinned()) {
-                    $note->unpin(); // De même, assurez-vous que le changement est persisté.
+                    $note->unpin(); 
                 }
             }
         

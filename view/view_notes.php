@@ -120,7 +120,7 @@ if(isset($_POST['order'])) {
             <form action="./show_addtextnote" method="post">
                 <input type="hidden" name="title" value="Nouvelle Note">
                 <input type="hidden" name="text" value="Contenu de la note">
-                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                
                 <button type="submit" class="btn" style="border-radius: 40px; padding: 10px 20px;">
                     <img src="../css/icons8-add-file-48.png" alt="Ajouter">
                 </button>
@@ -161,7 +161,7 @@ if(isset($_POST['order'])) {
                                 <?php if ($note->getPreviousNote() !== null) : ?>
                                     <form action="./moveNoteLeft" method="post" class="float-start">
                                         <input type="hidden" name="noteId" value="<?= $note->id ?>">
-                                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                     
                                         <button type="submit" class="btn btn-link text-light-blue">
                                             <i class="bi bi-caret-left-fill"></i>
                                         </button>
@@ -174,7 +174,7 @@ if(isset($_POST['order'])) {
                                 <?php if ($note->getNextNote() !== null) : ?>
                                     <form action="./moveNoteRight" method="post" class="float-end">
                                         <input type="hidden" name="noteId" value="<?= $note->id ?>">
-                                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                  
                                         <button type="submit" class="btn btn-link text-light-blue">
                                             <i class="bi bi-caret-right-fill"></i>
                                         </button>
@@ -226,7 +226,7 @@ if(isset($_POST['order'])) {
                                     <?php if ($note->getPreviousNote() !== null) : ?>
                                         <form action="./moveNoteLeft" method="post" class="float-start">
                                             <input type="hidden" name="noteId" value="<?= $note->id ?>">
-                                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                           
                                             <button type="submit" class="btn btn-link text-light-blue">
                                                 <i class="bi bi-caret-left-fill"></i>
                                             </button>
@@ -239,7 +239,7 @@ if(isset($_POST['order'])) {
                                     <?php if ($note->getNextNote() !== null) : ?>
                                         <form action="./moveNoteRight" method="post" class="float-end">
                                             <input type="hidden" name="noteId" value="<?= $note->id ?>">
-                                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                           
                                             <button type="submit" class="btn btn-link text-light-blue">
                                                 <i class="bi bi-caret-right-fill"></i>
                                             </button>
@@ -257,7 +257,7 @@ if(isset($_POST['order'])) {
             <p>No notes found.</p>
         <?php endif; ?>
     </div>
-    <!-- Bootstrap JS, Popper.js, and jQuery -->
+    
     
     
 
