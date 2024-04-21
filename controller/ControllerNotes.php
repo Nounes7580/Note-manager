@@ -501,46 +501,54 @@ class ControllerNotes extends Controller
     }
     
     public function save_edited_checklistnote(): void
-{
-    $user = $this->get_user_or_redirect();
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $noteId = $_POST['id'] ?? null;
-        $title = $_POST['title'] ?? '';
-        $items = $_POST['items'] ?? [];
-        $errors = [];
-        if (empty($title)) {
-            $errors['title'] = "Le titre est requis.";
-        } elseif (strlen($title) < 3 || strlen($title) > 25) {
-            $errors['title'] = "Le titre doit contenir entre 3 et 25 caractères.";
-        }
-
-        if (!empty($errors)) {
-            $_SESSION['errors'] = $errors;
-            $this->redirect("notes", "editchecklistnote", $noteId);
-            return;
-        }
-        if ($noteId) {
-            $note = CheckListNote::get_note_by_id($noteId);
-            $isEditor = NoteShare::isUserEditor($user->id, $noteId);
-
-            if ($note && $note->owner == $user->get_id() || $isEditor) {
-                $note->title = $title;
-                $note->edited_at = new DateTime();
-                $note->persist();
-
-                foreach ($items as $itemId => $itemContent) {
-                    $item = CheckListNoteItem::get_item_by_id($itemId);
-                    if ($item && $item->checklist_note_id == $noteId) {
-                        $item->content = $itemContent;
-                        $item->persist();
+    {
+        $user = $this->get_user_or_redirect();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $noteId = $_POST['id'] ?? null;
+            $title = $_POST['title'] ?? '';
+            $items = $_POST['items'] ?? [];
+            $errors = [];
+            
+            if (empty($title)) {
+                $errors['title'] = "Le titre est requis.";
+            } elseif (strlen($title) < 3 || strlen($title) > 25) {
+                $errors['title'] = "Le titre doit contenir entre 3 et 25 caractères.";
+            }
+    
+            // Check title uniqueness, except for the note currently being edited
+            if (empty($errors) && !Note::isTitleUnique($title, $user->id, $noteId)) {
+                $errors['title'] = "Ce titre est déjà utilisé. Veuillez en choisir un autre.";
+            }
+    
+            if (!empty($errors)) {
+                $_SESSION['errors'] = $errors;
+                $this->redirect("notes", "editchecklistnote", $noteId);
+                return;
+            }
+    
+            if ($noteId) {
+                $note = CheckListNote::get_note_by_id($noteId);
+                $isEditor = NoteShare::isUserEditor($user->id, $noteId);
+    
+                if ($note && ($note->owner == $user->get_id() || $isEditor)) {
+                    $note->title = $title;
+                    $note->edited_at = new DateTime();
+                    $note->persist();
+    
+                    foreach ($items as $itemId => $itemContent) {
+                        $item = CheckListNoteItem::get_item_by_id($itemId);
+                        if ($item && $item->checklist_note_id == $noteId) {
+                            $item->content = $itemContent;
+                            $item->persist();
+                        }
                     }
+    
+                    $this->redirect("notes/show_note/" . $noteId);
                 }
-
-                $this->redirect("notes/show_note/" . $noteId);
             }
         }
     }
-}
+    
 
 
 

@@ -13,8 +13,6 @@ $validFields = $validFields ?? [];
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 </head>
 <style>
-  
-
     .btn-delete,
     .btn-add {
         color: white;
@@ -28,19 +26,11 @@ $validFields = $validFields ?? [];
         background-color: #0d6efd;
     }
 
-    .input-group .form-control {
-        color: white;
-        border-color: #495057;
-    }
 
-    .input-group-text {
-        background-color: transparent;
-        border: none;
-    }
 
-    .input-group+.input-group {
-        margin-top: 10px;
-    }
+
+
+
 
     .deleted-item {
         text-decoration: line-through;
@@ -59,7 +49,7 @@ $validFields = $validFields ?? [];
     </script>
     <script src="<?php echo $web_root; ?>/lib/validation.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
- 
+
 
     <nav class="navbar navbar-expand navbar-custom">
         <div class="container-fluid">
@@ -72,15 +62,16 @@ $validFields = $validFields ?? [];
         </div>
     </nav>
     <div class="container mt-4">
-        <form id="checklisteditForm" action="./../save_edited_checklistnote" method="post" novalidate>
+        <form id="checklisteditForm" action="./../save_edited_checklistnote" method="post" novalidate
+            onsubmit="return validateForm()">
             <input type="hidden" name="id" value="<?php echo $note->id; ?>">
             <?php if (isset($note)): ?>
                 <div class="mb-3">
                     <label for="title" class="form-label">Titre</label>
-                    <input type="text"
-                        class="form-control <?php echo ((!$formSubmitted && !empty($errors['title'])) ? 'is-invalid' : ''); ?>"
-                        id="title" name="title" value="<?php echo htmlspecialchars($note->title); ?>" required
-                        onkeyup="validateTitle()">
+                    <input type="text" class="form-control" id="title" name="title"
+                        value="<?php echo htmlspecialchars($note->title); ?>" required onchange="validateTitle()"
+                        data-original="<?php echo htmlspecialchars($note->title); ?>">
+
                     <div class="invalid-feedback">
                         <?php echo (!empty($errors) && isset($errors['title'])) ? htmlspecialchars($errors['title']) : ''; ?>
                     </div>
@@ -91,9 +82,11 @@ $validFields = $validFields ?? [];
                             <i class="bi <?php echo $item->checked ? 'bi-check-circle-fill' : 'bi-circle'; ?>"></i>
                         </div>
                         <input type="text"
-    class="form-control item-control <?php echo ((!$formSubmitted && !empty($errors['items'][$item->id])) ? 'is-invalid' : ''); ?>"
-    name="items[<?php echo $item->id; ?>]" value="<?php echo htmlspecialchars($item->content); ?>"
-    required onkeyup="validateItem(this)">                        <div class="invalid-feedback">
+                            class="form-control item-control"
+                            name="items[<?php echo $item->id; ?>]" value="<?php echo htmlspecialchars($item->content); ?>"
+                            required onkeyup="validateItem(this)"
+                            data-original="<?php echo htmlspecialchars($item->content); ?>">
+                        <div class="invalid-feedback">
                             <?php echo (!empty($errors) && isset($errors['items'][$item->id])) ? htmlspecialchars($errors['items'][$item->id]) : ''; ?>
                         </div>
                         <input type="hidden" name="note_id" value="<?php echo $note->id; ?>">
