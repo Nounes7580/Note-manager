@@ -116,8 +116,7 @@ abstract class Note extends Model
         $stmt = self::execute($sql, ['weight' => $note->getWeight(), 'id' => $note->get__id()]);
         error_log("Updated rows: " . $stmt->rowCount());  // Log the number of updated rows
     }
-    public function moveNotesRight(): bool
-    {
+    public function moveNotesRight(): bool {
         $nextNote = $this->getNextNote();
         if ($nextNote) {
             $this->swapNotes($this, $nextNote);
@@ -125,11 +124,8 @@ abstract class Note extends Model
         }
         return false;
     }
-
-
-
-    public function moveNotesLeft(): bool
-    {
+    
+    public function moveNotesLeft(): bool {
         $previousNote = $this->getPreviousNote();
         if ($previousNote) {
             $this->swapNotes($this, $previousNote);
@@ -137,7 +133,7 @@ abstract class Note extends Model
         }
         return false;
     }
-
+    
 
     public function getNextNote(): ?Note
     {
@@ -178,18 +174,23 @@ abstract class Note extends Model
 
     private function swapNotes(Note $note1, Note $note2): void
     {
-        // Swap the weights of the two notes
-        $tempWeight = $note1->weight;
-        $note1->weight = $note2->weight;
-        $note2->weight = $tempWeight;
+        
+    $temporaryWeight = 1000000;
 
-        // Update the timestamps
-        $note1->edited_at = new DateTime();
-        $note2->edited_at = new DateTime();
+    
+    $originalWeight1 = $note1->weight;
+    $note1->weight = $temporaryWeight;
+    $note1->edited_at = new DateTime();
+    $note1->persist(); 
 
-        // Persist changes to the database
-        $note1->persist();
-        $note2->persist();
+  
+    $note1->weight = $note2->weight;
+    $note1->persist(); 
+
+    
+    $note2->weight = $originalWeight1;
+    $note2->edited_at = new DateTime();
+    $note2->persist(); 
     }
 
 
