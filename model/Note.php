@@ -528,7 +528,7 @@ abstract class Note extends Model
         if (!$this->pinned) {
             $this->pinned = true;
             $this->weight = $this->getNextHighestPinnedWeight();
-            $this->save();
+            $this->persist();
         }
     }
 
@@ -536,7 +536,7 @@ abstract class Note extends Model
         if ($this->pinned) {
             $this->pinned = false;
             $this->weight = $this->getNextHighestWeight();
-            $this->save();
+            $this->persist();
         }
     }
 
