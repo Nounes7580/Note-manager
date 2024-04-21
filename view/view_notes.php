@@ -132,7 +132,7 @@ if(isset($_POST['order'])) {
         <?php if (!empty($pinnedNotes)) : ?>
             
             <h2 class="mb-4">Pinned</h2>
-            <div class="notes-container data =pinned-notes row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3 " data-pinned="true">
+            <div class="notes-container pinned-notes row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3 " data-pinned="true">
           
                 <?php foreach ($pinnedNotes as $note) : ?>
                     
@@ -195,7 +195,7 @@ if(isset($_POST['order'])) {
         <?php if (!empty($otherNotes)) : ?>
             <h2 class="mb-4">Others</h2>
 
-            <div  class="notes-container other_notes row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3"data-pinned="false">
+            <div  class="notes-container other-notes row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3" data-pinned="false">
            
                 <?php foreach ($otherNotes as $note) : ?>
                     

@@ -103,11 +103,13 @@ abstract class Note extends Model
 
     public function save(): void
     {
-        try {
-        } catch (PDOException $e) {
-            // Gérez les erreurs de la base de données ici (par exemple, enregistrez l'erreur)
-            error_log('PDOException dans save : ' . $e->getMessage());
-        }
+        $sql = "UPDATE notes SET weight = :weight, pinned = :pinned WHERE id = :id";
+        $params = [
+            ':weight' => $this->weight,
+            ':pinned' => $this->pinned ? 1 : 0,  // Assurez-vous que la valeur booléenne est convertie correctement pour SQL
+            ':id' => $this->id
+        ];
+        self::execute($sql, $params);  
     }
 
     public function updateNoteWeight(Note $note)
@@ -525,19 +527,18 @@ abstract class Note extends Model
     
   
     public function pin() {
-        if (!$this->pinned) {
             $this->pinned = true;
-            $this->weight = $this->getNextHighestPinnedWeight();
+            $this->weight =Note::get_max_weight_pinned($this->owner) + 1;
             $this->persist();
-        }
+        
     }
 
     public function unpin() {
-        if ($this->pinned) {
+       
             $this->pinned = false;
             $this->weight = $this->getNextHighestWeight();
             $this->persist();
-        }
+        
     }
 
     public function archive() {
@@ -565,7 +566,7 @@ abstract class Note extends Model
         $params = [ 'owner' => $this->owner ];
         $stmt = self::execute($sql, $params);
         $result = $stmt->fetch();
-        return $result ? $result['max_weight'] + 1.0 : 1.0;
+        return $result && $result['max_weight'] !== null ? $result['max_weight'] + 1.0 : 1.0;
     }
 
     private function getNextHighestArchivedWeight(): float {
@@ -573,6 +574,6 @@ abstract class Note extends Model
         $params = [ 'owner' => $this->owner ];
         $stmt = self::execute($sql, $params);
         $result = $stmt->fetch();
-        return $result ? $result['max_weight'] + 1.0 : 1.0;
+        return $result && $result['max_weight'] !== null ? $result['max_weight'] + 1.0 : 1.0;
     }
 }

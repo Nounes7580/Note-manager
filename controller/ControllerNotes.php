@@ -2,9 +2,6 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
 
 
 require_once 'model/User.php';
@@ -751,7 +748,7 @@ class ControllerNotes extends Controller
         }
     }
     public function updateNotesOrderAndPinStatus() {
-      
+        if ($this->user_logged()) {
        
         try {
             $user = $this->get_user_or_redirect();
@@ -765,26 +762,27 @@ class ControllerNotes extends Controller
                 echo json_encode(['status' => 'error', 'message' => 'Invalid drop zone.']);
                 exit;
             }
-    
+        
             if (empty($sortedNoteIds)) {
                 echo json_encode(['status' => 'error', 'message' => 'No notes to update.']);
                 exit;
             }
         
-            $initialWeight = max(Note::get_max_weight_pinned($userId), Note::get_highest_weight_by_owner($userId)) + 1;
+            $initialWeight = max(Note::get_max_weight_pinned($userId), Note::get_highest_weight_by_owner($userId))+10;
             foreach ($sortedNoteIds as $noteId) {
                 $note = Note::get_note_by_id($noteId);
                 if (!$note || $note->owner !== $userId) {
-                    continue; // Skip notes not owned by the user
+                    continue; 
                 }
         
+                
                 $note->weight = $initialWeight++;
                 $note->persist();
         
-                if ($dropZone === "pinned-notes") {
-                    $note->pin();
-                } elseif ($dropZone === "other-notes") {
-                    $note->unpin();
+                if ($dropZone === "pinned-notes" && !$note->isPinned()) {
+                    $note->pin(); // Ceci devrait non seulement mettre à jour la propriété mais aussi persister le changement dans la base de données.
+                } elseif ($dropZone === "other-notes" && $note->isPinned()) {
+                    $note->unpin(); // De même, assurez-vous que le changement est persisté.
                 }
             }
         
@@ -795,6 +793,6 @@ class ControllerNotes extends Controller
         }
     }
     
-    /**test */
+}
 }
 
