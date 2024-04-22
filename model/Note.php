@@ -3,7 +3,8 @@
 require_once "framework/Model.php";
 
 abstract class Note extends Model
-{
+{ 
+    public $type = 'text';
     public string $title;
     public int $owner;
     public DateTime $created_at;

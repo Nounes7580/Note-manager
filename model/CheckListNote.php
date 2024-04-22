@@ -3,6 +3,7 @@ require_once "Note.php";
 
 class CheckListNote extends Note
 {
+    public $type = 'checklist';
     // Assuming no additional properties beyond those in Note
 
     public function __construct(

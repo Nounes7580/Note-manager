@@ -615,25 +615,43 @@ class ControllerNotes extends Controller
 
     public function delete_note(): void
     {
+        header('Content-Type: application/json');
         $user = $this->get_user_or_redirect();
-        $noteId = $_POST['note_id'] ?? $_GET['param1'] ?? null;
-
-        // Vérifier si l'ID de la note est fourni
+        $noteId = $_POST['noteId'] ?? null;  // Utiliser 'noteId' comme votre ami
+    
         if (!$noteId) {
-            $this->redirect("notes/archives");
-            return;
+            $response = ['error' => 'No note ID provided'];
+            echo json_encode($response);
+            exit;
         }
-
-        // Récupérer la note à supprimer
+    
         $note = Note::get_note_by_id($noteId);
-
-
-        // Supprimer la note
-        $note->delete(); // Cette méthode doit être implémentée dans votre classe Note
-
-        // Redirection vers la page des archives après la suppression réussie
-        $this->redirect("notes/archives");
+        if ($note === null) {
+            $response = ['error' => 'Note not found'];
+            echo json_encode($response);
+            return;  // En cas d'erreur, arrêtez l'exécution ici
+        }
+    
+        if ($note->owner !== $user->id) {
+            $response = ['error' => 'Unauthorized'];
+            echo json_encode($response);
+            return;  // En cas d'erreur, arrêtez l'exécution ici
+        }
+    
+        try {
+            $note->delete();
+            $response = ['success' => 'Note deleted successfully'];
+            echo json_encode($response);
+        } catch (Exception $e) {
+            $response = ['error' => 'Failed to delete note: ' . $e->getMessage()];
+            echo json_encode($response);
+        }
     }
+    
+    private function is_ajax_request() {
+        return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+    }
+    
 
 
     public function shared()
