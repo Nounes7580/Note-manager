@@ -35,8 +35,10 @@
 
     <!-- Right aligned icon buttons -->
     <div class="navbar-nav">
-    <button type="button" class="bi bi-file-earmark-x" style="color:red;" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" data-note-id="<?= $note->id ?>"></button>
-
+    <?php
+        $noteType = $note instanceof TextNote ? 'text' : ($note instanceof CheckListNote ? 'checklist' : 'unknown');
+      ?>
+    <button type="button" class="deleteNote bi bi-file-earmark-x" style="color:red;" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" data-note-id="<?= $note->id ?>" data-note-type="<?= $note->type ?>"></button>
 <!-- Modale de confirmation de suppression -->
 <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -50,7 +52,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="button" class="btn btn-danger" id="deleteNote">Supprimer</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Supprimer</button>
             </div>
         </div>
     </div>
@@ -65,7 +67,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="resultMessage">
-                <!-- Le message sera injecté par JavaScript -->
+               la note a bien ete supprimer
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
@@ -84,10 +86,15 @@
     </div>
   </div>
 </nav>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="<?php echo $web_root; ?>JS/modal.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 </body>
 </html>
+
 <div class="container mt-3">
 
 <?php include('utils/util_dates.php'); ?>
