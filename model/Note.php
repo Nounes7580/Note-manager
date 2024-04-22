@@ -104,11 +104,13 @@ abstract class Note extends Model
 
     public function save(): void
     {
-        try {
-        } catch (PDOException $e) {
-            // Gérez les erreurs de la base de données ici (par exemple, enregistrez l'erreur)
-            error_log('PDOException dans save : ' . $e->getMessage());
-        }
+        $sql = "UPDATE notes SET weight = :weight, pinned = :pinned WHERE id = :id";
+        $params = [
+            ':weight' => $this->weight,
+            ':pinned' => $this->pinned ? 1 : 0,  // Assurez-vous que la valeur booléenne est convertie correctement pour SQL
+            ':id' => $this->id
+        ];
+        self::execute($sql, $params);  
     }
 
     public function updateNoteWeight(Note $note)
@@ -516,5 +518,64 @@ abstract class Note extends Model
         $data = $query->fetch();
 
         return $data[0];
+    }
+  
+    public static function get_max_weight_pinned(): float {
+        $sql = "SELECT MAX(weight) AS max_weight FROM notes WHERE pinned = 1 AND archived = 0";
+        $stmt = self::execute($sql, []); 
+        $result = $stmt->fetch();
+        return $result ? (float)$result['max_weight'] : 0;
+    }
+    public static function get_max_weight_other_notes(): float {
+        $sql = "SELECT MAX(weight) AS max_weight FROM notes WHERE pinned = 0 AND archived = 0";
+        $stmt = self::execute($sql, []);  
+        $result = $stmt->fetch();
+        return $result ? (float)$result['max_weight'] : 0;
+    }
+    
+  
+    public function pin() {
+            $this->pinned = true;
+            $this->weight =Note::get_max_weight_pinned($this->owner) + 1;
+            $this->persist();
+        
+    }
+
+    public function unpin() {
+       
+            $this->pinned = false;
+            $this->weight = $this->get_max_weight_other_notes($this->owner)+1 ;
+            $this->persist();
+        
+    }
+
+    public function archive() {
+        if (!$this->archived) {
+            $this->archived = true;
+            $this->unpin(); 
+            $this->weight = $this->getNextHighestArchivedWeight();
+            $this->save();
+        }
+    }
+
+    public function unarchive() {
+        if ($this->archived) {
+            $this->archived = false;
+            $this->weight = $this->getNextHighestWeight();
+            $this->save();
+        }
+    }
+
+    private function getNextHighestWeight(): float {
+        return self::get_highest_weight_by_owner($this->owner) + 1.0;
+    }
+ 
+
+    private function getNextHighestArchivedWeight(): float {
+        $sql = "SELECT MAX(weight) AS max_weight FROM notes WHERE owner = :owner AND archived = 1";
+        $params = [ 'owner' => $this->owner ];
+        $stmt = self::execute($sql, $params);
+        $result = $stmt->fetch();
+        return $result && $result['max_weight'] !== null ? $result['max_weight'] + 1.0 : 1.0;
     }
 }

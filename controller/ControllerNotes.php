@@ -1,6 +1,4 @@
 <?php
-
-// Activez l'affichage des erreurs PHP
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -577,6 +575,11 @@ class ControllerNotes extends Controller
             if ($note) {
                 $note->togglePinned();
                 $note->persist();
+                if ($note->isPinned()) {
+                    $note->unpin();
+                } else {
+                    $note->pin();
+                }
             }
         }
         $this->redirect("notes/show_note/" . $noteId);
@@ -767,4 +770,52 @@ class ControllerNotes extends Controller
             $this->redirect("notes", "share", $noteId);
         }
     }
+    public function updateNotesOrderAndPinStatus() {
+        if ($this->user_logged()) {
+       
+        try {
+            $user = $this->get_user_or_redirect();
+            $userId = $user->get_id();
+            $sortedNoteIds = $_POST['orderedIds'] ?? [];
+            $dropZone = $_POST['dropZone'];
+            
+            // Validez le dropZone pour être sûr qu'il contient des valeurs attendues
+            if ($dropZone !== "pinned-notes" && $dropZone !== "other-notes") {
+                http_response_code(400); // Bad Request
+                echo json_encode(['status' => 'error', 'message' => 'Invalid drop zone.']);
+                exit;
+            }
+        
+            if (empty($sortedNoteIds)) {
+                echo json_encode(['status' => 'error', 'message' => 'No notes to update.']);
+                exit;
+            }
+        
+            $initialWeight = max(Note::get_max_weight_pinned($userId), Note::get_highest_weight_by_owner($userId))+1;
+            foreach ($sortedNoteIds as $noteId) {
+                $note = Note::get_note_by_id($noteId);
+                if (!$note || $note->owner !== $userId) {
+                    continue; 
+                }
+        
+                
+                $note->weight = $initialWeight++;
+                $note->persist();
+        
+                if ($dropZone === "pinned-notes" && !$note->isPinned()) {
+                    $note->pin(); 
+                } elseif ($dropZone === "other-notes" && $note->isPinned()) {
+                    $note->unpin(); 
+                }
+            }
+        
+            echo json_encode(['status' => 'success', 'message' => 'Notes updated successfully.']);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['status' => 'error', 'message' => 'Internal Server Error: ' . $e->getMessage()]);
+        }
+    }
+    
 }
+}
+

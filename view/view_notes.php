@@ -1,3 +1,10 @@
+<?php
+require_once 'model/Note.php'; 
+if(isset($_POST['order'])) {
+  $newOrder = explode(',', $_POST['order']);
+}
+?>
+
 <!DOCTYPE html>
 <?php $pageTitle = "My Notes"; ?>  <!--  une variable pour le titre dans la navbar -->
 <html lang="en" data-bs-theme="dark">
@@ -10,7 +17,7 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-
+    
     <style>
         .card-text {
             overflow: hidden;
@@ -101,13 +108,7 @@
 
     <?php include "navbar.php"; ?>
 
-    <style>
-        .custom-offcanvas {
-            max-width: 50%;
-            /* Adjust the width to your desired value */
-        }
-    </style>
-
+  
 
 
     <div class="container mt-5">
@@ -119,6 +120,7 @@
             <form action="./show_addtextnote" method="post">
                 <input type="hidden" name="title" value="Nouvelle Note">
                 <input type="hidden" name="text" value="Contenu de la note">
+                
                 <button type="submit" class="btn" style="border-radius: 40px; padding: 10px 20px;">
                     <img src="../css/icons8-add-file-48.png" alt="Ajouter">
                 </button>
@@ -128,10 +130,13 @@
 
         <!-- Pinned Notes -->
         <?php if (!empty($pinnedNotes)) : ?>
+            
             <h2 class="mb-4">Pinned</h2>
-            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3">
+            <div class="notes-container pinned-notes row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3 " data-pinned="true">
+          
                 <?php foreach ($pinnedNotes as $note) : ?>
-                    <div class="col-6 col-md-4 mb-3">
+                    
+                    <div class="col-6 col-md-4 mb-3" data-id="<?= $note->id ?>">
                         <div class="card h-100" style="max-width: 18rem;">
                             <div class="card-header"><?= htmlspecialchars($note->title) ?></div>
                             <a href="./show_note/<?= $note->id ?>" class="stretched-link">
@@ -156,6 +161,7 @@
                                 <?php if ($note->getPreviousNote() !== null) : ?>
                                     <form action="./moveNoteLeft" method="post" class="float-start">
                                         <input type="hidden" name="noteId" value="<?= $note->id ?>">
+                                     
                                         <button type="submit" class="btn btn-link text-light-blue">
                                             <i class="bi bi-caret-left-fill"></i>
                                         </button>
@@ -168,6 +174,7 @@
                                 <?php if ($note->getNextNote() !== null) : ?>
                                     <form action="./moveNoteRight" method="post" class="float-end">
                                         <input type="hidden" name="noteId" value="<?= $note->id ?>">
+                                  
                                         <button type="submit" class="btn btn-link text-light-blue">
                                             <i class="bi bi-caret-right-fill"></i>
                                         </button>
@@ -179,15 +186,21 @@
                     </div>
                 <?php endforeach; ?>
             </div>
+           
         <?php endif; ?>
 
-        <!-- Other Notes -->
+       
+
+
         <?php if (!empty($otherNotes)) : ?>
             <h2 class="mb-4">Others</h2>
-            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3">
+
+            <div  class="notes-container other-notes row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3" data-pinned="false">
+           
                 <?php foreach ($otherNotes as $note) : ?>
+                    
                     <?php if (!$note->isArchived()) : ?>
-                        <div class="col-6 col-md-4 mb-3">
+                        <div class="col-6 col-md-4 mb-3" data-id="<?= $note->id ?>">
                             <div class="card h-100" style="max-width: 18rem;">
                                 <div class="card-header"><?= htmlspecialchars($note->title) ?></div>
 
@@ -214,6 +227,7 @@
                                     <?php if ($note->getPreviousNote() !== null) : ?>
                                         <form action="./moveNoteLeft" method="post" class="float-start">
                                             <input type="hidden" name="noteId" value="<?= $note->id ?>">
+                                           
                                             <button type="submit" class="btn btn-link text-light-blue">
                                                 <i class="bi bi-caret-left-fill"></i>
                                             </button>
@@ -226,6 +240,7 @@
                                     <?php if ($note->getNextNote() !== null) : ?>
                                         <form action="./moveNoteRight" method="post" class="float-end">
                                             <input type="hidden" name="noteId" value="<?= $note->id ?>">
+                                           
                                             <button type="submit" class="btn btn-link text-light-blue">
                                                 <i class="bi bi-caret-right-fill"></i>
                                             </button>
@@ -238,14 +253,34 @@
                     <?php endif; ?>
                 <?php endforeach; ?>
             </div>
+            
         <?php elseif (empty($pinnedNotes)) : ?>
             <p>No notes found.</p>
         <?php endif; ?>
     </div>
-    <!-- Bootstrap JS, Popper.js, and jQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    
+    
+    
+
+    <script>
+</script>
+<!-- Dernière version de jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Dernière version de jQuery UI -->
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+<!-- Dernière version de jQuery UI Touch Punch -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+
+<!-- Dernière version de Popper.js (nécessaire pour Bootstrap 5.x) -->
+<script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js"></script>
+
+<!-- Dernière version de Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script> 
+
+
+<script src="../JS/note-management.js"></script>
 </body>
 
 </html>

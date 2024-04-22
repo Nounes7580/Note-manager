@@ -42,7 +42,7 @@
                                     </label>
                                 </div>
 
-                                <!-- Ajoutez d'autres champs si nécessaire -->
+                               
 
                                 <div class="d-grid mb-3">
                                     <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
