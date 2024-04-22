@@ -269,18 +269,27 @@ class ControllerNotes extends Controller
                 (new View("edit_note"))->show(['user' => $user, 'note' => $note, 'errors' => $errors]);
                 return;
             }
+            
 
             $title = $_POST['title'] ?? '';
             $content = $_POST['text'] ?? '';
+            
+            if (!Note::isTitleUnique($title, $user->id, $noteId)) {
+                $errors['title'] = "Ce titre est déjà utilisé. Veuillez en choisir un autre.";
+            }
 
+            if (empty($errors)) {
+                // Mise à jour de la note
+                $note->title = $title;
+                $note->content = $content;
+                $note->edited_at = new DateTime();
+                $note->persistAdd(); // Assurez-vous que cette méthode effectue bien une mise à jour
 
-            // Mise à jour de la note
-            $note->title = $title;
-            $note->content = $content;
-            $note->edited_at = new DateTime();
-            $note->persistAdd(); // Assurez-vous que cette méthode effectue bien une mise à jour
-
-            $this->redirect("notes/show_note/" . $note->id);
+                $this->redirect("notes/show_note/" . $note->id);
+            } else {
+                // Show the form again with the errors
+                (new View("edit_note"))->show(['user' => $user, 'note' => $note, 'errors' => $errors]);
+            }
         }
     }
 
