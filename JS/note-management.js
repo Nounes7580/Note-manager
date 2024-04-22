@@ -22,6 +22,7 @@ $('.notes-container').sortable({
         console.log("Is Currently Pinned:", isCurrentlyPinned);
         console.log("Drop Zone:", dropZone);
         updateNotesOrderAndPinStatus(isPinned,orderedIds, isCurrentlyPinned, originalPinnedStatus, movedNoteId, dropZone);
+        window.location.reload();  
     }
 });
 
