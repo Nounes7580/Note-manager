@@ -63,9 +63,10 @@ $validFields = $validFields ?? [];
 <body>
 <nav class="navbar navbar-expand navbar-custom">
     <div class="container-fluid">
-        <a class="navbar-brand" href="<?php echo $web_root; ?>notes/show_note/<?php echo $note->id; ?>">
-            <i class="bi bi-arrow-left"></i>
-        </a>
+    <button class="navbar-brand btn btn-link" id="backButton" style="color: inherit; text-decoration: none;">
+    <i class="bi bi-arrow-left"></i>
+</button>
+
         <a onclick="document.getElementById('checklisteditForm').submit(); return false;" style="cursor: pointer;">
             <i class="bi bi-floppy2-fill"></i>
         </a>
@@ -127,6 +128,31 @@ $validFields = $validFields ?? [];
 </form>
 
 </div>
+<!-- Fenêtre modale pour avertissement avant de quitter -->
+<div class="modal fade" id="unsavedChangesModal" tabindex="-1" role="dialog" aria-labelledby="unsavedChangesModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="unsavedChangesModalLabel">Modifications non enregistrées</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Des modifications ont été effectuées. Êtes-vous sûr de vouloir quitter sans enregistrer ?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="confirmExitButton">Quitter sans enregistrer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?php echo $web_root; ?>JS/modal.js"></script>
+
+
 </body>
 </html>

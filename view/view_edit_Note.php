@@ -50,14 +50,14 @@ if (!isset($note)) {
     <a href="#"><button type="submit" class="btn-create-note">
         <img src="../css/save-icon-14.png"  />
     </button></a>
-    <a href="javascript:history.back()" class="bi bi-arrow-left">
-        
-    </a>
+    <button class="navbar-brand btn btn-link" id="backButton" style="color: inherit; text-decoration: none;">
+    <i class="bi bi-arrow-left"></i>
+</button>
 </div>
 
     <div class="container container-form"> 
         
-        <form action="./../save_edited_note" method="post">
+        <form id="editTextNoteForm" action="./../save_edited_note" method="post">
         <input type="hidden" name="id" value="<?= htmlspecialchars($note->id) ?>">
 
 <div class="mb-3">
@@ -81,7 +81,29 @@ if (!isset($note)) {
           
         </form>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Fenêtre modale pour avertissement avant de quitter -->
+    <div class="modal fade" id="unsavedChangesModal" tabindex="-1" role="dialog" aria-labelledby="unsavedChangesModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="unsavedChangesModalLabel">Modifications non enregistrées</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Des modifications ont été effectuées. Êtes-vous sûr de vouloir quitter sans enregistrer ?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="confirmExitButton">Quitter sans enregistrer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?php echo $web_root; ?>JS/modal.js"></script>
 </body>
 </html>
 
