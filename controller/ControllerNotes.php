@@ -817,5 +817,75 @@ class ControllerNotes extends Controller
     }
     
 }
+public function manage_labels()
+{
+    $user = $this->get_user_or_redirect();
+    $noteId = $_GET['noteId'] ?? null;
+
+    if (!$noteId) {
+        $errors = ["note" => "No note ID provided for label management."];
+        (new View("error"))->show(["errors" => $errors]);
+        return;
+    }
+
+    $note = Note::get_note_by_id((int)$noteId);
+    if (!$note) {
+        $errors = ["note" => "Note does not exist."];
+        (new View("error"))->show(["errors" => $errors]);
+        return;
+    }
+
+    if ($note->owner != $user->get_id()) {
+        $errors = ["note" => "You do not have the rights to manage labels for this note."];
+        (new View("error"))->show(["errors" => $errors]);
+        return;
+    }
+
+    $labels = $note->getLabels();
+    $allLabels = Note::getAllLabels(); // Supposons une méthode statique qui récupère tous les labels possibles
+    $availableLabels = array_diff($allLabels, $labels); // Calcule les labels qui ne sont pas encore associés à cette note
+
+    (new View("manage_labels"))->show([
+        "note" => $note,
+        "labels" => $labels,
+        "availableLabels" => $availableLabels,
+        "noteId" => $noteId
+    ]);
+}
+
+
+
+
+
+public function labels($noteId) {
+    $note = Note::get_note_by_id($noteId);
+    if (!$note) {
+        $this->redirect('error_page'); // Redirection en cas de note non trouvée
+        return;
+    }
+
+    $labels = $note->getLabels(); // Récupère les labels actuels de la note
+    $allLabels = Note::getAllLabels(); // Supposons une méthode statique qui récupère tous les labels possibles
+    $availableLabels = array_diff($allLabels, $labels); // Calcule les labels qui ne sont pas encore associés à cette note
+
+    (new View("manage_labels"))->show(array("labels" => $labels, "availableLabels" => $availableLabels, "noteId" => $noteId));
+}
+
+public function addLabel() {
+    $noteId = $_POST['noteId'];
+    $label = $_POST['label'];
+    Note::addLabelToNote($noteId, $label);
+    $this->redirect('notes/manage_labels?noteId=' . $noteId);
+}
+
+public function deleteLabel() {
+    $noteId = $_POST['noteId'];
+    $label = $_POST['label'];
+    Note::deleteLabelFromNote($noteId, $label);
+    $this->redirect('notes/manage_labels?noteId=' . $noteId);
+}
+
+
+
 }
 

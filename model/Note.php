@@ -233,29 +233,27 @@ abstract class Note extends Model
         ]);
     }
 
-
     public static function get_note_by_id(int $id): ?Note
     {
         try {
             $sql = 'SELECT n.*, tn.content AS text_content, cn.id AS checklist_id
-            FROM notes n
-            LEFT JOIN text_notes tn ON n.id = tn.id
-            LEFT JOIN checklist_notes cn ON n.id = cn.id
-            WHERE n.id = :id';
-
+                    FROM notes n
+                    LEFT JOIN text_notes tn ON n.id = tn.id
+                    LEFT JOIN checklist_notes cn ON n.id = cn.id
+                    WHERE n.id = :id';
             $stmt = self::execute($sql, ['id' => $id]);
             $row = $stmt->fetch();
+    
+            error_log("get_note_by_id SQL executed for ID $id: " . var_export($row, true));
+    
             if ($row === false) {
+                error_log("No note found with ID $id.");
                 return null;
             }
-
-            // Initialisation de $created_at
+    
             $created_at = isset($row['created_at']) ? new DateTime($row['created_at']) : new DateTime();
-
-            // Initialisation de $edited_at
             $edited_at = isset($row['edited_at']) && $row['edited_at'] ? new DateTime($row['edited_at']) : null;
-
-            // Check if the note is a checklist note
+    
             if (isset($row['checklist_id'])) {
                 return new CheckListNote(
                     title: $row['title'],
@@ -275,7 +273,7 @@ abstract class Note extends Model
                     pinned: $row['pinned'],
                     archived: $row['archived'],
                     weight: $row['weight'],
-                    content: $content, // Make sure this is named as well
+                    content: $content,
                     id: $row['id'],
                     created_at: $created_at,
                     edited_at: $edited_at
@@ -286,6 +284,8 @@ abstract class Note extends Model
             return null;
         }
     }
+    
+    
 
     public static function get_highest_weight_by_owner(int $owner_id): float
     {
@@ -578,4 +578,43 @@ abstract class Note extends Model
         $result = $stmt->fetch();
         return $result && $result['max_weight'] !== null ? $result['max_weight'] + 1.0 : 1.0;
     }
-}
+  
+      
+    public function getLabels(): array
+    {
+        error_log("Fetching labels for note ID: " . $this->id);
+    
+        $sql = "SELECT label FROM note_labels WHERE note = :noteId";
+        $stmt = self::execute($sql, ['noteId' => $this->id]);
+        $labels = [];
+        while ($row = $stmt->fetch()) {
+            $labels[] = $row['label'];
+        }
+    
+        error_log("Labels fetched for note ID " . $this->id . ": " . var_export($labels, true));
+    
+        return $labels;
+    }
+    
+    public static function getAllLabels(): array
+    {
+        $sql = "SELECT DISTINCT label FROM note_labels";
+        $stmt = self::execute($sql, []);
+        $labels = [];
+        while ($row = $stmt->fetch()) {
+            $labels[] = $row['label'];
+        }
+        return $labels;
+    }
+
+    public static function addLabelToNote(int $noteId, string $label): void {
+        $sql = "INSERT INTO note_labels (note, label) VALUES (:note, :label)";
+        self::execute($sql, ['note' => $noteId, 'label' => $label]);
+    }
+
+    public static function deleteLabelFromNote(int $noteId, string $label): void {
+        $sql = "DELETE FROM note_labels WHERE note = :note AND label = :label";
+        self::execute($sql, ['note' => $noteId, 'label' => $label]);
+    }
+    }
+    

@@ -56,6 +56,10 @@
       <a class="nav-link" href="<?php echo $web_root; ?>Notes/share/<?php echo $note->id; ?>">
         <i class="bi bi-share"></i> <!-- Share/connect icon -->
       </a>
+      <a class="nav-link" href="<?php echo $web_root; ?>notes/manage_labels?noteId=<?php echo $note->id; ?>">
+    <i class="bi bi-tags-fill"></i> <!-- Icone de libellés -->
+</a>
+
 
       <!-- Pin/Unpin Form -->
       <form class="nav-form" action="<?php echo $web_root; ?>Notes/pin_or_unpin_note" method="post">
@@ -79,6 +83,7 @@
         <i class="bi bi-pencil"></i> <!-- Pencil icon for editing -->
       </a>
     </div>
+    
 </nav>
 
 
