@@ -817,75 +817,117 @@ class ControllerNotes extends Controller
     }
     
 }
-public function manage_labels()
+
+
+public function manage_labels(): void
 {
-    $user = $this->get_user_or_redirect();
-    $noteId = $_GET['noteId'] ?? null;
+    try {
+        $user = $this->get_user_or_redirect();
+        $noteId = $_GET['param1'] ?? null;
 
-    if (!$noteId) {
-        $errors = ["note" => "No note ID provided for label management."];
-        (new View("error"))->show(["errors" => $errors]);
-        return;
+        if ($noteId) {
+            $note = Note::get_note_by_id((int)$noteId);
+
+            if ($note && $note->owner == $user->get_id()) {
+                $labels = $note->getLabels();
+                $userLabels = Note::getLabelsByUser($user->get_id());
+
+                // Remove labels already associated with the current note
+                $availableLabels = array_diff($userLabels, $labels);
+                sort($availableLabels); // Sort labels lexicographically
+
+                $errors = $_SESSION['errors'] ?? [];
+                unset($_SESSION['errors']);
+                $success = $_SESSION['success'] ?? null;
+                unset($_SESSION['success']);
+                (new View("manage_labels"))->show([
+                    "note" => $note,
+                    "labels" => $labels,
+                    "availableLabels" => $availableLabels,
+                    "errors" => $errors,
+                ]);
+                return;
+            }
+        }
+        $this->redirect("notes");
+    } catch (Exception $e) {
+        echo "Exception caught: " . $e->getMessage() . "<br>";
+    }
+}
+public function add_label(): void
+{
+    try {
+        $user = $this->get_user_or_redirect();
+        $noteId = $_POST['note_id'] ?? null;
+        $label = $_POST['label'] ?? '';
+
+        if ($noteId && $label) {
+            $note = Note::get_note_by_id((int)$noteId);
+
+            if ($note && $note->owner == $user->get_id()) {
+                $errors = $this->validate_label($label, $note->getLabels());
+                if (empty($errors)) {
+                    $note->addLabel($label);
+                    $_SESSION['success'] = "Label added successfully.";
+                } else {
+                    $_SESSION['errors'] = $errors;
+                }
+            }
+        }
+        $this->redirect("notes/manage_labels/" . $noteId);
+    } catch (Exception $e) {
+        echo "Exception caught: " . $e->getMessage() . "<br>";
+    }
+}
+private function validate_label(string $label, array $existingLabels): array
+{
+    $errors = [];
+    $configFilePath = __DIR__ . "/../config/dev.ini";
+
+    if (!file_exists($configFilePath)) {
+        echo "Configuration file not found: $configFilePath";
+        exit;
     }
 
-    $note = Note::get_note_by_id((int)$noteId);
-    if (!$note) {
-        $errors = ["note" => "Note does not exist."];
-        (new View("error"))->show(["errors" => $errors]);
-        return;
+    $config = parse_ini_file($configFilePath, true);
+
+    $minLength = $config['Rules']['label_min_length'];
+    $maxLength = $config['Rules']['label_max_length'];
+
+    if (strlen($label) < $minLength || strlen($label) > $maxLength) {
+        $errors[] = "Label length must be between $minLength and $maxLength characters.";
+    }
+    if (preg_match('/\s/', $label)) {
+        $errors[] = "Labels cannot contain spaces.";
+    }
+    foreach ($existingLabels as $existingLabel) {
+        if (strcasecmp($label, $existingLabel) === 0) {
+            $errors[] = "Label must be unique.";
+            break;
+        }
     }
 
-    if ($note->owner != $user->get_id()) {
-        $errors = ["note" => "You do not have the rights to manage labels for this note."];
-        (new View("error"))->show(["errors" => $errors]);
-        return;
+    return $errors;
+}
+
+public function remove_label(): void
+{
+    try {
+        $user = $this->get_user_or_redirect();
+        $noteId = $_POST['note_id'] ?? null;
+        $label = $_POST['label'] ?? '';
+
+        if ($noteId && $label) {
+            $note = Note::get_note_by_id((int)$noteId);
+
+            if ($note && $note->owner == $user->get_id()) {
+                $note->removeLabel($label);
+            }
+        }
+        $this->redirect("notes/manage_labels/" . $noteId);
+    } catch (Exception $e) {
+        echo "Exception caught: " . $e->getMessage() . "<br>";
     }
-
-    $labels = $note->getLabels();
-    $allLabels = Note::getAllLabels(); // Supposons une méthode statique qui récupère tous les labels possibles
-    $availableLabels = array_diff($allLabels, $labels); // Calcule les labels qui ne sont pas encore associés à cette note
-
-    (new View("manage_labels"))->show([
-        "note" => $note,
-        "labels" => $labels,
-        "availableLabels" => $availableLabels,
-        "noteId" => $noteId
-    ]);
 }
-
-
-
-
-
-public function labels($noteId) {
-    $note = Note::get_note_by_id($noteId);
-    if (!$note) {
-        $this->redirect('error_page'); // Redirection en cas de note non trouvée
-        return;
-    }
-
-    $labels = $note->getLabels(); // Récupère les labels actuels de la note
-    $allLabels = Note::getAllLabels(); // Supposons une méthode statique qui récupère tous les labels possibles
-    $availableLabels = array_diff($allLabels, $labels); // Calcule les labels qui ne sont pas encore associés à cette note
-
-    (new View("manage_labels"))->show(array("labels" => $labels, "availableLabels" => $availableLabels, "noteId" => $noteId));
-}
-
-public function addLabel() {
-    $noteId = $_POST['noteId'];
-    $label = $_POST['label'];
-    Note::addLabelToNote($noteId, $label);
-    $this->redirect('notes/manage_labels?noteId=' . $noteId);
-}
-
-public function deleteLabel() {
-    $noteId = $_POST['noteId'];
-    $label = $_POST['label'];
-    Note::deleteLabelFromNote($noteId, $label);
-    $this->redirect('notes/manage_labels?noteId=' . $noteId);
-}
-
-
-
 }
 

@@ -17,8 +17,6 @@
                     </li>
                 <?php endforeach; ?>
             </ul>
-        <?php else : ?>
-            <p class="text-danger">An unknown error occurred.</p>
         <?php endif; ?>
     </div>
 </body>

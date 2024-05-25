@@ -579,42 +579,36 @@ abstract class Note extends Model
         return $result && $result['max_weight'] !== null ? $result['max_weight'] + 1.0 : 1.0;
     }
   
-      
+    public function addLabel(string $label): void
+    {
+        $sql = "INSERT INTO note_labels (note, label) VALUES (:note, :label)";
+        self::execute($sql, ["note" => $this->id, "label" => $label]);
+    }
+
+    public function removeLabel(string $label): void
+    {
+        $sql = "DELETE FROM note_labels WHERE note = :note AND label = :label";
+        self::execute($sql, ['note' => $this->id, 'label' => $label]);
+    }
+
     public function getLabels(): array
     {
-        error_log("Fetching labels for note ID: " . $this->id);
-    
-        $sql = "SELECT label FROM note_labels WHERE note = :noteId";
-        $stmt = self::execute($sql, ['noteId' => $this->id]);
+        $sql = "SELECT label FROM note_labels WHERE note = :note";
+        $stmt = self::execute($sql, ["note" => $this->id]);
         $labels = [];
         while ($row = $stmt->fetch()) {
             $labels[] = $row['label'];
         }
-    
-        error_log("Labels fetched for note ID " . $this->id . ": " . var_export($labels, true));
-    
         return $labels;
     }
-    
-    public static function getAllLabels(): array
+    public static function getLabelsByUser(int $userId): array
     {
-        $sql = "SELECT DISTINCT label FROM note_labels";
-        $stmt = self::execute($sql, []);
-        $labels = [];
-        while ($row = $stmt->fetch()) {
-            $labels[] = $row['label'];
-        }
+        $sql = 'SELECT DISTINCT label FROM note_labels nl
+                JOIN notes n ON nl.note = n.id
+                WHERE n.owner = :user_id';
+        $stmt = self::execute($sql, ['user_id' => $userId]);
+        $labels = $stmt->fetchAll(PDO::FETCH_COLUMN);
         return $labels;
-    }
-
-    public static function addLabelToNote(int $noteId, string $label): void {
-        $sql = "INSERT INTO note_labels (note, label) VALUES (:note, :label)";
-        self::execute($sql, ['note' => $noteId, 'label' => $label]);
-    }
-
-    public static function deleteLabelFromNote(int $noteId, string $label): void {
-        $sql = "DELETE FROM note_labels WHERE note = :note AND label = :label";
-        self::execute($sql, ['note' => $noteId, 'label' => $label]);
     }
     }
     

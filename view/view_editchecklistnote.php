@@ -97,6 +97,7 @@ $validFields = $validFields ?? [];
         <input type="hidden" name="item_id" value="<?php echo $item->id; ?>">
         <button class="btn btn-delete" type="submit"><i class="bi bi-dash-lg"></i></button>
     </div>
+    
 </form>
 <?php endforeach; ?>
 <?php endif; ?>

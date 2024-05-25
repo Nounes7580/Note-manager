@@ -56,7 +56,7 @@
       <a class="nav-link" href="<?php echo $web_root; ?>Notes/share/<?php echo $note->id; ?>">
         <i class="bi bi-share"></i> <!-- Share/connect icon -->
       </a>
-      <a class="nav-link" href="<?php echo $web_root; ?>notes/manage_labels?noteId=<?php echo $note->id; ?>">
+      <a class="nav-link" href="<?php echo $web_root; ?>notes/manage_labels/<?php echo $note->id; ?>">
     <i class="bi bi-tags-fill"></i> <!-- Icone de libellés -->
 </a>
 
