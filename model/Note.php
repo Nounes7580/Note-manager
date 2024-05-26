@@ -124,6 +124,7 @@ abstract class Note extends Model
         $nextNote = $this->getNextNote();
         if ($nextNote) {
             $this->swapNotes($this, $nextNote);
+            $this->recalculateWeights($this->owner);
             return true;
         }
         return false;
@@ -133,11 +134,20 @@ abstract class Note extends Model
         $previousNote = $this->getPreviousNote();
         if ($previousNote) {
             $this->swapNotes($this, $previousNote);
+            $this->recalculateWeights($this->owner);
             return true;
         }
         return false;
     }
-    
+    public function recalculateWeights(int $ownerId): void
+{
+    $notes = Note::get_notes_by_owner($ownerId);
+    $weight = 1;
+    foreach ($notes as $note) {
+        $note->weight = $weight++;
+        $note->persist();
+    }
+}
 
     public function getNextNote(): ?Note
     {
@@ -179,22 +189,26 @@ abstract class Note extends Model
     private function swapNotes(Note $note1, Note $note2): void
     {
         
-    $temporaryWeight = 1000000;
-
+        $temporaryWeight1 = mt_rand(10000000, 20000000); 
+        $temporaryWeight2 = mt_rand(20000001, 30000000); 
     
-    $originalWeight1 = $note1->weight;
-    $note1->weight = $temporaryWeight;
-    $note1->edited_at = new DateTime();
-    $note1->persist(); 
-
-  
-    $note1->weight = $note2->weight;
-    $note1->persist(); 
-
+        // Assurez-vous que les poids temporaires n'entrent pas en conflit avec d'autres poids
+        $originalWeight1 = $note1->weight;
+        $originalWeight2 = $note2->weight;
     
-    $note2->weight = $originalWeight1;
-    $note2->edited_at = new DateTime();
-    $note2->persist(); 
+        $note1->weight = $temporaryWeight1;
+        $note1->edited_at = new DateTime();
+        $note1->persist();
+    
+        $note2->weight = $temporaryWeight2;
+        $note2->edited_at = new DateTime();
+        $note2->persist();
+    
+        $note1->weight = $originalWeight2;
+        $note1->persist();
+    
+        $note2->weight = $originalWeight1;
+        $note2->persist(); 
     }
 
 

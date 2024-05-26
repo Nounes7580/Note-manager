@@ -50,14 +50,16 @@ class ControllerNotes extends Controller
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note && $note->owner == $user->get_id()) {
-                $note->moveNotesRight(); // Move the note right
+                if ($note->moveNotesRight()) {
+                    $note->recalculateWeights($user->get_id());
+                }
             } else {
                 $this->redirect("error_page");
             }
         }
         $this->redirect("notes");
     }
-
+    
     public function moveNoteLeft()
     {
         $user = $this->get_user_or_redirect(); 
@@ -65,14 +67,15 @@ class ControllerNotes extends Controller
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note && $note->owner == $user->get_id()) {
-                $note->moveNotesLeft(); 
+                if ($note->moveNotesLeft()) {
+                    $note->recalculateWeights($user->get_id());
+                }
             } else {
                 $this->redirect("error_page");
             }
         }
         $this->redirect("notes");
     }
-
 
     public function add_checklistnote(): void
     {
