@@ -13,6 +13,7 @@ abstract class Note extends Model
     public bool $archived;
     public float $weight;
     public ?int $id;
+    public array $labels = [];
 
     public function __construct(
         string $title,

@@ -29,7 +29,10 @@ class ControllerNotes extends Controller
         $otherNotes = array_filter($allNotes, function ($note) {
             return !$note->isPinned();
         });
-
+        foreach ($allNotes as $note) {
+            $note->labels = $note->getLabels();
+        }
+        
         // Pass separated notes to the view
         (new View("notes"))->show([
             "user" => $user,
@@ -604,6 +607,9 @@ class ControllerNotes extends Controller
         $user = $this->get_user_or_redirect();
         $notes = Note::get_notes_by_owner($user->get_id());
         $verif = Note::getSharedNotesByUser($user->get_id());
+        foreach ($notes as $note) {
+            $note->labels = $note->getLabels();
+        }
         (new View("archives"))->show(["user" => $user, "notes" => $notes, "sharedNotes" => $verif]);
     }
 

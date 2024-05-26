@@ -98,7 +98,20 @@ if(isset($_POST['order'])) {
             /* Change le curseur en main lors du survol */
 
         }
-
+        .label-badge {
+            display: inline-block;
+            padding: 0.25em 0.4em;
+            font-size: 75%;
+            font-weight: 700;
+            line-height: 1;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.375rem;
+            background-color: #6c757d;
+            margin-right: 0.25em;
+        }
     </style>
 </head>
 
@@ -154,6 +167,9 @@ if(isset($_POST['order'])) {
                                             <?php endforeach; ?>
                                         </ul>
                                     <?php endif; ?>
+                                    <?php foreach ($note->labels as $label) : ?>
+                                        <span class="label-badge"><?= htmlspecialchars($label) ?></span>
+                                    <?php endforeach; ?>
                                 </div>
                             </a>
                             <div class="card-footer">
@@ -219,7 +235,11 @@ if(isset($_POST['order'])) {
                                                 <?php endforeach; ?>
                                             </ul>
                                         <?php endif; ?>
+                                        <?php foreach ($note->labels as $label) : ?>
+                                        <span class="label-badge"><?= htmlspecialchars($label) ?></span>
+                                    <?php endforeach; ?>
                                     </div>
+
                                 </a>
 
                                 <div class="card-footer">
