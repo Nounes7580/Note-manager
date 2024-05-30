@@ -42,6 +42,24 @@ class ControllerNotes extends Controller
             "sharedNotes" => $verif,
         ]);
     }
+    // controller pour la page search
+    public function search(): void
+    {
+        $user = $this->get_user_or_redirect();
+        $labels = Note::getAllLabels(); // Fetch labels here
+        $notes = Note::get_notes_by_owner($user->get_id());
+        $verif = Note::getSharedNotesByUser($user->get_id());
+        foreach ($notes as $note) {
+            $note->labels = $note->getLabels();
+        }
+        (new View("search"))->show(["user" => $user, "notes" => $notes, "sharedNotes" => $verif, "labels" => $labels]);
+    }
+    public function searchNotesByLabel()
+    {
+        $label = $_POST['label'];
+        $notes = Note::getNotesByLabel($label);
+        require_once '../view/view_search.php';
+    }
 
     public function moveNoteRight()
     {

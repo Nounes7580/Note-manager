@@ -616,6 +616,33 @@ abstract class Note extends Model
         }
         return $labels;
     }
+
+    public static function getAllLabels(): array
+{
+    try {
+        $sql = 'SELECT DISTINCT label FROM note_labels';  // Updated to correct table name
+        $stmt = self::execute($sql, []);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_column($rows, 'label');
+    } catch (PDOException $e) {
+        error_log('PDOException in getAllLabels: ' . $e->getMessage());
+        return [];
+    }
+}
+
+        
+    public static function getNotesByLabel(string $label): array
+    {
+        try {
+            $sql = 'SELECT n.* FROM notes n JOIN note_labels nl ON n.id = nl.note_id JOIN labels l ON nl.label_id = l.id WHERE l.label = :label';
+            $stmt = self::execute($sql, ['label' => $label]);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return array_map([self::class, 'createFromRow'], $rows);
+        } catch (PDOException $e) {
+            error_log('PDOException in getNotesByLabel: ' . $e->getMessage());
+            return [];
+        }
+    }
     public static function getLabelsByUser(int $userId): array
     {
         $sql = 'SELECT DISTINCT label FROM note_labels nl
