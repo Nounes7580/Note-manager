@@ -629,29 +629,38 @@ abstract class Note extends Model
 }
 
         
-public static function getNotesByLabel(string $label): array
+public static function getNotesByLabels(array $labels): array
 {
-    try {
-        $sql = 'SELECT n.*, tn.content AS text_content, cn.id AS checklist_id
-                FROM notes n
-                LEFT JOIN text_notes tn ON n.id = tn.id
-                LEFT JOIN checklist_notes cn ON n.id = cn.id
-                JOIN note_labels nl ON n.id = nl.note
-                WHERE nl.label = :label';
-        $stmt = self::execute($sql, ['label' => $label]);
-        $notes = [];
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $note = self::createFromRow($row);
-            if ($note !== null) {
-                $note->labels = self::getLabelsForNoteId($note->id);
-                $notes[] = $note;
-            }
-        }
-        return $notes;
-    } catch (PDOException $e) {
-        error_log('PDOException in getNotesByLabel: ' . $e->getMessage());
+    if (empty($labels)) {
         return [];
     }
+
+    $placeholders = implode(',', array_fill(0, count($labels), '?'));
+    $sql = "
+        SELECT n.*, tn.content AS text_content, cn.id AS checklist_id
+        FROM notes n
+        LEFT JOIN text_notes tn ON n.id = tn.id
+        LEFT JOIN checklist_notes cn ON n.id = cn.id
+        JOIN (
+            SELECT note
+            FROM note_labels
+            WHERE label IN ($placeholders)
+            GROUP BY note
+            HAVING COUNT(DISTINCT label) = ?
+        ) nl ON n.id = nl.note
+    ";
+
+    $stmt = self::execute($sql, array_merge($labels, [count($labels)]));
+
+    $notes = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $note = self::createFromRow($row);
+        if ($note !== null) {
+            $note->labels = self::getLabelsForNoteId($note->id);
+            $notes[] = $note;
+        }
+    }
+    return $notes;
 }
 
 private static function getLabelsForNoteId(int $noteId): array

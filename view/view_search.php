@@ -77,6 +77,11 @@
             background-color: #6c757d;
             margin-right: 0.25em;
         }
+
+        /* Hide the search button when JavaScript is enabled */
+        .js-enabled #search-button {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -99,6 +104,10 @@
                 echo '<p>No labels found</p>';
             }
             ?>
+            <!-- Search button for non-JavaScript users -->
+            <div class="col-12">
+                <button type="submit" id="search-button" class="btn btn-primary">Search</button>
+            </div>
         </form>
 
         <div id="notes-container">
@@ -147,6 +156,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function() {
+            $('body').addClass('js-enabled');
             // Add change event listener to checkboxes
             $('.form-check-input').change(function() {
                 // Get the form data
