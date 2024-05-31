@@ -221,24 +221,24 @@ if(isset($_POST['order'])) {
                                 <div class="card-header"><?= htmlspecialchars($note->title) ?></div>
 
                                 <a href="./show_note/<?= $note->id ?>" class="stretched-link">
-                                    <div class="card-body">
-                                        <?php if ($note instanceof TextNote) : ?>
-                                            <p class="card-text"><?= nl2br(htmlspecialchars($note->getTruncatedContent())) ?></p>
+                                <div class="card-body">
+                                <?php if ($note instanceof TextNote): ?>
+                                    <p class="card-text"><?= nl2br(htmlspecialchars($note->getTruncatedContent())) ?></p>
+                                <?php elseif ($note instanceof CheckListNote): ?>
+                                    <ul class="list-group list-group-flush">
+                                        <?php foreach ($note->getItems() as $item): ?>
+                                            <div class="checkbox-item">
+                                                <input class="form-check-input me-1" type="checkbox" <?= $item->checked ? 'checked' : '' ?> disabled>
+                                                <?= htmlspecialchars($item->content) ?>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                <?php endif; ?>
+                                <?php foreach ($note->labels as $label): ?>
+                                    <span class="label-badge"><?= htmlspecialchars($label) ?></span>
+                                <?php endforeach; ?>
+                            </div>
 
-                                        <?php elseif ($note instanceof CheckListNote) : ?>
-                                            <ul class="list-group list-group-flush">
-                                                <?php foreach ($note->getItems() as $item) : ?>
-                                                    <div class="checkbox-item">
-                                                        <input class="form-check-input me-1" type="checkbox" <?= $item->checked ? 'checked' : '' ?> disabled>
-                                                        <?= htmlspecialchars($item->content) ?>
-                                                    </div>
-                                                <?php endforeach; ?>
-                                            </ul>
-                                        <?php endif; ?>
-                                        <?php foreach ($note->labels as $label) : ?>
-                                        <span class="label-badge"><?= htmlspecialchars($label) ?></span>
-                                    <?php endforeach; ?>
-                                    </div>
 
                                 </a>
 
