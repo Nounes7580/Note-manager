@@ -87,7 +87,7 @@ if (!isset($note)) {
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="unsavedChangesModalLabel">Modifications non enregistrées</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -95,6 +95,7 @@ if (!isset($note)) {
                 Des modifications ont été effectuées. Êtes-vous sûr de vouloir quitter sans enregistrer ?
             </div>
             <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" id="cancelButton" data-bs-dismiss="modal">Annuler</button>
                 <button type="button" class="btn btn-primary" id="confirmExitButton">Quitter sans enregistrer</button>
             </div>
         </div>
