@@ -83,7 +83,7 @@
     <?php include('navbar.php'); ?>
     <div class="container">
         <h1>Search Notes by Label</h1>
-        <form method="post" action="./searchNotesByLabel" class="row g-3">
+        <form method="post" action="./searchNotesByLabel" class="row g-3" id="label-form">
             <?php
             if (!empty($labels)) {
                 foreach ($labels as $label) {
@@ -99,52 +99,74 @@
                 echo '<p>No labels found</p>';
             }
             ?>
-            <div class="col-12">
-                <input type="submit" value="Search" class="btn btn-primary">
-            </div>
         </form>
 
-        <?php if (!empty($selectedLabels)): ?>
-            <?php if (!empty($notes)): ?>
-                <!-- Display notes in cards -->
-                <h2 class="mt-4">Search Results</h2>
-                <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3">
-                    <?php foreach ($notes as $note): ?>
-                        <div class="col-6 col-md-4 mb-3" data-id="<?= $note->id ?>">
-                            <div class="card h-100" style="max-width: 18rem;">
-                                <div class="card-header"><?= htmlspecialchars($note->title) ?></div>
-                                <a href="<?php echo $web_root; ?>notes/show_note/<?= $note->id ?>" class="stretched-link">
-                                    <div class="card-body">
-                                        <?php if ($note instanceof TextNote): ?>
-                                            <p class="card-text"><?= nl2br(htmlspecialchars($note->getTruncatedContent())) ?></p>
-                                        <?php elseif ($note instanceof CheckListNote): ?>
-                                            <ul class="list-group list-group-flush">
-                                                <?php foreach ($note->getItems() as $item): ?>
-                                                    <div class="checkbox-item">
-                                                        <input class="form-check-input me-1" type="checkbox" <?= $item->checked ? 'checked' : '' ?> disabled>
-                                                        <?= htmlspecialchars($item->content) ?>
-                                                    </div>
-                                                <?php endforeach; ?>
-                                            </ul>
-                                        <?php endif; ?>
-                                        <?php foreach ($note->labels as $label): ?>
-                                            <span class="label-badge"><?= htmlspecialchars($label) ?></span>
-                                        <?php endforeach; ?>
-                                    </div>
-                                </a>
+        <div id="notes-container">
+            <?php if (!empty($selectedLabels)): ?>
+                <?php if (!empty($notes)): ?>
+                    <!-- Display notes in cards -->
+                    <h2 class="mt-4">Search Results</h2>
+                    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 g-md-2 g-lg-3">
+                        <?php foreach ($notes as $note): ?>
+                            <div class="col-6 col-md-4 mb-3" data-id="<?= $note->id ?>">
+                                <div class="card h-100" style="max-width: 18rem;">
+                                    <div class="card-header"><?= htmlspecialchars($note->title) ?></div>
+                                    <a href="<?php echo $web_root; ?>notes/show_note/<?= $note->id ?>" class="stretched-link">
+                                        <div class="card-body">
+                                            <?php if ($note instanceof TextNote): ?>
+                                                <p class="card-text"><?= nl2br(htmlspecialchars($note->getTruncatedContent())) ?></p>
+                                            <?php elseif ($note instanceof CheckListNote): ?>
+                                                <ul class="list-group list-group-flush">
+                                                    <?php foreach ($note->getItems() as $item): ?>
+                                                        <div class="checkbox-item">
+                                                            <input class="form-check-input me-1" type="checkbox" <?= $item->checked ? 'checked' : '' ?> disabled>
+                                                            <?= htmlspecialchars($item->content) ?>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                </ul>
+                                            <?php endif; ?>
+                                            <?php foreach ($note->labels as $label): ?>
+                                                <span class="label-badge"><?= htmlspecialchars($label) ?></span>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </a>
+                                </div>
                             </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <p>No notes found for selected labels.</p>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <p>No notes found for selected labels.</p>
+                <?php endif; ?>
             <?php endif; ?>
-        <?php endif; ?>
+        </div>
     </div>
 
     <!-- Bootstrap JS, Popper.js, and jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@2.9.2/dist/js/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Add change event listener to checkboxes
+            $('.form-check-input').change(function() {
+                // Get the form data
+                var formData = $('#label-form').serialize();
+
+                // Send AJAX request to searchNotesByLabel
+                $.ajax({
+                    url: './searchNotesByLabel',
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        // Update the notes container with the response
+                        $('#notes-container').html($(response).find('#notes-container').html());
+                    },
+                    error: function() {
+                        console.error('An error occurred during the AJAX request');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
