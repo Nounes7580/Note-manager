@@ -24,12 +24,28 @@ class CheckListNoteItem extends Model {
         $this->id = $id;
     }
 
-    private function validateContent(string $content): string {
+    public static function isContentUnique(int $checklist_note_id, string $content, ?int $item_id = null): bool {
+        // Prepare the SQL query to check for existing content in the same checklist note
+        $sql = "SELECT COUNT(*) FROM checklist_note_items WHERE checklist_note = :checklist_note_id AND content = :content";
+        $params = ['checklist_note_id' => $checklist_note_id, 'content' => $content];
+    
+        // Exclude the current item if updating
+        if ($item_id !== null) {
+            $sql .= " AND id != :item_id";
+            $params['item_id'] = $item_id;
+        }
+    
+        $stmt = self::execute($sql, $params);
+        return $stmt->fetchColumn() == 0;  // Return true if no duplicates found
+    }
+
+    function validateContent($content) {
         if (strlen($content) < 1 || strlen($content) > 60) {
-            throw new InvalidArgumentException('Content must be between 1 and 60 characters long.');
+            return "Content must be between 1 and 60 characters long.";
         }
         return $content;
     }
+  
     public function toggleChecked() {
         $this->checked = !$this->checked;
         Note::updateEditedAt($this->checklist_note_id);

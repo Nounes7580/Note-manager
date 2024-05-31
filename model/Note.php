@@ -52,6 +52,17 @@ abstract class Note extends Model
 
 
     }
+    public static function isTitleUnique(string $title, int $owner_id, ?int $note_id = null): bool
+{
+    $sql = 'SELECT COUNT(*) FROM notes WHERE title = :title AND owner = :owner_id';
+    $params = ['title' => $title, 'owner_id' => $owner_id];
+    if ($note_id !== null) {
+        $sql .= ' AND id != :note_id';
+        $params['note_id'] = $note_id;
+    }
+    $stmt = self::execute($sql, $params);
+    return $stmt->fetchColumn() == 0;
+}
 
     public function toggleArchived(): void
     {

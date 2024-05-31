@@ -304,18 +304,27 @@ class ControllerNotes extends Controller
                 (new View("edit_note"))->show(['user' => $user, 'note' => $note, 'errors' => $errors]);
                 return;
             }
+            
 
             $title = $_POST['title'] ?? '';
             $content = $_POST['text'] ?? '';
+            
+            if (!Note::isTitleUnique($title, $user->id, $noteId)) {
+                $errors['title'] = "Ce titre est déjà utilisé. Veuillez en choisir un autre.";
+            }
 
+            if (empty($errors)) {
+                // Mise à jour de la note
+                $note->title = $title;
+                $note->content = $content;
+                $note->edited_at = new DateTime();
+                $note->persistAdd(); // Assurez-vous que cette méthode effectue bien une mise à jour
 
-            // Mise à jour de la note
-            $note->title = $title;
-            $note->content = $content;
-            $note->edited_at = new DateTime();
-            $note->persistAdd(); // Assurez-vous que cette méthode effectue bien une mise à jour
-
-            $this->redirect("notes/show_note/" . $note->id);
+                $this->redirect("notes/show_note/" . $note->id);
+            } else {
+                // Show the form again with the errors
+                (new View("edit_note"))->show(['user' => $user, 'note' => $note, 'errors' => $errors]);
+            }
         }
     }
 
@@ -392,53 +401,85 @@ class ControllerNotes extends Controller
 
 
 
-    public function editchecklistnote()
-    {
-        $user = $this->get_user_or_redirect();
-        $noteId = $_GET['param1'] ?? null;
-        $errors = $_SESSION['errors'] ?? []; // Récupérer les erreurs de la session
-        unset($_SESSION['errors']);
-        $validFields = [];
+  public function editchecklistnote()
+{
+    $user = $this->get_user_or_redirect();
+    $noteId = $_GET['param1'] ?? null;
+    $errors = $_SESSION['errors'] ?? []; // Récupérer les erreurs de la session
+    unset($_SESSION['errors']);
+    $validFields = [];
 
-        if ($noteId) {
-            $note = CheckListNote::get_note_by_id((int)$noteId);
-            $isEditor = NoteShare::isUserEditor($user->id, $noteId); // Méthode hypothétique
+    if ($noteId) {
+        $note = CheckListNote::get_note_by_id((int)$noteId);
 
+        if ($note && $note instanceof CheckListNote && ($note->owner == $user->get_id() )) {
+            $editedItems = isset($_SESSION['checklist_items'][$noteId]) ? $_SESSION['checklist_items'][$noteId] : [];
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $title = $_POST['title'] ?? '';
+                $validFields['title'] = true;
 
-            if ($note && $note instanceof CheckListNote && ($note->owner == $user->get_id() || $isEditor)) {
-                $editedItems = isset($_SESSION['checklist_items'][$noteId]) ? $_SESSION['checklist_items'][$noteId] : [];
-                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                    $title = $_POST['title'] ?? '';
-                    $validFields['title'] = true;
-
-                    if (empty($title)) {
-                        $errors['title'] = "Le titre est requis.";
-                        $validFields['title'] = false;
-                    } elseif (strlen($title) < 3 || strlen($title) > 25) {
-                        $errors['title'] = "Le titre doit contenir entre 3 et 25 caractères.";
-                        $validFields['title'] = false;
-                    }
-
-                    $newEditedItems = [];
-                    $i = 1;
-                    while (isset($_POST["item$i"])) {
-                        $newEditedItems[] = trim($_POST["item$i"]);
-                        $i++;
-                    }
-                    $_SESSION['checklist_items'][$noteId] = $newEditedItems;
-                    $editedItems = $newEditedItems;
+                if (empty($title)) {
+                    $errors['title'] = "Le titre est requis.";
+                    $validFields['title'] = false;
+                } elseif (strlen($title) < 3 || strlen($title) > 25) {
+                    $errors['title'] = "Le titre doit contenir entre 3 et 25 caractères.";
+                    $validFields['title'] = false;
                 }
 
-                $data = [
-                    'note' => $note,
-                    'editedItems' => $editedItems,
-                    'errors' => $errors,
-                    'validFields' => $validFields
-                ];
-                (new View("editchecklistnote"))->show($data);
+                $newEditedItems = [];
+                $i = 1;
+                while (isset($_POST["item$i"])) {
+                    $item = trim($_POST["item$i"]);
+                    if (in_array($item, $newEditedItems)) {
+                        $errors["item$i"] = "L'élément doit être unique parmi les autres éléments de la note.";
+                        $validFields["item$i"] = false;
+                    } elseif (strlen($item) < 1 || strlen($item) > 60) {
+                        $errors["item$i"] = "La longueur de l'élément doit être comprise entre 1 et 60.";
+                        $validFields["item$i"] = false;
+                    } else {
+                        $newEditedItems[] = $item;
+                        $validFields["item$i"] = true;
+                    }
+                    $i++;
+                }
+                $_SESSION['checklist_items'][$noteId] = $newEditedItems;
+                $editedItems = $newEditedItems;
             }
+
+            $data = [
+                'note' => $note,
+                'editedItems' => $editedItems,
+                'errors' => $errors,
+                'validFields' => $validFields
+            ];
+            (new View("editchecklistnote"))->show($data);
         }
     }
+}
+
+public function check_title_uniqueness() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['title'])) {
+        header('Content-Type: application/json');  // Ensure the response is treated as JSON
+
+        $user = $this->get_user_or_redirect();
+        $title = $_POST['title'];
+        $noteId = $_POST['noteId'] ?? null;
+
+        error_log("Received title: $title");
+        error_log("Received noteId: " . ($noteId ?? "null"));
+
+        $isUnique = Note::isTitleUnique($title, $user->get_id(), $noteId);
+        error_log("Is title unique? " . ($isUnique ? "Yes" : "No"));
+
+        echo json_encode(['isUnique' => $isUnique]);
+    } else {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid request']);
+    }
+    exit;
+}
+
+
 
     public function add_checklist_item(): void
     {
@@ -525,6 +566,7 @@ class ControllerNotes extends Controller
 
         $this->redirect("notes", "editchecklistnote", $noteId);
     }
+    
     public function save_edited_checklistnote(): void
     {
         $user = $this->get_user_or_redirect();
@@ -533,52 +575,54 @@ class ControllerNotes extends Controller
             $title = $_POST['title'] ?? '';
             $items = $_POST['items'] ?? [];
             $errors = [];
+            
             if (empty($title)) {
                 $errors['title'] = "Le titre est requis.";
             } elseif (strlen($title) < 3 || strlen($title) > 25) {
                 $errors['title'] = "Le titre doit contenir entre 3 et 25 caractères.";
             }
-
+    
+            // Check title uniqueness, except for the note currently being edited
+            if (empty($errors) && !Note::isTitleUnique($title, $user->id, $noteId)) {
+                $errors['title'] = "Ce titre est déjà utilisé. Veuillez en choisir un autre.";
+            }
+    
+            // Check each item's content for uniqueness
+            foreach ($items as $itemId => $itemContent) {
+                if (!CheckListNoteItem::isContentUnique($noteId, $itemContent, $itemId)) {
+                    $errors['items'][$itemId] = "Le contenu de l'élément doit être unique dans la checklist.";
+                }
+            }
+    
             if (!empty($errors)) {
-                // S'il y a des erreurs, réutiliser la méthode editchecklistnote
-                $_SESSION['errors'] = $errors; // Stocker les erreurs dans la session
+                $_SESSION['errors'] = $errors;
                 $this->redirect("notes", "editchecklistnote", $noteId);
                 return;
             }
+    
             if ($noteId) {
                 $note = CheckListNote::get_note_by_id($noteId);
                 $isEditor = NoteShare::isUserEditor($user->id, $noteId);
-
-                if ($note && $note->owner == $user->get_id() || $isEditor) {
+    
+                if ($note && ($note->owner == $user->get_id() || $isEditor)) {
                     $note->title = $title;
                     $note->edited_at = new DateTime();
                     $note->persist();
-
-                    foreach ($items as $itemData) {
-                        $itemId = $itemData['id'] ?? null;
-                        $itemContent = $itemData['content'] ?? '';
-                        $itemChecked = isset($itemData['checked']) && $itemData['checked'] == 'on';
-
-                        if ($itemId) {
-                            $item = CheckListNoteItem::get_item_by_id($itemId);
-                            if ($item && $item->checklist_note_id == $noteId) {
-                                $item->content = $itemContent;
-                                $item->checked = $itemChecked;
-                                $item->persist();
-                            }
+    
+                    foreach ($items as $itemId => $itemContent) {
+                        $item = CheckListNoteItem::get_item_by_id($itemId);
+                        if ($item && $item->checklist_note_id == $noteId) {
+                            $item->content = $itemContent;
+                            $item->persist();
                         }
                     }
-
-
+    
                     $this->redirect("notes/show_note/" . $noteId);
-                } else {
                 }
-            } else {
-                // Redirection ou affichage d'un message d'erreur si noteId n'est pas défini
             }
         }
     }
-
+        
 
 
 
