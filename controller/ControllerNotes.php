@@ -611,17 +611,17 @@ class ControllerNotes extends Controller
 
     public function pin_or_unpin_note()
     {
-        $noteId = $_POST['noteId'] ?? null; // correction du get à $_POST
+        $noteId = $_POST['noteId'] ?? null;
         if ($noteId) {
             $note = Note::get_note_by_id((int)$noteId);
             if ($note) {
-                $note->togglePinned();
-                $note->persist();
+                // Toggle the pinned state
                 if ($note->isPinned()) {
                     $note->unpin();
                 } else {
                     $note->pin();
                 }
+                $note->persist(); // Save changes to the database
             }
         }
         $this->redirect("notes/show_note/" . $noteId);
