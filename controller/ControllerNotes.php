@@ -55,11 +55,29 @@ class ControllerNotes extends Controller
         (new View("search"))->show(["user" => $user, "notes" => $notes, "sharedNotes" => $verif, "labels" => $labels]);
     }
     public function searchNotesByLabel()
-    {
-        $label = $_POST['label'];
-        $notes = Note::getNotesByLabel($label);
-        require_once '../view/view_search.php';
+{
+    $labels = Note::getAllLabels();
+    $selectedLabels = $_POST['labels'] ?? [];
+    $notes = [];
+    if (!empty($selectedLabels)) {
+        foreach ($selectedLabels as $label) {
+            $notesFromLabel = Note::getNotesByLabel($label);
+            foreach ($notesFromLabel as $note) {
+                $notes[$note->id] = $note;  // Assurez-vous d'éviter les doublons
+            }
+        }
     }
+    (new View("search"))->show([
+        "notes" => array_values($notes),
+        "labels" => $labels,
+        "selectedLabels" => $selectedLabels
+    ]);
+}
+
+    
+    
+
+
 
     public function moveNoteRight()
     {

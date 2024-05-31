@@ -66,12 +66,10 @@ abstract class Note extends Model
             return null;
         }
 
-        // Assuming $row['type'] can be 'text' or 'checklist' to differentiate the note types
         $created_at = isset($row['created_at']) ? new DateTime($row['created_at']) : new DateTime();
         $edited_at = isset($row['edited_at']) && $row['edited_at'] ? new DateTime($row['edited_at']) : null;
 
         if (isset($row['checklist_id'])) {
-            // Return a CheckListNote instance
             return new CheckListNote(
                 title: $row['title'],
                 owner: $row['owner'],
@@ -83,8 +81,7 @@ abstract class Note extends Model
                 edited_at: $edited_at
             );
         } else {
-            // Return a TextNote instance
-            $content = $row['content'] ?? '';
+            $content = $row['text_content'] ?? '';
             return new TextNote(
                 title: $row['title'],
                 owner: $row['owner'],
@@ -98,6 +95,7 @@ abstract class Note extends Model
             );
         }
     }
+
     public function get__id(): int
     {
         return $this->id;
@@ -631,18 +629,44 @@ abstract class Note extends Model
 }
 
         
-    public static function getNotesByLabel(string $label): array
-    {
-        try {
-            $sql = 'SELECT n.* FROM notes n JOIN note_labels nl ON n.id = nl.note_id JOIN labels l ON nl.label_id = l.id WHERE l.label = :label';
-            $stmt = self::execute($sql, ['label' => $label]);
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            return array_map([self::class, 'createFromRow'], $rows);
-        } catch (PDOException $e) {
-            error_log('PDOException in getNotesByLabel: ' . $e->getMessage());
-            return [];
+public static function getNotesByLabel(string $label): array
+{
+    try {
+        $sql = 'SELECT n.*, tn.content AS text_content, cn.id AS checklist_id
+                FROM notes n
+                LEFT JOIN text_notes tn ON n.id = tn.id
+                LEFT JOIN checklist_notes cn ON n.id = cn.id
+                JOIN note_labels nl ON n.id = nl.note
+                WHERE nl.label = :label';
+        $stmt = self::execute($sql, ['label' => $label]);
+        $notes = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $note = self::createFromRow($row);
+            if ($note !== null) {
+                $note->labels = self::getLabelsForNoteId($note->id);
+                $notes[] = $note;
+            }
         }
+        return $notes;
+    } catch (PDOException $e) {
+        error_log('PDOException in getNotesByLabel: ' . $e->getMessage());
+        return [];
     }
+}
+
+private static function getLabelsForNoteId(int $noteId): array
+{
+    $sql = 'SELECT label FROM note_labels WHERE note = :noteId';
+    $stmt = self::execute($sql, ['noteId' => $noteId]);
+    $labels = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $labels[] = $row['label'];
+    }
+    return $labels;
+}
+
+
+
     public static function getLabelsByUser(int $userId): array
     {
         $sql = 'SELECT DISTINCT label FROM note_labels nl
