@@ -129,35 +129,7 @@ abstract class Note extends Model
         $stmt = self::execute($sql, ['weight' => $note->getWeight(), 'id' => $note->get__id()]);
         error_log("Updated rows: " . $stmt->rowCount());  // Log the number of updated rows
     }
-    public function moveNotesRight(): bool {
-        $nextNote = $this->getNextNote();
-        if ($nextNote) {
-            $this->swapNotes($this, $nextNote);
-            $this->recalculateWeights($this->owner);
-            return true;
-        }
-        return false;
-    }
-    
-    public function moveNotesLeft(): bool {
-        $previousNote = $this->getPreviousNote();
-        if ($previousNote) {
-            $this->swapNotes($this, $previousNote);
-            $this->recalculateWeights($this->owner);
-            return true;
-        }
-        return false;
-    }
-    public function recalculateWeights(int $ownerId): void
-{
-    $notes = Note::get_notes_by_owner($ownerId);
-    $weight = 1;
-    foreach ($notes as $note) {
-        $note->weight = $weight++;
-        $note->persist();
-    }
-}
-
+ 
     public function getNextNote(): ?Note
     {
         try {
@@ -194,31 +166,6 @@ abstract class Note extends Model
         }
     }
 
-
-    private function swapNotes(Note $note1, Note $note2): void
-    {
-        
-        $temporaryWeight1 = mt_rand(10000000, 20000000); 
-        $temporaryWeight2 = mt_rand(20000001, 30000000); 
-    
-        // Assurez-vous que les poids temporaires n'entrent pas en conflit avec d'autres poids
-        $originalWeight1 = $note1->weight;
-        $originalWeight2 = $note2->weight;
-    
-        $note1->weight = $temporaryWeight1;
-        $note1->edited_at = new DateTime();
-        $note1->persist();
-    
-        $note2->weight = $temporaryWeight2;
-        $note2->edited_at = new DateTime();
-        $note2->persist();
-    
-        $note1->weight = $originalWeight2;
-        $note1->persist();
-    
-        $note2->weight = $originalWeight1;
-        $note2->persist(); 
-    }
 
 
 
@@ -558,21 +505,6 @@ abstract class Note extends Model
     }
     
   
-    public function pin() {
-            $this->pinned = true;
-            $this->weight =Note::get_max_weight_pinned($this->owner) + 1;
-            $this->persist();
-        
-    }
-
-    public function unpin() {
-       
-            $this->pinned = false;
-            $this->weight = $this->get_max_weight_other_notes($this->owner)+1 ;
-            $this->persist();
-        
-    }
-
     public function archive() {
         if (!$this->archived) {
             $this->archived = true;
@@ -581,6 +513,79 @@ abstract class Note extends Model
             $this->save();
         }
     }
+    private function swapNotes(Note $note1, Note $note2): void {
+        $temporaryWeight = mt_rand(10000000, 20000000);  // Temporary unique weight to avoid conflicts
+        $note1OriginalWeight = $note1->weight;
+        $note2OriginalWeight = $note2->weight;
+    
+        // Step 1: Set a temporary weight for note1
+        $note1->weight = $temporaryWeight;
+        $note1->persist();
+    
+        // Step 2: Set note1's original weight to note2
+        $note2->weight = $note1OriginalWeight;
+        $note2->persist();
+    
+        // Step 3: Set note2's original weight to note1
+        $note1->weight = $note2OriginalWeight;
+        $note1->persist();
+    }
+    
+    public function moveNotesRight(): bool {
+        $nextNote = $this->getNextNote();
+        if ($nextNote) {
+            $this->swapNotes($this, $nextNote);
+            $this->recalculateWeights($this->owner);
+            return true;
+        }
+        return false;
+    }
+    
+    public function moveNotesLeft(): bool {
+        $previousNote = $this->getPreviousNote();
+        if ($previousNote) {
+            $this->swapNotes($this, $previousNote);
+            $this->recalculateWeights($this->owner);
+            return true;
+        }
+        return false;
+    }
+    
+    public function recalculateWeights(int $ownerId): void {
+        $notes = Note::get_notes_by_owner($ownerId);
+        $weight = 1;
+        foreach ($notes as $note) {
+            $note->weight = $weight++;
+            $note->persist();
+        }
+    }
+    
+    public function pin() {
+        $this->pinned = true;
+        $this->weight = $this->getNextHighestPinnedWeight();
+        $this->persist();
+    }
+    
+    public function unpin() {
+        $this->pinned = false;
+        $this->weight = $this->getNextHighestOtherWeight();
+        $this->persist();
+    }
+    
+    private function getNextHighestPinnedWeight(): float {
+        $sql = "SELECT COALESCE(MAX(weight), 0) + 1 AS max_weight FROM notes WHERE pinned = 1 AND archived = 0 AND owner = :owner";
+        $stmt = self::execute($sql, ['owner' => $this->owner]);
+        $result = $stmt->fetch();
+        return $result ? (float)$result['max_weight'] : 1.0;
+    }
+    
+    private function getNextHighestOtherWeight(): float {
+        $sql = "SELECT COALESCE(MAX(weight), 0) + 1 AS max_weight FROM notes WHERE pinned = 0 AND archived = 0 AND owner = :owner";
+        $stmt = self::execute($sql, ['owner' => $this->owner]);
+        $result = $stmt->fetch();
+        return $result ? (float)$result['max_weight'] : 1.0;
+    }
+    
 
     public function unarchive() {
         if ($this->archived) {
