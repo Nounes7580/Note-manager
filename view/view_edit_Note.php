@@ -19,28 +19,18 @@ if (!isset($note)) {
 <style>
     .btn-create-note {
         position: fixed;
-        /* Fixed position */
         top: 20px;
-        /* Distance from the top */
         right: 20px;
-        /* Distance from the right */
         z-index: 1000;
-        /* Ensure it's above other items */
         background-color: transparent;
-        /* Fond transparent */
         border: none;
-        /* Supprimer la bordure */
         padding: 0;
-        /* Supprimer le rembourrage */
         cursor: pointer;
-        /* Curseur de pointeur */
     }
 
     .btn-create-note img {
         width: 30px;
-        /* Largeur de l'image */
         height: 30px;
-        /* Hauteur de l'image */
     }
 
     .bi-arrow-left {
@@ -48,20 +38,16 @@ if (!isset($note)) {
         position: fixed;
         top: 20px;
         left: 40px;
-        /* Déplacer légèrement vers la droite */
         z-index: 1000;
         color: white;
-
     }
 
     .container-form {
         margin-top: 100px;
-        /* Ajoutez plus de marge pour pousser le formulaire vers le bas */
     }
 
     #text {
         height: 300px;
-        /* Définir une hauteur spécifique pour la zone de texte */
     }
 </style>
 
@@ -78,70 +64,68 @@ if (!isset($note)) {
     </script>
     <script src="lib/validation.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <div>
-        <a href="#"><button type="submit" class="btn-create-note">
-                <img src="css/save-icon-14.png" />
-            </button></a>
-        <a href="javascript:history.back()" class="bi bi-arrow-left">
 
-        </a>
+    <div>
+        <button type="submit" class="btn-create-note" form="editTextNoteForm">
+            <img src="css/save-icon-14.png" />
+        </button>
+        <a id="backButton" href="javascript:void(0)" class="bi bi-arrow-left"></a>
     </div>
 
     <div class="container container-form">
-    <form action="notes/save_edited_note" method="post">
-        <input type="hidden" name="id" value="<?= htmlspecialchars($note->id) ?>">
+        <form id="editTextNoteForm" action="notes/save_edited_note" method="post">
+            <input type="hidden" name="id" value="<?= htmlspecialchars($note->id) ?>">
 
-        <div class="mb-3 <?= !empty($errors['title']) ? 'is-invalid' : '' ?>">
-            <input type="text" class="form-control" id="title" name="title"
-                value="<?= html_entity_decode($note->title); ?>" required
-                onchange="validateTitle()" onkeyup="validateTitle()"
-                data-original="<?= html_entity_decode($note->title); ?>">
-            <div class="invalid-feedback">
-                <?= !empty($errors['title']) ? html_entity_decode($errors['title']) : '' ?>
+            <div class="mb-3 <?= !empty($errors['title']) ? 'is-invalid' : '' ?>">
+                <input type="text" class="form-control" id="title" name="title"
+                    value="<?= html_entity_decode($note->title); ?>" required
+                    onchange="validateTitle()" onkeyup="validateTitle()"
+                    data-original="<?= html_entity_decode($note->title); ?>">
+                <div class="invalid-feedback">
+                    <?= !empty($errors['title']) ? html_entity_decode($errors['title']) : '' ?>
+                </div>
             </div>
-        </div>
 
-        <div class="mb-3 <?= !empty($errors['text']) ? 'is-invalid' : '' ?>">
-            <label for="text" class="form-label">Contenu</label>
-            <textarea class="form-control" id="text" name="text" rows="5"
-                onchange="validateContent()" onkeyup="validateContent()"
-                required><?= htmlspecialchars($note->content) ?></textarea>
-            <div class="invalid-feedback">
-                <?= !empty($errors['text']) ? htmlspecialchars($errors['text']) : '' ?>
+            <div class="mb-3 <?= !empty($errors['text']) ? 'is-invalid' : '' ?>">
+                <label for="text" class="form-label">Contenu</label>
+                <textarea class="form-control" id="text" name="text" rows="5"
+                    onchange="validateContent()" onkeyup="validateContent()"
+                    required><?= htmlspecialchars($note->content) ?></textarea>
+                <div class="invalid-feedback">
+                    <?= !empty($errors['text']) ? htmlspecialchars($errors['text']) : '' ?>
+                </div>
             </div>
-        </div>
 
-        <button type="submit" class="btn-create-note">
-            <img src="css/save-icon-14.png" />
-        </button>
-<<<<<<< HEAD
-          
+            <button type="submit" class="btn-create-note">
+                <img src="css/save-icon-14.png" />
+            </button>
         </form>
     </div>
+
     <!-- Fenêtre modale pour avertissement avant de quitter -->
     <div class="modal fade" id="unsavedChangesModal" tabindex="-1" role="dialog" aria-labelledby="unsavedChangesModalLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="unsavedChangesModalLabel">Modifications non enregistrées</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                Des modifications ont été effectuées. Êtes-vous sûr de vouloir quitter sans enregistrer ?
-            </div>
-            <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" id="cancelButton" data-bs-dismiss="modal">Annuler</button>
-                <button type="button" class="btn btn-primary" id="confirmExitButton">Quitter sans enregistrer</button>
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="unsavedChangesModalLabel">Modifications non enregistrées</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Des modifications ont été effectuées. Êtes-vous sûr de vouloir quitter sans enregistrer ?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelButton" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" id="confirmExitButton">Quitter sans enregistrer</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="<?php echo $web_root; ?>JS/modal.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="<?php echo $web_root; ?>JS/modal.js"></script>
 </body>
 
 </html>
