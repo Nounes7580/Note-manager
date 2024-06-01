@@ -23,7 +23,7 @@
                         <a class="nav-link" href="<?php echo $web_root; ?>Notes/search">Search <span class="sr-only"></span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="Notes/archives">My archives</a>
+                        <a class="nav-link" href="<?php echo $web_root; ?>Notes/archives">My archives</a>
 
 
                     <li class="nav-item">
