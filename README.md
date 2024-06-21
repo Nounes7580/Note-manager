@@ -11,6 +11,7 @@
   * bepenelle@epfc.eu, password "Password1,", utilisateur
   * xapigeolet@epfc.eu, password "Password1,", utilisateur
   * mamichel@epfc.eu, password "Password1,", utilisateur
+  
   * A compléter...
 
 ### Liste des bugs connus

@@ -32,41 +32,67 @@
     </form>
 
     <?php if (isset($selectedUser1) && isset($selectedUser2) && $selectedUser1 != '0' && $selectedUser2 != '0' && $selectedUser1 != $selectedUser2): ?>
-        <div>
-            <h3>Notes for Users :</h3>
-            <div>
-                <div style="display:inline-block; width:45%">
-                    <?php foreach ($notesUser1 as $note): ?>
-                        <div>
-
-                            <input name="notes[]" type="radio"
-                                value="<?= htmlspecialchars($note->id) ?>"><?= htmlspecialchars($note->title) ?>
-                        </div>
-
-                    <?php endforeach; ?>
-                    
-                </div>
-                <div style="display:inline-block; width:45%">
-                <?php foreach ($notesUser2 as $note): ?>
-                        <div>
-
-                            <input name="notes[]" type="radio"
-                                value="<?= htmlspecialchars($note->id) ?>"><?= htmlspecialchars($note->title) ?>
-                        </div>
-
-                    <?php endforeach; ?>
+        <form id="notes-form" method="post" action="<?= $web_root ?>/Session1_2/transfer">
+            <input type="hidden" name="source_user" value="<?= htmlspecialchars($selectedUser1) ?>">
+            <input type="hidden" name="target_user" value="<?= htmlspecialchars($selectedUser2) ?>">
+            <div id="notes-container">
+                <h3>Notes for Users :</h3>
+                <div>
+                    <div style="display:inline-block; width:45%">
+                        <?php foreach ($notesUser1 as $note): ?>
+                            <div>
+                                <input name="note_id" type="radio" value="<?= htmlspecialchars($note->id) ?>">
+                                <label><?= htmlspecialchars($note->title) ?></label>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <div style="display:inline-block; width:45%">
+                        <?php foreach ($notesUser2 as $note): ?>
+                            <div>
+                                <input name="note" type="radio" disabled>
+                                <label><?= htmlspecialchars($note->title) ?></label>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
             </div>
-        </div>
-        <br>
-        <div>
-            <button disabled>Move selected note to target User</button>
-        </div>
+            <br>
+            <div>
+                <button id="transfer-button" type="submit" disabled>Move selected note to target User</button>
+            </div>
+        </form>
     <?php else: ?>
         <div>
             <h3>You must select two different users</h3>
         </div>
     <?php endif; ?>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Enable/Disable transfer button based on radio button selection
+            $('input[name="note_id"]').on('change', function () {
+                $('#transfer-button').prop('disabled', !$('input[name="note_id"]:checked').length);
+            });
+
+            $('#notes-form').on('submit', function (event) {
+                event.preventDefault(); // Prevent default form submission
+                var formData = $(this).serialize();
+
+                $.ajax({
+                    url: '<?= $web_root ?>/Session1_2/transfer',
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        $('#notes-container').html($(response).find('#notes-container').html());
+                    },
+                    error: function () {
+                        console.error('An error occurred during the AJAX request');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>
