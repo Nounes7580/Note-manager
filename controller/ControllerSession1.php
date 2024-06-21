@@ -17,8 +17,8 @@ class ControllerSession1 extends Controller {
         $user = $this->get_user_or_redirect();
         $allUsers = User::getAllUsers();
         $selectedUser = isset($_GET['param1']) ? (int)$_GET['param1'] : null; //conversion du param 1 en int
-        if($selectedUser >0){
-            $selectedUserID = User::get_user_by_id($selectedUser);
+        if($selectedUser >0){                                                 // si pas d'utilisateur selectionné 
+            $selectedUserID = User::get_user_by_id($selectedUser);            // recup l'u
             $selectedName = $selectedUserID ->full_name;
             $notesOfUser = CheckListNote::get_notes_by_owner($selectedUser);
         }
@@ -55,7 +55,7 @@ class ControllerSession1 extends Controller {
                 foreach ($items as $item) {                 // pour chaque item récupéré
                     $item->toggleChecked();                 // on check
                     $item->update();                        // on update
-                }   
+                }                                            
                 $note->persist();                           // on persist
             }
         }

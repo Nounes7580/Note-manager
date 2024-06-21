@@ -112,7 +112,6 @@ class ControllerNotes extends Controller
     {
         // Obtenir l'utilisateur actuel ou rediriger si non connecté
         $user = $this->get_user_or_redirect();
-
         // Calculer le poids le plus élevé pour les notes de cet utilisateur
         $highestWeight = Note::get_highest_weight_by_owner($user->get_id()) + 1;
 

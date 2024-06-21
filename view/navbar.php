@@ -32,8 +32,13 @@
                             <a class="nav-link" href="<?php echo $web_root; ?>session1">Session 1</a>
                         
                             <?php endif ?>
-
-
+                    </li>
+                    <li class="nav-item">
+                        <?php if ($user ->is_admin()):?>
+                        
+                            <a class="nav-link" href="<?php echo $web_root; ?>session1_2">Session 2</a>
+                        
+                            <?php endif ?>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="<?php echo $web_root; ?>Main/settings">Settings</a>

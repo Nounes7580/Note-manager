@@ -36,7 +36,7 @@
 				<ul>
 				<!-- affichage des note de l'user si elles sont des checklistnotes -->
 
-					<?php foreach ($notesOfUser as $note): ?>
+				<?php foreach ($notesOfUser as $note): ?>
 						<?php if ($note instanceof CheckListNote): ?>
 							<li>
 								<input class="form-check-input" name="notes[]" type="checkbox"
@@ -44,9 +44,8 @@
 								(<?php echo $note->countItemsNotChecked() ?> / <?php echo $note->countItems() ?>)
 							</li>
 						<?php endif; ?>
-					<?php endforeach; ?>
-				</ul>
-				<button type="submit" id="toggle-button">Toggle check for all items of selected notes</button>
+					<?php endforeach; ?>				</ul>
+				<button disabled type="submit" id="toggle-button">Toggle check for all items of selected notes</button>
 			</form>
 		</div>
 	</div>
@@ -55,22 +54,37 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 	<script>
 		$(document).ready(function () {
-			$('#notes-form').on('submit', function (event) {
-				event.preventDefault(); // Prevent default form submission
-				var formData = $(this).serialize();
-
-				$.ajax({
-					url: '<?php echo $web_root; ?>/Session1/toggleItemsByNotes',
-					type: 'POST',
-					data: formData,
-					success: function (response) {
-						$('#notes-container').html($(response).find('#notes-container').html());
-					},
-					error: function () {
-						console.error('An error occurred during the AJAX request');
+			function bindEvents() {
+				// Enable/Disable toggle-button based on checkbox selection
+				$('input[name="notes[]"]').on('change', function () {
+					if ($('input[name="notes[]"]:checked').length > 0) {
+						$('#toggle-button').prop('disabled', false);
+					} else {
+						$('#toggle-button').prop('disabled', true);
 					}
 				});
-			});
+
+				$('#notes-form').off('submit').on('submit', function (event) {
+					event.preventDefault(); // Prevent default form submission
+					var formData = $(this).serialize();
+
+					$.ajax({
+						url: '<?php echo $web_root; ?>/Session1/toggleItemsByNotes',
+						type: 'POST',
+						data: formData,
+						success: function (response) {
+							$('#notes-container').html($(response).find('#notes-container').html());
+							// Re-bind the events to the newly loaded content
+							bindEvents();
+						},
+						error: function () {
+							console.error('An error occurred during the AJAX request');
+						}
+					});
+				});
+			}
+
+			bindEvents(); // Initial binding of events
 		});
 	</script>
 </body>
