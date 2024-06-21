@@ -17,6 +17,12 @@ class User extends Model
     ) {
     }
 
+
+    public function is_admin(): bool
+    {
+        return $this->role == 'admin';
+    }
+
     public function get_id(): ?int
     {
         return $this->id;
@@ -213,7 +219,17 @@ class User extends Model
     }
    
 
-
+    public static function getAllUsers()
+    {
+        $sql = "SELECT * FROM users";
+        $query = self::execute($sql,[]);
+        $data = $query->fetchAll();
+        $users = [];
+        foreach ($data as $row) {
+            $users[] = new User($row['mail'], $row['hashed_password'], $row['full_name'], $row["role"], $row['id']);
+        }
+        return $users;
+    }
 
     public static function getAllUsersExceptCurrent($currentUserId)
     {

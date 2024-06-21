@@ -154,6 +154,18 @@ class ControllerMain extends Controller
     
         (new View("edit_email"))->show(["user" => $user, "errors" => $errors]);
     }
+
+    public function admin(): void {
+        $user = $this->get_user_or_redirect(); // Assurez-vous que l'utilisateur est connecté
+
+        if ($user->is_admin())
+        {
+            echo "<h1>Hello !</h1>";
+        }else{
+            echo "<h1>Not admin</h1>";
+        };
+
+    }
     
 
 

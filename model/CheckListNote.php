@@ -54,6 +54,22 @@ class CheckListNote extends Note
         return $items;
     }
 
+    public function countItems(): int
+    {
+        $sql = 'SELECT COUNT(*) FROM checklist_note_items WHERE checklist_note = :id';
+        $stmt = self::execute($sql, ['id' => $this->id]);
+        return $stmt->fetchColumn(0);
+
+    }
+
+    public function countItemsNotChecked(): int
+    {
+        $sql = 'SELECT COUNT(*) FROM checklist_note_items WHERE checklist_note = :id AND checked = 0';
+        $stmt = self::execute($sql, ['id' => $this->id]);
+        return $stmt->fetchColumn(0);
+
+    }
+
     // Implement the save method as required by the abstract parent class.
 
     public function persist(): CheckListNote

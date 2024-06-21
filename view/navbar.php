@@ -27,12 +27,13 @@
 
 
                     <li class="nav-item">
-                        <?php foreach ($sharedNotes as $usershared) : ?>
-                            <a class="nav-link" href="<?php echo $web_root; ?>Notes/shared/<?= $usershared->get_id(); ?>">
-                                Shared By <?= $usershared->get_fullName(); ?>
-                            </a>
+                        <?php if ($user ->is_admin()):?>
+                        
+                            <a class="nav-link" href="<?php echo $web_root; ?>session1">Session 1</a>
+                        
+                            <?php endif ?>
 
-                        <?php endforeach; ?>
+
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="<?php echo $web_root; ?>Main/settings">Settings</a>
